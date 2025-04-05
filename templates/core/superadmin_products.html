@@ -3,6 +3,11 @@
 
 {% block title %}Gerenciar Produtos - AgroMarketplace{% endblock %}
 
+{% block extra_js %}
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+{% endblock %}
+
 {% block content %}
 <div class="container py-4">
     <div class="row mb-4">
@@ -84,9 +89,9 @@
                                         {% endif %}
                                     </td>
                                     <td>{{ product.name }}</td>
-                                    <td>{{ product.category.name }}</td>
-                                    <td>R$ {{ product.price }}</td>
-                                    <td>{{ product.available_volume }} {{ product.get_unit_display }}</td>
+                                    <td>{{ product.get_product_type_display }}</td>
+                                    <td>{{ product.get_price_display }}</td>
+                                    <td>{{ product.get_stock_display }}</td>
                                     <td>
                                         {% if product.is_active %}
                                         <span class="badge bg-success">Ativo</span>

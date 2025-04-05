@@ -27,6 +27,7 @@ from vendas.models import Venda
 import os
 import json
 from django.views.decorators.csrf import csrf_exempt
+from .decorators import superuser_required
 
 logger = logging.getLogger(__name__)
 
@@ -113,11 +114,31 @@ def seller_registration(request):
             user = form.save(commit=False)
             user.is_active = False
             user.save()
+            
+            # Criar o vendedor associado
+            vendedor = Vendedor.objects.create(
+                usuario=user,
+                razao_social=form.cleaned_data['razao_social'],
+                nome_fantasia=form.cleaned_data['nome_fantasia'],
+                cnpj=form.cleaned_data['cnpj'],
+                inscricao_estadual=form.cleaned_data['inscricao_estadual'],
+                telefone=form.cleaned_data['telefone'],
+                rua=form.cleaned_data['rua'],
+                numero=form.cleaned_data['numero'],
+                cidade=form.cleaned_data['cidade'],
+                estado=form.cleaned_data['estado'],
+                cep=form.cleaned_data['cep'],
+                hectares_atendidos=form.cleaned_data['hectares_atendidos'],
+                rg=form.cleaned_data['rg'],
+                cnh=form.cleaned_data['cnh']
+            )
+            
             send_confirmation_email(user, request)
             messages.success(request, 'Por favor, confirme seu email para completar o registro.')
             return redirect('core:login')
     else:
         form = SellerRegistrationForm()
+    
     return render(request, 'core/seller_registration.html', {'form': form})
 
 @login_required
@@ -392,8 +413,43 @@ def reprovar_vendedor(request, vendedor_id):
 @user_passes_test(is_superadmin)
 def superadmin_products(request):
     """Lista todos os produtos para o superadmin"""
+    # Filtros
+    category = request.GET.get('category')
+    status = request.GET.get('status')
+    search_query = request.GET.get('search')
+
+    # Query base
     products = Product.objects.all()
-    return render(request, 'core/superadmin_products.html', {'products': products})
+
+    # Aplicar filtros
+    if category:
+        products = products.filter(product_type=category)
+    if status:
+        is_active = status == 'active'
+        products = products.filter(is_active=is_active)
+    if search_query:
+        products = products.filter(
+            Q(name__icontains=search_query) |
+            Q(description__icontains=search_query)
+        )
+
+    # Ordenar por data de criação
+    products = products.order_by('-created_at')
+
+    # Categorias para o filtro
+    categories = [
+        {'id': choice[0], 'name': choice[1]} 
+        for choice in Product.PRODUCT_TYPE_CHOICES
+    ]
+
+    context = {
+        'products': products,
+        'categories': categories,
+        'selected_category': category,
+        'selected_status': status,
+        'search_query': search_query,
+    }
+    return render(request, 'core/superadmin_products.html', context)
 
 @login_required
 @user_passes_test(is_superadmin)
@@ -405,9 +461,16 @@ def superadmin_product_create(request):
             form.save()
             messages.success(request, 'Produto criado com sucesso!')
             return redirect('core:superadmin_products')
+        else:
+            messages.error(request, 'Por favor, corrija os erros abaixo.')
     else:
         form = ProductForm()
-    return render(request, 'core/superadmin_product_form.html', {'form': form})
+    
+    context = {
+        'form': form,
+        'title': 'Criar Novo Produto'
+    }
+    return render(request, 'core/superadmin_product_form.html', context)
 
 @login_required
 @user_passes_test(is_superadmin)
@@ -485,31 +548,33 @@ def listar_superadmins(request):
     return render(request, 'core/superadmin_list.html', {'superadmins': superadmins})
 
 @login_required
-@user_passes_test(lambda u: u.is_superuser)
+@superuser_required
 def cadastrar_vendedor(request):
     """Cadastra um novo vendedor"""
     if request.method == 'POST':
         form = SellerRegistrationForm(request.POST, request.FILES)
         if form.is_valid():
             user = form.save(commit=False)
-            user.is_active = True
-            user.save()
-            
-            # Criar o vendedor associado ao usuário
+            user.is_vendedor = True
+            user.save()  # Primeiro salvamos o usuário
+
+            # Agora criamos o vendedor com os dados do usuário
             vendedor = Vendedor.objects.create(
                 usuario=user,
-                razao_social=form.cleaned_data['nome'],
-                nome_fantasia=form.cleaned_data['nome'],
-                cnpj=form.cleaned_data.get('cpf'),
+                nome_fantasia=f"{form.cleaned_data['nome']} {form.cleaned_data['sobrenome']}",
                 telefone=form.cleaned_data['telefone'],
-                endereco=form.cleaned_data['rua'],
-                cep=form.cleaned_data['cep']
+                endereco=form.cleaned_data['endereco'],
+                cidade=form.cleaned_data['cidade'],
+                estado=form.cleaned_data['estado'],
+                cep=form.cleaned_data['cep'],
+                hectares_atendidos=form.cleaned_data['hectares_atendidos']
             )
-            
+
             messages.success(request, 'Vendedor cadastrado com sucesso!')
             return redirect('core:listar_vendedores')
     else:
         form = SellerRegistrationForm()
+    
     return render(request, 'core/cadastrar_vendedor.html', {'form': form})
 
 @login_required

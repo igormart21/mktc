@@ -2,13 +2,14 @@ from django.db import models
 from django.conf import settings
 from decimal import Decimal
 from django.db.models import F, Sum
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.core.exceptions import ValidationError
 import os
 from vendedor.models import Vendedor
 from usuarios.models import Usuario
 from django.contrib.auth import get_user_model
 from django.utils import timezone
+from django.contrib.auth.models import AbstractUser
 
 def product_image_path(instance, filename):
     return f'products/{filename}'
@@ -265,3 +266,40 @@ class SolicitacaoProduto(models.Model):
     class Meta:
         verbose_name = 'Solicitação de Produto'
         verbose_name_plural = 'Solicitações de Produtos'
+
+class Usuario(AbstractUser):
+    username = None
+    first_name = None
+    last_name = None
+    
+    nome = models.CharField(max_length=100, verbose_name='Nome', null=True, blank=True)
+    sobrenome = models.CharField(max_length=100, verbose_name='Sobrenome', null=True, blank=True)
+    email = models.EmailField(unique=True, verbose_name='E-mail', null=True, blank=True)
+    cpf = models.CharField(max_length=11, unique=True, verbose_name='CPF', null=True, blank=True)
+    telefone = models.CharField(max_length=20, verbose_name='Telefone', null=True, blank=True)
+    cep = models.CharField(max_length=9, verbose_name='CEP', null=True, blank=True)
+    endereco = models.CharField(max_length=255, verbose_name='Endereço', null=True, blank=True)
+    cidade = models.CharField(max_length=100, verbose_name='Cidade', null=True, blank=True)
+    estado = models.CharField(max_length=2, verbose_name='Estado', null=True, blank=True)
+    tipo_documento = models.CharField(
+        max_length=3,
+        choices=[('RG', 'RG'), ('CNH', 'CNH')],
+        verbose_name='Tipo de Documento',
+        null=True,
+        blank=True
+    )
+    numero_documento = models.CharField(max_length=20, verbose_name='Número do Documento', null=True, blank=True)
+    arquivo_documento = models.FileField(upload_to='documentos/', verbose_name='Arquivo do Documento', null=True, blank=True)
+    hectares_atendidos = models.IntegerField(
+        default=10,
+        validators=[MinValueValidator(10), MaxValueValidator(300)],
+        verbose_name='Hectares Atendidos',
+        null=True,
+        blank=True
+    )
+    
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = []
+    
+    def __str__(self):
+        return f"{self.nome} {self.sobrenome}" if self.nome and self.sobrenome else self.email

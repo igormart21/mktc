@@ -3,26 +3,9 @@ from .models import Vendedor
 
 @admin.register(Vendedor)
 class VendedorAdmin(admin.ModelAdmin):
-    list_display = (
-        'get_nome_usuario',
-        'razao_social',
-        'nome_fantasia',
-        'cnpj',
-        'telefone',
-        'cidade',
-        'estado',
-        'created_at'
-    )
-    list_filter = ('estado', 'created_at')
-    search_fields = (
-        'usuario__email',
-        'usuario__nome',
-        'razao_social',
-        'nome_fantasia',
-        'cnpj',
-        'telefone',
-        'cidade'
-    )
+    list_display = ('usuario', 'nome_fantasia', 'inscricao_estadual', 'telefone', 'cidade', 'estado')
+    search_fields = ('usuario__email', 'nome_fantasia', 'cidade', 'estado')
+    list_filter = ('estado', 'cidade')
     readonly_fields = ('created_at', 'updated_at')
     fieldsets = (
         ('Informações do Usuário', {
@@ -43,6 +26,18 @@ class VendedorAdmin(admin.ModelAdmin):
                 'cidade',
                 'estado',
                 'cep'
+            )
+        }),
+        ('Informações do Jogo', {
+            'fields': (
+                'nivel',
+                'pontos_experiencia',
+                'moedas',
+                'conquistas',
+                'itens_inventario',
+                'ultima_missao',
+                'missoes_completadas',
+                'ranking'
             )
         }),
         ('Informações de Sistema', {
