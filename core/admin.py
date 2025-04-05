@@ -1,23 +1,5 @@
 from django.contrib import admin
-from .models import Category, Product, Order, OrderItem, SellerRegistration
-
-@admin.register(Category)
-class CategoryAdmin(admin.ModelAdmin):
-    list_display = ('name', 'created_at')
-    search_fields = ('name',)
-    ordering = ('name',)
-
-@admin.register(Product)
-class ProductAdmin(admin.ModelAdmin):
-    list_display = ('name', 'category', 'price', 'available_volume', 'unit', 'is_active', 'created_at')
-    list_filter = ('is_active', 'category', 'product_type', 'created_at')
-    search_fields = ('name', 'description', 'manufacturer')
-    readonly_fields = ('created_at', 'updated_at')
-    list_per_page = 20
-    date_hierarchy = 'created_at'
-    
-    def get_queryset(self, request):
-        return super().get_queryset(request).select_related('category')
+from .models import Order, OrderItem, SellerRegistration
 
 class OrderItemInline(admin.TabularInline):
     model = OrderItem
@@ -40,7 +22,7 @@ class OrderAdmin(admin.ModelAdmin):
 @admin.register(OrderItem)
 class OrderItemAdmin(admin.ModelAdmin):
     list_display = ('order', 'product', 'quantity', 'unit_price', 'subtotal')
-    list_filter = ('order__status', 'product__category')
+    list_filter = ('order__status',)
     search_fields = ('order__id', 'product__name')
 
 @admin.register(SellerRegistration)
@@ -49,3 +31,7 @@ class SellerRegistrationAdmin(admin.ModelAdmin):
     list_filter = ('status', 'tipo_documento')
     search_fields = ('user__username', 'user__email', 'numero_documento')
     readonly_fields = ('data_criacao', 'data_atualizacao')
+    
+    class Meta:
+        verbose_name = 'Cadastro de Vendedor'
+        verbose_name_plural = 'Cadastros de Vendedores'

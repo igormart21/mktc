@@ -7,23 +7,11 @@ from django.core.exceptions import ValidationError
 import os
 from vendedor.models import Vendedor
 from usuarios.models import Usuario
+from django.contrib.auth import get_user_model
+from django.utils import timezone
 
 def product_image_path(instance, filename):
     return f'products/{filename}'
-
-class Category(models.Model):
-    name = models.CharField(max_length=100)
-    description = models.TextField(blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        verbose_name = 'Categoria'
-        verbose_name_plural = 'Categorias'
-        ordering = ['name']
-
-    def __str__(self):
-        return self.name
 
 class Product(models.Model):
     UNIT_CHOICES = [
@@ -57,7 +45,6 @@ class Product(models.Model):
         ('EUR', 'Euro (€)'),
     ]
 
-    category = models.ForeignKey(Category, on_delete=models.PROTECT, related_name='products', verbose_name='Categoria')
     name = models.CharField(max_length=200, verbose_name='Nome')
     description = models.TextField(blank=True, verbose_name='Descrição')
     price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Preço')
@@ -110,12 +97,13 @@ class Product(models.Model):
             raise ValidationError('A quantidade mínima não pode ser maior que o volume disponível.')
 
     def get_price_display(self):
-        currency_symbol = {
+        currency_symbols = {
             'BRL': 'R$',
             'USD': '$',
             'EUR': '€'
-        }.get(self.currency, self.currency)
-        return f"{currency_symbol} {self.price:.2f}"
+        }
+        symbol = currency_symbols.get(self.currency, self.currency)
+        return f"{symbol} {self.price:.2f}"
 
     def get_stock_display(self):
         return f"{self.available_volume} {self.get_unit_display()}"
@@ -215,65 +203,65 @@ class VendorApplication(models.Model):
         ('rejected', 'Rejeitado'),
     ]
 
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
+    user = models.OneToOneField(Usuario, on_delete=models.CASCADE)
+    company_name = models.CharField(max_length=200, default='')
+    cnpj = models.CharField(max_length=14, unique=True, default='00000000000000')
+    address = models.TextField(default='')
+    phone = models.CharField(max_length=20, default='')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    documents = models.FileField(upload_to='vendor_documents/', null=True, blank=True)
     notes = models.TextField(blank=True, null=True)
 
-    class Meta:
-        verbose_name = 'Aplicação de Vendedor'
-        verbose_name_plural = 'Aplicações de Vendedores'
-        ordering = ['-created_at']
-
     def __str__(self):
-        return f"Aplicação de {self.user.get_full_name()}"
+        return f'Aplicação de {self.company_name}'
 
 class MensagemSuporte(models.Model):
-    ASSUNTO_CHOICES = [
-        ('DUVIDA', 'Dúvida'),
-        ('PROBLEMA', 'Problema'),
-        ('SUGESTAO', 'Sugestão'),
-        ('OUTRO', 'Outro'),
-    ]
-    
-    usuario = models.ForeignKey('usuarios.Usuario', on_delete=models.CASCADE, related_name='mensagens_suporte')
-    assunto = models.CharField(max_length=20, choices=ASSUNTO_CHOICES)
+    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    assunto = models.CharField(max_length=200)
     mensagem = models.TextField()
     data_envio = models.DateTimeField(auto_now_add=True)
     respondido = models.BooleanField(default=False)
     resposta = models.TextField(blank=True, null=True)
     data_resposta = models.DateTimeField(null=True, blank=True)
-    
+
     class Meta:
-        ordering = ['-data_envio']
         verbose_name = 'Mensagem de Suporte'
         verbose_name_plural = 'Mensagens de Suporte'
-        
+        ordering = ['-data_envio']
+
     def __str__(self):
-        return f'Mensagem de {self.usuario.username} - {self.get_assunto_display()}'
+        return f"Mensagem de {self.usuario.get_full_name()} - {self.assunto}"
 
 class SolicitacaoProduto(models.Model):
     STATUS_CHOICES = [
-        ('PENDENTE', 'Pendente'),
-        ('ANALISADO', 'Analisado'),
+        ('pendente', 'Pendente'),
+        ('aprovada', 'Aprovada'),
+        ('rejeitada', 'Rejeitada')
     ]
     
-    vendedor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='solicitacoes_produtos')
-    nome_produto = models.CharField(max_length=100)
-    categoria_sugerida = models.CharField(max_length=100)
-    descricao = models.TextField()
-    volume = models.CharField(max_length=50, blank=True, null=True)
-    unidade = models.CharField(max_length=50, blank=True, null=True)
-    fabricante = models.CharField(max_length=100, blank=True, null=True)
-    data_solicitacao = models.DateTimeField(auto_now_add=True)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PENDENTE')
-    resposta_superadmin = models.TextField(blank=True, null=True)
+    UNIDADE_CHOICES = [
+        ('kg', 'Quilograma'),
+        ('g', 'Grama'),
+        ('l', 'Litro'),
+        ('ml', 'Mililitro'),
+        ('un', 'Unidade')
+    ]
     
+    nome_produto = models.CharField(max_length=200)
+    descricao = models.TextField()
+    categoria_sugerida = models.CharField(max_length=100)
+    quantidade = models.PositiveIntegerField(default=1)
+    unidade_medida = models.CharField(max_length=2, choices=UNIDADE_CHOICES, default='un')
+    vendedor = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='solicitacoes_produto')
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pendente')
+    data_solicitacao = models.DateTimeField(auto_now_add=True)
+    data_analise = models.DateTimeField(null=True, blank=True)
+    resposta_superadmin = models.TextField(null=True, blank=True)
+
+    def __str__(self):
+        return f'Solicitação de {self.nome_produto} por {self.vendedor.email}'
+
     class Meta:
         verbose_name = 'Solicitação de Produto'
         verbose_name_plural = 'Solicitações de Produtos'
-        ordering = ['-data_solicitacao']
-    
-    def __str__(self):
-        return f"{self.nome_produto} - {self.vendedor.username}"

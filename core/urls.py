@@ -53,12 +53,6 @@ urlpatterns = [
     path('superadmin/pedidos/<int:order_id>/', views.superadmin_order_detail, name='superadmin_order_detail'),
     path('superadmin/pedidos/<int:order_id>/excluir/', views.superadmin_order_delete, name='superadmin_order_delete'),
 
-    # URLs de Categorias
-    path('categorias/', views.category_list, name='category_list'),
-    path('categorias/criar/', views.category_create, name='category_create'),
-    path('categorias/<int:pk>/editar/', views.category_update, name='category_update'),
-    path('categorias/<int:pk>/excluir/', views.category_delete, name='category_delete'),
-
     # URLs de gerenciamento de vendedores
     path('vendedores/<int:seller_id>/', views.seller_detail, name='seller_detail'),
     path('vendedores/<int:seller_id>/editar/', views.seller_edit, name='seller_edit'),

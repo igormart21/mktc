@@ -3,7 +3,7 @@ from .models import Produto
 
 @admin.register(Produto)
 class ProdutoAdmin(admin.ModelAdmin):
-    list_display = ('nome', 'categoria', 'tipo', 'variedade', 'validade', 'preco', 'permite_troca', 'vendedor')
+    list_display = ('nome', 'get_categoria_display', 'tipo', 'variedade', 'validade', 'preco', 'permite_troca', 'vendedor')
     list_filter = ('categoria', 'tipo', 'moeda', 'validade', 'permite_troca')
     search_fields = ('nome', 'variedade', 'fabricante', 'lote')
     readonly_fields = ('created_at', 'updated_at')
