@@ -41,7 +41,7 @@
                                 </a>
                             </li>
                         {% endif %}
-                        {% if user.seller %}
+                        {% if user|is_vendedor %}
                             <li class="nav-item">
                                 <a class="nav-link text-dark fw-medium d-flex align-items-center gap-2" href="{% url 'core:seller_dashboard' %}">
                                     <i class="fas fa-tachometer-alt text-secondary" style="font-size: 1rem; line-height: 1;"></i>
