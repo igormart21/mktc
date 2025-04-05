@@ -494,11 +494,23 @@ def cadastrar_vendedor(request):
             user = form.save(commit=False)
             user.is_active = True
             user.save()
+            
+            # Criar o vendedor associado ao usuário
+            vendedor = Vendedor.objects.create(
+                usuario=user,
+                razao_social=form.cleaned_data['nome'],
+                nome_fantasia=form.cleaned_data['nome'],
+                cnpj=form.cleaned_data.get('cpf'),
+                telefone=form.cleaned_data['telefone'],
+                endereco=form.cleaned_data['rua'],
+                cep=form.cleaned_data['cep']
+            )
+            
             messages.success(request, 'Vendedor cadastrado com sucesso!')
             return redirect('core:listar_vendedores')
     else:
         form = SellerRegistrationForm()
-    return render(request, 'core/seller_registration.html', {'form': form})
+    return render(request, 'core/cadastrar_vendedor.html', {'form': form})
 
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
