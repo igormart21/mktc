@@ -87,14 +87,15 @@ class Product(models.Model):
         return dict(self.CURRENCY_CHOICES).get(self.currency, self.currency)
 
     def clean(self):
-        if self.available_volume < 0:
+        if self.available_volume is not None and self.available_volume < 0:
             raise ValidationError('O volume disponível não pode ser negativo.')
-        if self.price < 0:
+        if self.price is not None and self.price < 0:
             raise ValidationError('O preço não pode ser negativo.')
-        if self.minimum_quantity is not None and self.minimum_quantity < 0:
-            raise ValidationError('A quantidade mínima não pode ser negativa.')
-        if self.minimum_quantity is not None and self.minimum_quantity > self.available_volume:
-            raise ValidationError('A quantidade mínima não pode ser maior que o volume disponível.')
+        if self.minimum_quantity is not None:
+            if self.minimum_quantity < 0:
+                raise ValidationError('A quantidade mínima não pode ser negativa.')
+            if self.available_volume is not None and self.minimum_quantity > self.available_volume:
+                raise ValidationError('A quantidade mínima não pode ser maior que o volume disponível.')
 
     def get_price_display(self):
         currency_symbols = {

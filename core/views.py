@@ -407,7 +407,10 @@ def superadmin_product_create(request):
             return redirect('core:superadmin_products')
     else:
         form = ProductForm()
-    return render(request, 'core/superadmin_product_form.html', {'form': form})
+    return render(request, 'core/superadmin_product_form.html', {
+        'form': form,
+        'title': 'Criar Novo Produto'
+    })
 
 @login_required
 @user_passes_test(is_superadmin)
