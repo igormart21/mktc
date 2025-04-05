@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Listar Vendedores - AgroMais{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card mb-4">
+                <div class="card-header pb-0">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h6>Lista de Vendedores</h6>
+                        <form method="get" class="d-flex gap-2">
+                            <select name="status" class="form-select" onchange="this.form.submit()">
+                                <option value="">Todos os Status</option>
+                                {% for status_value, status_label in status_choices %}
+                                    <option value="{{ status_value }}" {% if status_value == status_filter %}selected{% endif %}>
+                                        {{ status_label }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </form>
+                    </div>
+                </div>
+                <div class="card-body px-0 pt-0 pb-2">
+                    <div class="table-responsive p-0">
+                        <table class="table align-items-center mb-0">
+                            <thead>
+                                <tr>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Vendedor</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">CNPJ</th>
+                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Status</th>
+                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Data Cadastro</th>
+                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for vendedor in vendedores %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex px-2 py-1">
+                                            <div class="d-flex flex-column justify-content-center">
+                                                <h6 class="mb-0 text-sm">{{ vendedor.nome_fantasia }}</h6>
+                                                <p class="text-xs text-secondary mb-0">{{ vendedor.email }}</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <p class="text-xs font-weight-bold mb-0">{{ vendedor.cnpj }}</p>
+                                    </td>
+                                    <td class="align-middle text-center text-sm">
+                                        <span class="badge badge-sm bg-{% if vendedor.status == 'Aprovado' %}success{% elif vendedor.status == 'Reprovado' %}danger{% else %}warning{% endif %}">
+                                            {{ vendedor.status }}
+                                        </span>
+                                    </td>
+                                    <td class="align-middle text-center">
+                                        <span class="text-secondary text-xs font-weight-bold">{{ vendedor.data_cadastro|date:"d/m/Y H:i" }}</span>
+                                    </td>
+                                    <td class="align-middle text-center">
+                                        {% if vendedor.status == 'Pendente' %}
+                                            <a href="{% url 'vendedores:aprovar_vendedor' vendedor.id %}" class="btn btn-success btn-sm">
+                                                <i class="fas fa-check"></i> Aprovar
+                                            </a>
+                                            <a href="{% url 'vendedores:reprovar_vendedor' vendedor.id %}" class="btn btn-danger btn-sm">
+                                                <i class="fas fa-times"></i> Reprovar
+                                            </a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center">Nenhum vendedor encontrado.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

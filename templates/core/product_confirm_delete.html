@@ -1,0 +1,41 @@
+{% extends "base_internal.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}Excluir Produto - AgroMarketplace{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    {% include 'core/partials/back_button.html' %}
+    
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-trash me-2 text-danger"></i>Excluir Produto
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p class="mb-4">
+                        Tem certeza que deseja excluir o produto "{{ product.nome }}"?
+                        Esta ação não pode ser desfeita.
+                    </p>
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="d-flex justify-content-between">
+                            <button onclick="history.back()" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Voltar
+                            </button>
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-trash me-2"></i>Excluir
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,173 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Dashboard do Administrador - AgroMarketplace{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <i class="fas fa-user-shield text-primary mb-3" style="font-size: 4rem;"></i>
+        <h1 class="display-5 mb-2">Bem-vindo,</h1>
+        <p class="lead text-muted">Painel de Controle do Administrador</p>
+    </div>
+
+    <!-- Cards de Estatísticas -->
+    <div class="row mb-5">
+        <div class="col-md-3">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="fas fa-users text-primary mb-3" style="font-size: 2rem;"></i>
+                    <h3 class="display-6">{{ total_sellers }}</h3>
+                    <p class="text-muted mb-0">Total de Vendedores</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="fas fa-store text-success mb-3" style="font-size: 2rem;"></i>
+                    <h3 class="display-6">{{ active_sellers }}</h3>
+                    <p class="text-muted mb-0">Vendedores Ativos</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="fas fa-box text-info mb-3" style="font-size: 2rem;"></i>
+                    <h3 class="display-6">{{ total_products }}</h3>
+                    <p class="text-muted mb-0">Produtos Cadastrados</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="fas fa-shopping-cart text-warning mb-3" style="font-size: 2rem;"></i>
+                    <h3 class="display-6">{{ total_orders }}</h3>
+                    <p class="text-muted mb-0">Total de Pedidos</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabela de Vendedores Pendentes -->
+    <div class="card shadow-sm mb-5">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Vendedores Pendentes de Aprovação</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>CPF</th>
+                            <th>Telefone</th>
+                            <th>Email</th>
+                            <th>Endereço</th>
+                            <th>Hectares</th>
+                            <th>Documentos</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for vendedor in vendedores_pendentes %}
+                        <tr>
+                            <td>{{ vendedor.usuario.nome }}</td>
+                            <td>{{ vendedor.cpf }}</td>
+                            <td>{{ vendedor.telefone }}</td>
+                            <td>{{ vendedor.usuario.email }}</td>
+                            <td>{{ vendedor.endereco }}</td>
+                            <td>{{ vendedor.hectares_atendidos }}</td>
+                            <td>
+                                {% if vendedor.rg %}
+                                <a href="{{ vendedor.rg.url }}" target="_blank" class="btn btn-sm btn-info">
+                                    <i class="fas fa-id-card"></i> RG
+                                </a>
+                                {% endif %}
+                                {% if vendedor.cnh %}
+                                <a href="{{ vendedor.cnh.url }}" target="_blank" class="btn btn-sm btn-info">
+                                    <i class="fas fa-id-card"></i> CNH
+                                </a>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <form method="post" action="{% url 'core:aprovar_vendedor' vendedor.id %}" class="d-inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-success">
+                                        <i class="fas fa-check"></i> Aprovar
+                                    </button>
+                                </form>
+                                <form method="post" action="{% url 'core:reprovar_vendedor' vendedor.id %}" class="d-inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-danger">
+                                        <i class="fas fa-times"></i> Reprovar
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center">Nenhum vendedor pendente de aprovação</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabela de Vendedores Aprovados -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-success text-white">
+            <h5 class="mb-0">Vendedores Aprovados</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>CPF</th>
+                            <th>Telefone</th>
+                            <th>Email</th>
+                            <th>Endereço</th>
+                            <th>Hectares</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for vendedor in vendedores_aprovados %}
+                        <tr>
+                            <td>{{ vendedor.usuario.nome }}</td>
+                            <td>{{ vendedor.cpf }}</td>
+                            <td>{{ vendedor.telefone }}</td>
+                            <td>{{ vendedor.usuario.email }}</td>
+                            <td>{{ vendedor.endereco }}</td>
+                            <td>{{ vendedor.hectares_atendidos }}</td>
+                            <td>
+                                <span class="badge bg-success">Aprovado</span>
+                            </td>
+                            <td>
+                                <form method="post" action="{% url 'core:reprovar_vendedor' vendedor.id %}" class="d-inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-danger">
+                                        <i class="fas fa-times"></i> Desaprovar
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center">Nenhum vendedor aprovado</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

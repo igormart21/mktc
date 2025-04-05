@@ -1,0 +1,180 @@
+{% extends "base_internal.html" %}
+{% load static %}
+
+{% block title %}Dashboard do Vendedor - AgroMais{% endblock %}
+
+{% block content %}
+<div class="container py-2">
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="h3 mb-2">Bem-vindo(a), {{ vendedor.nome_fantasia|default:vendedor.razao_social|default:user.nome }}</h1>
+            <p class="text-muted">Gerencie seus produtos e vendas</p>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="bg-primary bg-opacity-10 rounded-circle p-3 me-3">
+                            <i class="fas fa-shopping-bag text-primary" style="font-size: 1.5rem;"></i>
+                        </div>
+                        <div>
+                            <h6 class="card-subtitle mb-1 text-muted">Total de Produtos</h6>
+                            <h3 class="card-title mb-0">{{ total_produtos }}</h3>
+                        </div>
+                    </div>
+                    <a href="{% url 'core:products' %}" class="btn btn-outline-primary w-100">
+                        <i class="fas fa-shopping-bag text-primary me-2"></i>Ver Produtos
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="bg-success bg-opacity-10 rounded-circle p-3 me-3">
+                            <i class="fas fa-shopping-cart text-success" style="font-size: 1.5rem;"></i>
+                        </div>
+                        <div>
+                            <h6 class="card-subtitle mb-1 text-muted">Total em Vendas</h6>
+                            <h3 class="card-title mb-0">R$ {{ total_compras|floatformat:2 }}</h3>
+                        </div>
+                    </div>
+                    <a href="{% url 'vendas:historico_vendas' %}" class="btn btn-outline-success w-100">
+                        <i class="fas fa-history text-success me-2"></i>Histórico de Vendas
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="bg-info bg-opacity-10 rounded-circle p-3 me-3">
+                            <i class="fas fa-user text-info" style="font-size: 1.5rem;"></i>
+                        </div>
+                        <div>
+                            <h6 class="card-subtitle mb-1 text-muted">Meu Perfil</h6>
+                            <h3 class="card-title mb-0">{{ vendedor.nome_fantasia|default:vendedor.razao_social|default:user.nome }}</h3>
+                        </div>
+                    </div>
+                    <a href="{% url 'core:profile' %}" class="btn btn-outline-info w-100">
+                        <i class="fas fa-user-circle text-info me-2"></i>Editar Perfil
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Produtos -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white py-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas fa-box text-info me-2"></i>
+                    Meus Produtos
+                </h5>
+                <a href="{% url 'core:products' %}" class="btn btn-primary">
+                    <i class="fas fa-shopping-bag text-white me-2"></i>Ver Todos os Produtos
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Descrição</th>
+                            <th class="text-end">Preço</th>
+                            <th class="text-center">Volume</th>
+                            <th class="text-center">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for produto in produtos_recentes %}
+                        <tr>
+                            <td>{{ produto.nome }}</td>
+                            <td>{{ produto.descricao|truncatechars:50 }}</td>
+                            <td class="text-end">R$ {{ produto.preco|floatformat:2 }}</td>
+                            <td class="text-center">{{ produto.volume_disponivel }}</td>
+                            <td class="text-center">
+                                <span class="badge bg-success">Disponível</span>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center py-4">
+                                <div class="text-muted">
+                                    <i class="fas fa-box fa-2x mb-3"></i>
+                                    <p class="mb-0">Nenhum produto cadastrado</p>
+                                    <small class="text-muted">Cadastre seus produtos para começar a vender.</small>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Histórico de Vendas -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white py-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas fa-history text-warning me-2"></i>
+                    Histórico de Vendas
+                </h5>
+                <a href="{% url 'vendas:historico_vendas' %}" class="btn btn-outline-warning">
+                    <i class="fas fa-history text-warning me-2"></i>Ver Histórico Completo
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Data</th>
+                            <th>Status</th>
+                            <th class="text-end">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for pedido in pedidos_recentes %}
+                        <tr>
+                            <td>#{{ pedido.id }}</td>
+                            <td>{{ pedido.data_criacao|date:"d/m/Y H:i" }}</td>
+                            <td>
+                                <span class="badge {% if pedido.status == 'PENDENTE' %}bg-warning{% elif pedido.status == 'ACEITO' %}bg-success{% else %}bg-danger{% endif %}">
+                                    {{ pedido.get_status_display }}
+                                </span>
+                            </td>
+                            <td class="text-end">R$ {{ pedido.produto.preco|floatformat:2 }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center py-4">
+                                <div class="text-muted">
+                                    <i class="fas fa-shopping-cart fa-2x mb-3"></i>
+                                    <p class="mb-0">Nenhuma venda realizada</p>
+                                    <small class="text-muted">Suas vendas aparecerão aqui.</small>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

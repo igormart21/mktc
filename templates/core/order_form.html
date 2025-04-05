@@ -1,0 +1,159 @@
+{% extends "base_internal.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}{% if order %}Editar{% else %}Novo{% endif %} Pedido - AgroMarketplace{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    {% include 'core/partials/back_button.html' %}
+    
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0">
+                        <i class="fas fa-shopping-cart text-primary me-2"></i>
+                        {% if order %}Editar{% else %}Novo{% endif %} Pedido
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" id="orderForm">
+                        {% csrf_token %}
+                        
+                        <div class="mb-4">
+                            <label for="customer_name" class="form-label">Nome do Cliente</label>
+                            <input type="text" class="form-control" id="customer_name" name="customer_name" value="{{ order.customer_name }}" required>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h6 class="mb-0">Itens do Pedido</h6>
+                                <button type="button" class="btn btn-sm btn-success" onclick="addItem()">
+                                    <i class="fas fa-plus me-2"></i>Adicionar Item
+                                </button>
+                            </div>
+                            
+                            <div id="items-container">
+                                {% if order %}
+                                    {% for item in order.items.all %}
+                                    <div class="item-row card mb-3">
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <div class="col-md-6 mb-3">
+                                                    <label class="form-label">Produto</label>
+                                                    <select name="items" class="form-select" required>
+                                                        {% for product in products %}
+                                                        <option value="{{ product.id }}" {% if product.id == item.product.id %}selected{% endif %}>
+                                                            {{ product.name }} - R$ {{ product.price|floatformat:2 }}
+                                                        </option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-4 mb-3">
+                                                    <label class="form-label">Quantidade</label>
+                                                    <input type="number" name="quantities" class="form-control" value="{{ item.quantity }}" min="1" required>
+                                                </div>
+                                                <div class="col-md-2 d-flex align-items-end">
+                                                    <button type="button" class="btn btn-danger w-100" onclick="removeItem(this)">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                {% else %}
+                                    <div class="item-row card mb-3">
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <div class="col-md-6 mb-3">
+                                                    <label class="form-label">Produto</label>
+                                                    <select name="items" class="form-select" required>
+                                                        <option value="">Selecione um produto</option>
+                                                        {% for product in products %}
+                                                        <option value="{{ product.id }}">
+                                                            {{ product.name }} - R$ {{ product.price|floatformat:2 }}
+                                                        </option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-4 mb-3">
+                                                    <label class="form-label">Quantidade</label>
+                                                    <input type="number" name="quantities" class="form-control" value="1" min="1" required>
+                                                </div>
+                                                <div class="col-md-2 d-flex align-items-end">
+                                                    <button type="button" class="btn btn-danger w-100" onclick="removeItem(this)">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-end">
+                            <a href="{% if user.is_superuser %}{% url 'core:superadmin_dashboard' %}{% else %}{% url 'core:seller_dashboard' %}{% endif %}" class="btn btn-outline-secondary me-2">Cancelar</a>
+                            <button type="submit" class="btn btn-primary">Salvar Pedido</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function addItem() {
+    const container = document.getElementById('items-container');
+    const template = `
+        <div class="item-row card mb-3">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Produto</label>
+                        <select name="items" class="form-select" required>
+                            <option value="">Selecione um produto</option>
+                            {% for product in products %}
+                            <option value="{{ product.id }}">
+                                {{ product.name }} - R$ {{ product.price|floatformat:2 }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Quantidade</label>
+                        <input type="number" name="quantities" class="form-control" value="1" min="1" required>
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button type="button" class="btn btn-danger w-100" onclick="removeItem(this)">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    container.insertAdjacentHTML('beforeend', template);
+}
+
+function removeItem(button) {
+    const container = document.getElementById('items-container');
+    if (container.children.length > 1) {
+        button.closest('.item-row').remove();
+    } else {
+        alert('O pedido deve ter pelo menos um item.');
+    }
+}
+
+document.getElementById('orderForm').addEventListener('submit', function(e) {
+    const items = document.getElementsByName('items');
+    if (items.length === 0) {
+        e.preventDefault();
+        alert('Adicione pelo menos um item ao pedido.');
+    }
+});
+</script>
+{% endblock %} 

@@ -1,0 +1,88 @@
+{% load static %}
+{% load core_extras %}
+
+<aside class="admin-sidebar">
+    <div class="sidebar-header">
+        <h5 class="flex items-center">
+            <i class="fas fa-shield-alt text-primary-600 mr-2"></i>
+            <span>Painel Admin</span>
+        </h5>
+    </div>
+
+    <nav class="sidebar-menu">
+        <!-- Dashboard -->
+        <a href="{% url 'core:superadmin_dashboard' %}" 
+           class="menu-item {% if request.path|starts_with:'/superadmin/dashboard' %}active{% endif %}">
+            <i class="fas fa-tachometer-alt w-6"></i>
+            <span class="ml-3">Dashboard</span>
+        </a>
+
+        <!-- Produtos -->
+        <a href="{% url 'core:superadmin_products' %}" 
+           class="menu-item {% if request.path|starts_with:'/superadmin/produtos' %}active{% endif %}">
+            <i class="fas fa-box w-6"></i>
+            <span class="ml-3">Produtos</span>
+        </a>
+
+        <!-- Vendedores -->
+        <a href="{% url 'core:listar_vendedores' %}" 
+           class="menu-item {% if request.path|starts_with:'/vendedores' %}active{% endif %}">
+            <i class="fas fa-users w-6"></i>
+            <span class="ml-3">Vendedores</span>
+        </a>
+
+        <!-- Pedidos -->
+        <a href="{% url 'core:superadmin_orders' %}" 
+           class="menu-item {% if request.path|starts_with:'/superadmin/pedidos' %}active{% endif %}">
+            <i class="fas fa-shopping-cart w-6"></i>
+            <span class="ml-3">Pedidos</span>
+        </a>
+
+        <div class="border-t border-gray-200 my-4"></div>
+
+        <!-- Sair -->
+        <a href="{% url 'core:logout' %}" class="menu-item">
+            <i class="fas fa-sign-out-alt w-6"></i>
+            <span class="ml-3">Sair</span>
+        </a>
+    </nav>
+</aside>
+
+<style>
+.admin-sidebar {
+    @apply fixed top-16 left-0 h-[calc(100vh-4rem)] bg-white shadow-lg z-50;
+    width: 16rem;
+}
+
+.menu-item {
+    @apply flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-primary-600 transition-all duration-200;
+    border-left: 3px solid transparent;
+}
+
+.menu-item.active {
+    @apply bg-primary-50 text-primary-600;
+    border-left-color: var(--primary-color);
+}
+
+.menu-item i {
+    @apply text-gray-400 transition-colors duration-200;
+}
+
+.menu-item:hover i {
+    @apply text-primary-600;
+}
+
+.menu-item.active i {
+    @apply text-primary-600;
+}
+
+@media (max-width: 768px) {
+    .admin-sidebar {
+        @apply transform -translate-x-full;
+    }
+    
+    .admin-sidebar.mobile-open {
+        @apply translate-x-0;
+    }
+}
+</style> 

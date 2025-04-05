@@ -1,0 +1,67 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Consultar IA{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Consultar IA</h1>
+    
+    <div class="card">
+        <div class="card-body">
+            <form id="consultForm">
+                <div class="mb-3">
+                    <label for="contexto" class="form-label"><strong>Contexto:</strong></label>
+                    <textarea class="form-control" id="contexto" name="contexto" rows="4"></textarea>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="problema" class="form-label"><strong>Problema:</strong></label>
+                    <textarea class="form-control" id="problema" name="problema" rows="4"></textarea>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="ultima_view" class="form-label"><strong>Última View Renderizada:</strong></label>
+                    <input type="text" class="form-control" id="ultima_view" name="ultima_view">
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Enviar</button>
+            </form>
+        </div>
+    </div>
+    
+    <div class="card mt-4">
+        <div class="card-body">
+            <h2>Resposta da IA:</h2>
+            <div id="resposta" class="mt-3" style="white-space: pre-wrap;"></div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    $('#consultForm').on('submit', function(e) {
+        e.preventDefault();
+        $.ajax({
+            type: 'POST',
+            url: "{% url 'consult_ia' %}",
+            data: JSON.stringify({
+                contexto: $('#contexto').val(),
+                problema: $('#problema').val(),
+                ultima_view: $('#ultima_view').val()
+            }),
+            contentType: 'application/json',
+            success: function(response) {
+                if (response.sucesso) {
+                    $('#resposta').text(response.resposta);
+                } else {
+                    $('#resposta').text('Erro: ' + response.erro);
+                }
+            },
+            error: function(xhr, status, error) {
+                $('#resposta').text('Erro: ' + error);
+            }
+        });
+    });
+</script>
+{% endblock %}
+{% endblock %} 

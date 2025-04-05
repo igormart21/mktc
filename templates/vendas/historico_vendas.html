@@ -1,0 +1,113 @@
+{% extends "base_internal.html" %}
+{% load static %}
+
+{% block title %}Histórico de Vendas - AgroMais{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="h3 mb-2">Histórico de Vendas</h1>
+            <p class="text-muted">Acompanhe todas as suas vendas realizadas</p>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Produto</th>
+                            <th>Comprador</th>
+                            <th>Data</th>
+                            <th>Status</th>
+                            <th class="text-end">Valor</th>
+                            <th class="text-center">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for venda in vendas %}
+                        <tr>
+                            <td>#{{ venda.id }}</td>
+                            <td>{{ venda.produto.nome }}</td>
+                            <td>{{ venda.comprador.nome }}</td>
+                            <td>{{ venda.data_criacao|date:"d/m/Y H:i" }}</td>
+                            <td>
+                                <span class="badge {% if venda.status == 'PENDENTE' %}bg-warning{% elif venda.status == 'ACEITO' %}bg-success{% else %}bg-danger{% endif %}">
+                                    {{ venda.get_status_display }}
+                                </span>
+                            </td>
+                            <td class="text-end">R$ {{ venda.produto.preco|floatformat:2 }}</td>
+                            <td class="text-center">
+                                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#vendaModal{{ venda.id }}">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </td>
+                        </tr>
+
+                        <!-- Modal de Detalhes da Venda -->
+                        <div class="modal fade" id="vendaModal{{ venda.id }}" tabindex="-1">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Detalhes da Venda #{{ venda.id }}</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="mb-3">
+                                            <h6 class="text-muted mb-2">Produto</h6>
+                                            <p class="mb-0">{{ venda.produto.nome }}</p>
+                                            <small class="text-muted">{{ venda.produto.descricao|truncatechars:100 }}</small>
+                                        </div>
+                                        <div class="mb-3">
+                                            <h6 class="text-muted mb-2">Comprador</h6>
+                                            <p class="mb-0">{{ venda.comprador.nome }}</p>
+                                            <small class="text-muted">{{ venda.comprador.email }}</small>
+                                        </div>
+                                        <div class="mb-3">
+                                            <h6 class="text-muted mb-2">Data da Venda</h6>
+                                            <p class="mb-0">{{ venda.data_criacao|date:"d/m/Y H:i" }}</p>
+                                        </div>
+                                        <div class="mb-3">
+                                            <h6 class="text-muted mb-2">Status</h6>
+                                            <span class="badge {% if venda.status == 'PENDENTE' %}bg-warning{% elif venda.status == 'ACEITO' %}bg-success{% else %}bg-danger{% endif %}">
+                                                {{ venda.get_status_display }}
+                                            </span>
+                                        </div>
+                                        <div class="mb-3">
+                                            <h6 class="text-muted mb-2">Valor</h6>
+                                            <p class="mb-0">R$ {{ venda.produto.preco|floatformat:2 }}</p>
+                                        </div>
+                                        {% if venda.observacoes %}
+                                        <div class="mb-3">
+                                            <h6 class="text-muted mb-2">Observações</h6>
+                                            <p class="mb-0">{{ venda.observacoes }}</p>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center py-4">
+                                <div class="text-muted">
+                                    <i class="fas fa-shopping-cart fa-2x mb-3"></i>
+                                    <p class="mb-0">Nenhuma venda realizada</p>
+                                    <small class="text-muted">Suas vendas aparecerão aqui.</small>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

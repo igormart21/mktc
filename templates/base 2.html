@@ -1,0 +1,110 @@
+{% load static %}
+{% load crispy_forms_tags %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}AgroMarketplace{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v={% now 'U' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-success">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'home' %}">AgroMarketplace</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'home' %}">Início</a>
+                    </li>
+                    <li id="adminNav" class="nav-item" style="display: none;">
+                        <a class="nav-link" href="{% url 'superadmin_dashboard' %}">Painel Admin</a>
+                    </li>
+                    <li id="sellerNav" class="nav-item" style="display: none;">
+                        <a class="nav-link" href="{% url 'seller_dashboard' %}">Painel Vendedor</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    <li id="profileNav" class="nav-item" style="display: none;">
+                        <a class="nav-link" href="{% url 'profile' %}">Meu Perfil</a>
+                    </li>
+                    <li id="logoutNav" class="nav-item" style="display: none;">
+                        <a class="nav-link" href="#" onclick="handleLogout(event)">Sair</a>
+                    </li>
+                    <li id="loginNav" class="nav-item">
+                        <a class="nav-link" href="{% url 'login' %}">Login</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        {% block content %}{% endblock %}
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{% static 'js/auth.js' %}?v={% now 'U' %}"></script>
+    <script>
+    async function handleLogout(event) {
+        event.preventDefault();
+        try {
+            await logout();
+        } catch (error) {
+            console.error('Erro ao fazer logout:', error);
+            alert('Erro ao fazer logout. Por favor, tente novamente.');
+        }
+    }
+
+    async function updateNavigation() {
+        try {
+            const isAuth = isAuthenticated();
+            const adminNav = document.getElementById('adminNav');
+            const sellerNav = document.getElementById('sellerNav');
+            const profileNav = document.getElementById('profileNav');
+            const logoutNav = document.getElementById('logoutNav');
+            const loginNav = document.getElementById('loginNav');
+
+            if (isAuth) {
+                const isAdmin = await isSuperAdmin();
+                const userInfo = await getUserInfo();
+                
+                adminNav.style.display = isAdmin ? 'block' : 'none';
+                sellerNav.style.display = userInfo.vendedor_aprovado ? 'block' : 'none';
+                profileNav.style.display = 'block';
+                logoutNav.style.display = 'block';
+                loginNav.style.display = 'none';
+            } else {
+                adminNav.style.display = 'none';
+                sellerNav.style.display = 'none';
+                profileNav.style.display = 'none';
+                logoutNav.style.display = 'none';
+                loginNav.style.display = 'block';
+            }
+        } catch (error) {
+            console.error('Erro ao atualizar navegação:', error);
+        }
+    }
+
+    // Atualizar navegação quando a página carregar
+    document.addEventListener('DOMContentLoaded', updateNavigation);
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html> 

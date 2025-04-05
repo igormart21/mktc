@@ -1,0 +1,244 @@
+{% extends "base_internal.html" %}
+{% load static %}
+
+{% block title %}Dashboard do Administrador - AgroMais{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Cabeçalho -->
+    <div class="text-center mb-5">
+        <div class="mb-4">
+            <i class="fas fa-user-shield fa-3x text-primary"></i>
+        </div>
+        <h1 class="display-4 mb-2">Bem-vindo, {{ user.get_full_name }}</h1>
+        <p class="lead text-muted">Painel de Controle do Administrador</p>
+    </div>
+
+    <!-- Cards de Estatísticas -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        <div class="bg-primary bg-opacity-10 p-3 rounded-circle d-inline-block">
+                            <i class="fas fa-users fa-2x text-primary"></i>
+                        </div>
+                    </div>
+                    <h3 class="card-title mb-2">{{ total_usuarios }}</h3>
+                    <p class="card-text text-muted mb-0">Total de Usuários</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        <div class="bg-success bg-opacity-10 p-3 rounded-circle d-inline-block">
+                            <i class="fas fa-store fa-2x text-success"></i>
+                        </div>
+                    </div>
+                    <h3 class="card-title mb-2">{{ vendedores_ativos }}</h3>
+                    <p class="card-text text-muted mb-0">Vendedores Ativos</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        <div class="bg-info bg-opacity-10 p-3 rounded-circle d-inline-block">
+                            <i class="fas fa-box fa-2x text-info"></i>
+                        </div>
+                    </div>
+                    <h3 class="card-title mb-2">{{ total_produtos }}</h3>
+                    <p class="card-text text-muted mb-0">Produtos Cadastrados</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        <div class="bg-warning bg-opacity-10 p-3 rounded-circle d-inline-block">
+                            <i class="fas fa-shopping-cart fa-2x text-warning"></i>
+                        </div>
+                    </div>
+                    <h3 class="card-title mb-2">{{ total_pedidos }}</h3>
+                    <p class="card-text text-muted mb-0">Total de Pedidos</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cadastros Pendentes -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white py-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-user-clock me-2 text-warning"></i>Vendedores Pendentes
+                </h5>
+                <span class="badge bg-warning">{{ cadastros_pendentes|length }} pendentes</span>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Informações Pessoais</th>
+                            <th>Documentação</th>
+                            <th>Contato</th>
+                            <th>Endereço</th>
+                            <th>Data de Cadastro</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cadastro in cadastros_pendentes %}
+                        <tr>
+                            <td>
+                                <div class="d-flex flex-column">
+                                    <span class="fw-bold">{{ cadastro.full_name }}</span>
+                                    <small class="text-muted">
+                                        <i class="fas fa-user me-1"></i>{{ cadastro.user.username }}
+                                    </small>
+                                    <small class="text-muted">
+                                        <i class="fas fa-envelope me-1"></i>{{ cadastro.user.email }}
+                                    </small>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="d-flex flex-column">
+                                    <span><i class="fas fa-id-card me-1"></i>{{ cadastro.document_type }}</span>
+                                    <small class="text-muted">{{ cadastro.document_number }}</small>
+                                    {% if cadastro.document_file %}
+                                    <a href="{{ cadastro.document_file.url }}" target="_blank" class="btn btn-sm btn-outline-secondary mt-1">
+                                        <i class="fas fa-file me-1"></i>Ver Documento
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td>
+                                <div class="d-flex flex-column">
+                                    <span><i class="fas fa-phone me-1"></i>{{ cadastro.phone }}</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="d-flex flex-column">
+                                    <small><i class="fas fa-map-marker-alt me-1"></i>{{ cadastro.address }}</small>
+                                    <small>{{ cadastro.city }} - {{ cadastro.state }}</small>
+                                    <small class="text-muted">CEP: {{ cadastro.cep }}</small>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="d-flex flex-column">
+                                    <span>{{ cadastro.created_at|date:"d/m/Y" }}</span>
+                                    <small class="text-muted">{{ cadastro.created_at|time:"H:i" }}</small>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="d-flex flex-column gap-2">
+                                    <form method="post" action="{% url 'core:aprovar_vendedor' cadastro.id %}" class="d-inline">
+                                        {% csrf_token %}
+                                        <button type="submit" 
+                                                class="btn btn-success btn-sm d-flex align-items-center justify-content-center w-100"
+                                                style="min-width: 100px;">
+                                            <i class="fas fa-check-circle me-2"></i>Aprovar
+                                        </button>
+                                    </form>
+                                    <form method="post" action="{% url 'core:reprovar_vendedor' cadastro.id %}" class="d-inline">
+                                        {% csrf_token %}
+                                        <button type="submit" 
+                                                class="btn btn-danger btn-sm d-flex align-items-center justify-content-center w-100"
+                                                style="min-width: 100px;"
+                                                onclick="return confirm('Tem certeza que deseja rejeitar este vendedor? Esta ação não pode ser desfeita.')">
+                                            <i class="fas fa-times-circle me-2"></i>Rejeitar
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-4">
+                                <p class="text-muted mb-0">Nenhum vendedor pendente</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Produtos -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white py-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-box me-2 text-info"></i>Produtos
+                </h5>
+                <a href="{% url 'core:product_create' %}" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>Novo Produto
+                </a>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Nome</th>
+                            <th>Descrição</th>
+                            <th>Preço</th>
+                            <th>Estoque</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for produto in produtos %}
+                        <tr>
+                            <td>{{ produto.name }}</td>
+                            <td>{{ produto.description|truncatewords:20 }}</td>
+                            <td>R$ {{ produto.price }}</td>
+                            <td>{{ produto.stock }}</td>
+                            <td>
+                                <div class="btn-group">
+                                    <a href="{% url 'core:product_update' produto.id %}" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{% url 'core:product_delete' produto.id %}" class="btn btn-sm btn-outline-danger">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center py-4">
+                                <p class="text-muted mb-0">Nenhum produto cadastrado</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Botões de Ação -->
+    <div class="text-center mt-5">
+        <div class="d-flex justify-content-center gap-3">
+            <a href="{% url 'admin:index' %}" class="btn btn-primary">
+                <i class="fas fa-cog me-2"></i>Painel Admin
+            </a>
+            <a href="{% url 'logout' %}" class="btn btn-outline-danger">
+                <i class="fas fa-sign-out-alt me-2"></i>Sair
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %} 

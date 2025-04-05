@@ -1,0 +1,47 @@
+{% extends "base_internal.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}{{ title }} - AgroMarketplace{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    {% include 'core/partials/back_button.html' %}
+    
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <h1 class="h3 mb-0">
+                        <i class="fas fa-tags text-primary me-2"></i>{{ title }}
+                    </h1>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Nome da Categoria</label>
+                            <input type="text" class="form-control" id="name" name="name" value="{{ category.name|default:'' }}" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Descrição</label>
+                            <textarea class="form-control" id="description" name="description" rows="3">{{ category.description|default:'' }}</textarea>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'core:category_list' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Voltar
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Salvar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,112 @@
+{% extends "base_internal.html" %}
+{% load static %}
+
+{% block title %}Produtos Disponíveis - AgroMais{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card mb-4">
+                <div class="card-header pb-0">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h6>Produtos Disponíveis</h6>
+                    </div>
+                </div>
+                <div class="card-body px-0 pt-0 pb-2">
+                    <div class="table-responsive p-0">
+                        <table class="table align-items-center mb-0">
+                            <thead>
+                                <tr>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Produto</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Categoria</th>
+                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Preço</th>
+                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Estoque</th>
+                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Status</th>
+                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for product in products %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex px-2 py-1">
+                                            <div>
+                                                {% if product.image %}
+                                                    <img src="{{ product.image.url }}" class="avatar avatar-sm me-3" alt="{{ product.name }}">
+                                                {% else %}
+                                                    <img src="{% static 'img/no-image.png' %}" class="avatar avatar-sm me-3" alt="Sem imagem">
+                                                {% endif %}
+                                            </div>
+                                            <div class="d-flex flex-column justify-content-center">
+                                                <h6 class="mb-0 text-sm">{{ product.name }}</h6>
+                                                <p class="text-xs text-secondary mb-0">{{ product.description|truncatewords:20 }}</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <p class="text-xs font-weight-bold mb-0">{{ product.category.name }}</p>
+                                    </td>
+                                    <td class="align-middle text-center text-sm">
+                                        <span class="badge badge-sm bg-success">R$ {{ product.price }}</span>
+                                    </td>
+                                    <td class="align-middle text-center">
+                                        <span class="text-secondary text-xs font-weight-bold">{{ product.available_volume }} {{ product.get_unit_display }}</span>
+                                    </td>
+                                    <td class="align-middle text-center">
+                                        {% if product.is_active %}
+                                            <span class="badge badge-sm bg-success">Ativo</span>
+                                        {% else %}
+                                            <span class="badge badge-sm bg-danger">Inativo</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="align-middle text-center">
+                                        {% if product.is_active %}
+                                            <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addToCartModal{{ product.id }}">
+                                                <i class="fas fa-cart-plus"></i> Adicionar ao Carrinho
+                                            </button>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+
+                                <!-- Modal Adicionar ao Carrinho -->
+                                <div class="modal fade" id="addToCartModal{{ product.id }}" tabindex="-1" aria-labelledby="addToCartModalLabel{{ product.id }}" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="addToCartModalLabel{{ product.id }}">Adicionar ao Carrinho</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <form method="post" action="{% url 'core:adicionar_ao_carrinho' product.id %}">
+                                                {% csrf_token %}
+                                                <div class="modal-body">
+                                                    <div class="mb-3">
+                                                        <label for="quantity" class="form-label">Quantidade</label>
+                                                        <input type="number" class="form-control" id="quantity" name="quantity" min="1" max="{{ product.available_volume }}" required>
+                                                        <div class="form-text">Volume disponível: {{ product.available_volume }} {{ product.get_unit_display }}</div>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                                    <button type="submit" class="btn btn-primary">Adicionar ao Carrinho</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="6" class="text-center">
+                                        <p class="text-muted">Nenhum produto disponível.</p>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,332 @@
+{% extends "base_internal.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}{{ seller.user.get_full_name }} - AgroMarketplace{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    {% include 'core/partials/back_button.html' %}
+    
+    <div class="row">
+        <div class="col-md-8">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3">Detalhes do Vendedor</h1>
+                <div>
+                    {% if not vendedor.usuario.is_active %}
+                        <form method="post" action="{% url 'core:aprovar_vendedor' vendedor.id %}" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-success me-2">
+                                <i class="fas fa-check me-2"></i>Aprovar
+                            </button>
+                        </form>
+                        <form method="post" action="{% url 'core:reprovar_vendedor' vendedor.id %}" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger" onclick="return confirm('Tem certeza que deseja rejeitar este vendedor?')">
+                                <i class="fas fa-times me-2"></i>Reprovar
+                            </button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <!-- Status do Vendedor -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            {% if vendedor.usuario.is_active %}
+                                <i class="fas fa-check-circle text-success" style="font-size: 2.5rem;"></i>
+                            {% else %}
+                                <i class="fas fa-clock text-warning" style="font-size: 2.5rem;"></i>
+                            {% endif %}
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h5 class="mb-1">
+                                {% if vendedor.usuario.is_active %}
+                                    Vendedor Ativo
+                                {% else %}
+                                    Aguardando Aprovação
+                                {% endif %}
+                            </h5>
+                            <p class="text-muted mb-0">
+                                Cadastrado em {{ vendedor.usuario.date_joined|date:"d/m/Y H:i" }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Informações Pessoais -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-user text-primary me-2"></i>
+                        Informações Pessoais
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Nome:</strong> {{ vendedor.usuario.nome }}</p>
+                            <p><strong>E-mail:</strong> {{ vendedor.usuario.email }}</p>
+                            <p><strong>CPF:</strong> {{ vendedor.usuario.cpf }}</p>
+                            <p><strong>Telefone:</strong> {{ vendedor.usuario.telefone }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Tipo de Documento:</strong> {{ vendedor.usuario.get_tipo_documento_display }}</p>
+                            <p><strong>Número do Documento:</strong> {{ vendedor.usuario.numero_documento }}</p>
+                            {% if vendedor.usuario.documento %}
+                                <p>
+                                    <strong>Documento:</strong>
+                                    <a href="{{ vendedor.usuario.documento.url }}" target="_blank" class="btn btn-sm btn-outline-primary ms-2">
+                                        <i class="fas fa-file-alt me-1"></i>Visualizar
+                                    </a>
+                                </p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Endereço -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-map-marker-alt text-primary me-2"></i>
+                        Endereço
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>CEP:</strong> {{ vendedor.usuario.cep }}</p>
+                            <p><strong>Endereço:</strong> {{ vendedor.usuario.rua }}</p>
+                            <p><strong>Número:</strong> {{ vendedor.usuario.numero }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Bairro:</strong> {{ vendedor.usuario.bairro|default:"-" }}</p>
+                            <p><strong>Cidade:</strong> {{ vendedor.usuario.cidade|default:"-" }}</p>
+                            <p><strong>Estado:</strong> {{ vendedor.usuario.estado|default:"-" }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Documentos do Vendedor -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-id-card text-primary me-2"></i>
+                        Documentos do Vendedor
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            {% if vendedor.rg %}
+                                <div class="mb-3">
+                                    <p class="mb-2"><strong>RG:</strong></p>
+                                    <div class="d-flex align-items-center">
+                                        <a href="{{ vendedor.rg.url }}" target="_blank" class="btn btn-outline-primary me-2">
+                                            <i class="fas fa-file-alt me-2"></i>Visualizar RG
+                                        </a>
+                                        <span class="badge bg-success">Documento enviado</span>
+                                    </div>
+                                </div>
+                            {% else %}
+                                <div class="mb-3">
+                                    <p class="mb-2"><strong>RG:</strong></p>
+                                    <span class="badge bg-warning">Documento não enviado</span>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            {% if vendedor.cnh %}
+                                <div class="mb-3">
+                                    <p class="mb-2"><strong>CNH:</strong></p>
+                                    <div class="d-flex align-items-center">
+                                        <a href="{{ vendedor.cnh.url }}" target="_blank" class="btn btn-outline-primary me-2">
+                                            <i class="fas fa-file-alt me-2"></i>Visualizar CNH
+                                        </a>
+                                        <span class="badge bg-success">Documento enviado</span>
+                                    </div>
+                                </div>
+                            {% else %}
+                                <div class="mb-3">
+                                    <p class="mb-2"><strong>CNH:</strong></p>
+                                    <span class="badge bg-warning">Documento não enviado</span>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Visualização dos documentos -->
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            {% if vendedor.rg %}
+                                <div class="card">
+                                    <div class="card-header bg-light">
+                                        <h6 class="mb-0">Visualização do RG</h6>
+                                    </div>
+                                    <div class="card-body p-0">
+                                        <div class="document-preview">
+                                            {% if vendedor.rg.url %}
+                                                {% if vendedor.rg.name|slice:"-4:" == '.pdf' %}
+                                                    <iframe src="{{ vendedor.rg.url }}" width="100%" height="300" frameborder="0"></iframe>
+                                                {% else %}
+                                                    <img src="{{ vendedor.rg.url }}" alt="RG" class="img-fluid">
+                                                {% endif %}
+                                            {% else %}
+                                                <div class="text-center p-3">
+                                                    <p class="text-muted">Documento não disponível</p>
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            {% if vendedor.cnh %}
+                                <div class="card">
+                                    <div class="card-header bg-light">
+                                        <h6 class="mb-0">Visualização da CNH</h6>
+                                    </div>
+                                    <div class="card-body p-0">
+                                        <div class="document-preview">
+                                            {% if vendedor.cnh.url %}
+                                                {% if vendedor.cnh.name|slice:"-4:" == '.pdf' %}
+                                                    <iframe src="{{ vendedor.cnh.url }}" width="100%" height="300" frameborder="0"></iframe>
+                                                {% else %}
+                                                    <img src="{{ vendedor.cnh.url }}" alt="CNH" class="img-fluid">
+                                                {% endif %}
+                                            {% else %}
+                                                <div class="text-center p-3">
+                                                    <p class="text-muted">Documento não disponível</p>
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Informações do Vendedor -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-store text-primary me-2"></i>
+                        Informações do Vendedor
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Razão Social:</strong> {{ vendedor.razao_social }}</p>
+                            <p><strong>Nome Fantasia:</strong> {{ vendedor.nome_fantasia }}</p>
+                            <p><strong>CNPJ:</strong> {{ vendedor.cnpj }}</p>
+                            <p><strong>Inscrição Estadual:</strong> {{ vendedor.inscricao_estadual|default:"-" }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Status de Aprovação:</strong> 
+                                {% if vendedor.status_aprovacao == 'APROVADO' %}
+                                    <span class="badge bg-success">Aprovado</span>
+                                {% elif vendedor.status_aprovacao == 'RECUSADO' %}
+                                    <span class="badge bg-danger">Recusado</span>
+                                {% else %}
+                                    <span class="badge bg-warning">Pendente</span>
+                                {% endif %}
+                            </p>
+                            <p><strong>Data de Aprovação:</strong> {{ vendedor.data_aprovacao|date:"d/m/Y H:i"|default:"-" }}</p>
+                            {% if vendedor.observacoes %}
+                                <div class="mt-3">
+                                    <strong>Observações:</strong>
+                                    <p class="text-muted mb-0">{{ vendedor.observacoes }}</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Produtos do Vendedor -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-box text-primary me-2"></i>
+                        Produtos do Vendedor
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if seller.products.exists %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Produto</th>
+                                        <th>Categoria</th>
+                                        <th>Preço</th>
+                                        <th>Status</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for product in seller.products.all %}
+                                        <tr>
+                                            <td>{{ product.name }}</td>
+                                            <td>{{ product.category.name }}</td>
+                                            <td>R$ {{ product.price }}</td>
+                                            <td>
+                                                {% if product.is_active %}
+                                                    <span class="badge bg-success">Ativo</span>
+                                                {% else %}
+                                                    <span class="badge bg-danger">Inativo</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <a href="{% url 'core:superadmin_product_update' product.id %}" class="btn btn-sm btn-primary">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted">Nenhum produto cadastrado.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .document-preview {
+        max-height: 300px;
+        overflow: auto;
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 0.25rem;
+    }
+    
+    .document-preview img {
+        max-width: 100%;
+        height: auto;
+    }
+</style>
+{% endblock %} 

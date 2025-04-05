@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Pedido Aprovado</title>
+  </head>
+  <body>
+    <h2>Seu pedido foi aprovado!</h2>
+
+    <p>Olá {{ venda.comprador.nome }},</p>
+
+    <p>
+      Seu pedido do produto <strong>{{ produto.nome }}</strong> foi aprovado
+      pelo vendedor.
+    </p>
+
+    <h3>Detalhes do Pedido:</h3>
+    <ul>
+      <li>Produto: {{ produto.nome }}</li>
+      <li>Vendedor: {{ vendedor.nome }}</li>
+      <li>Data: {{ venda.data_criacao|date:"d/m/Y H:i" }}</li>
+    </ul>
+
+    {% if observacoes %}
+    <h3>Observações:</h3>
+    <p>{{ observacoes }}</p>
+    {% endif %}
+
+    <p>
+      Atenciosamente,<br />
+      Equipe AgroMarketplace
+    </p>
+  </body>
+</html>

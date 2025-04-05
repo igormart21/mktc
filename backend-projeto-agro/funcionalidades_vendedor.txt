@@ -1,0 +1,85 @@
+FUNCIONALIDADES DISPONÍVEIS PARA VENDEDORES
+=======================================
+
+1. DASHBOARD DO VENDEDOR
+-----------------------
+Endpoint: /api/area-vendedor/
+- Visualização de estatísticas gerais
+- Métricas de vendas
+- Desempenho da loja
+- Indicadores principais
+
+2. GERENCIAMENTO DE PRODUTOS
+---------------------------
+a) Listar Produtos
+   Endpoint: /api/produtos/
+   - Ver todos os produtos cadastrados
+   - Filtrar por categoria
+   - Ordenar por diferentes critérios
+
+b) Criar Produtos
+   Endpoint: /api/produtos/criar/
+   - Cadastrar novos itens
+   - Definir preços
+   - Adicionar descrições
+   - Upload de imagens
+   - Configurar estoque
+
+c) Editar/Deletar Produtos
+   Endpoint: /api/produtos/<id>/
+   - Atualizar informações
+   - Modificar preços
+   - Ajustar estoque
+   - Remover produtos
+
+d) Produtos Públicos
+   Endpoint: /api/produtos/publicos/
+   - Visualizar listagem pública
+   - Ver como os clientes veem
+
+3. GERENCIAMENTO DE VENDAS
+-------------------------
+a) Vendas Recebidas
+   Endpoint: /api/vendas/vendas_recebidas/
+   - Visualizar novos pedidos
+   - Acompanhar vendas em andamento
+   - Histórico de transações
+
+b) Gestão de Pedidos
+   Endpoint: /api/vendas/<id>/
+   - Aprovar/rejeitar vendas
+   - Atualizar status
+   - Ver detalhes completos
+   - Histórico de alterações
+
+4. PERMISSÕES ESPECIAIS
+----------------------
+- Acesso exclusivo para vendedores aprovados
+- Gerenciamento apenas dos próprios produtos
+- Visualização restrita às próprias vendas
+- Proteção por autenticação JWT
+
+5. RECURSOS ADICIONAIS
+---------------------
+a) Perfil da Loja
+   - Atualizar informações cadastrais
+   - Gerenciar dados da empresa
+   - Configurar preferências
+
+b) Métricas e Relatórios
+   - Relatórios de vendas
+   - Análise de desempenho
+   - Histórico de atividades
+
+c) Notificações
+   - Alertas de novos pedidos
+   - Atualizações de status
+   - Mensagens do sistema
+
+OBSERVAÇÕES IMPORTANTES
+---------------------
+1. Todas as operações requerem autenticação
+2. Necessário status de vendedor aprovado
+3. Manter dados sempre atualizados
+4. Responder pedidos em tempo hábil
+5. Seguir políticas da plataforma 

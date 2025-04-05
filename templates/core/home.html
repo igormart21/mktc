@@ -1,0 +1,175 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}AgroMais - Início{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero position-relative overflow-hidden bg-gradient">
+    <div class="hero-shape position-absolute"></div>
+    <div class="container position-relative py-5">
+        <div class="row align-items-center">
+            <div class="col-lg-6 mb-5 mb-lg-0">
+                <span class="highlight-badge">
+                    <i class="fas fa-seedling"></i>Plataforma Digital Agrícola
+                </span>
+                <h1 class="fw-bold display-4 mb-4" style="line-height: 1.2;">
+                    Conecte-se ao<br>
+                    <span class="text-gradient">Mercado Agrícola</span>
+                </h1>
+                <p class="lead opacity-75 mb-4">
+                    Uma plataforma que une produtores e consumidores,
+                    facilitando a compra e venda de produtos agrícolas com segurança e transparência.
+                </p>
+                <div class="d-flex gap-3">
+                    <a href="{% url 'core:products' %}" class="btn btn-success btn-lg px-4 rounded-pill shadow-sm">
+                        <i class="fas fa-shopping-bag me-2"></i>Explorar Produtos
+                    </a>
+                    <a href="#stats" class="btn btn-light btn-lg px-4 rounded-pill">
+                        <i class="fas fa-arrow-down me-2"></i>Saiba mais
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-6 d-none d-lg-block">
+                <div class="position-relative">
+                    <img src="{% static 'img/hero-image.png' %}" alt="Agricultura" class="img-fluid rounded-4 shadow-lg">
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Stats Section -->
+<section id="stats" class="py-5">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card border-0 bg-white shadow-sm hover-card p-4">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-success bg-opacity-10 rounded-3 p-3 me-4">
+                            <i class="fas fa-users text-success" style="font-size: 2rem;"></i>
+                        </div>
+                        <div>
+                            <h3 class="h2 fw-bold mb-0 counter">{{ active_sellers_count }}</h3>
+                            <p class="text-muted mb-0">Vendedores Ativos</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-0 bg-white shadow-sm hover-card p-4">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-success bg-opacity-10 rounded-3 p-3 me-4">
+                            <i class="fas fa-box text-success" style="font-size: 2rem;"></i>
+                        </div>
+                        <div>
+                            <h3 class="h2 fw-bold mb-0 counter">{{ registered_products_count }}</h3>
+                            <p class="text-muted mb-0">Produtos Cadastrados</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-0 bg-white shadow-sm hover-card p-4">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-success bg-opacity-10 rounded-3 p-3 me-4">
+                            <i class="fas fa-shopping-cart text-success" style="font-size: 2rem;"></i>
+                        </div>
+                        <div>
+                            <h3 class="h2 fw-bold mb-0 counter">{{ completed_orders_count }}</h3>
+                            <p class="text-muted mb-0">Pedidos Realizados</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Products Section -->
+<section class="featured-section py-5 bg-light">
+    <div class="container">
+        <div class="text-center mb-5">
+            <span class="highlight-badge">
+                <i class="fas fa-star"></i>Produtos em Destaque
+            </span>
+            <h2 class="display-6 fw-bold mb-2">Produtos em Destaque</h2>
+            <p class="lead text-muted">Descubra os produtos mais populares da nossa plataforma</p>
+        </div>
+        <div class="row g-4">
+            {% for product in featured_products %}
+            <div class="col-md-4">
+                <div class="card h-100 border-0 bg-white shadow-sm hover-card">
+                    {% if product.image %}
+                    <img src="{{ product.image.url }}" class="card-img-top rounded-top" alt="{{ product.name }}" style="height: 240px; object-fit: cover;">
+                    {% else %}
+                    <div class="card-img-top bg-success bg-opacity-10 d-flex align-items-center justify-content-center rounded-top" style="height: 240px;">
+                        <i class="fas fa-image fa-3x text-success opacity-50"></i>
+                    </div>
+                    {% endif %}
+                    <div class="card-body p-4">
+                        <h5 class="card-title fw-bold mb-3">{{ product.name }}</h5>
+                        <p class="card-text text-muted small mb-4">{{ product.description|truncatewords:20 }}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="h4 text-success mb-0">R$ {{ product.price }}</span>
+                            <a href="{% url 'core:products' %}" class="btn btn-outline-success rounded-pill px-4">
+                                Ver Detalhes
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center">
+                <p class="text-muted">Nenhum produto em destaque no momento.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<style>
+.bg-gradient {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+}
+
+.text-gradient {
+    background: linear-gradient(45deg, #198754, #20c997);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.hero-shape {
+    width: 600px;
+    height: 600px;
+    background: linear-gradient(45deg, rgba(25, 135, 84, 0.1), rgba(32, 201, 151, 0.1));
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    top: 0;
+    left: 0;
+    filter: blur(80px);
+}
+
+.hover-card {
+    transition: all 0.3s ease;
+    border-radius: 1rem;
+}
+
+.hover-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+}
+
+.counter {
+    font-feature-settings: "tnum";
+    font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 768px) {
+    .hero-shape {
+        width: 300px;
+        height: 300px;
+    }
+}
+</style>
+{% endblock %} 

@@ -1,0 +1,127 @@
+FUNCIONALIDADES DO SUPER USUÁRIO (ADMINISTRADOR)
+=========================================
+
+1. PAINEL ADMINISTRATIVO
+-----------------------
+Endpoint: /admin/ e /api/area-admin/
+- Acesso ao Django Admin
+- Dashboard administrativo personalizado
+- Visão geral do sistema
+- Métricas globais da plataforma
+
+2. GESTÃO DE USUÁRIOS
+--------------------
+a) Gerenciamento de Contas
+   Endpoint: /api/usuarios/
+   - Criar novos usuários
+   - Editar perfis existentes
+   - Desativar/reativar contas
+   - Redefinir senhas
+   - Gerenciar permissões
+
+b) Gestão de Vendedores
+   Endpoint: /api/vendedores/
+   - Aprovar/rejeitar cadastros
+   - Verificar documentação
+   - Monitorar atividades
+   - Suspender vendedores
+   - Avaliar desempenho
+
+3. CONTROLE DE PRODUTOS
+----------------------
+a) Supervisão Geral
+   Endpoint: /api/produtos/
+   - Visualizar todos os produtos
+   - Aprovar/rejeitar produtos
+   - Moderar descrições
+   - Verificar preços
+   - Controlar qualidade
+
+b) Categorias e Filtros
+   - Criar/editar categorias
+   - Definir filtros
+   - Organizar produtos
+   - Gerenciar tags
+
+4. MONITORAMENTO DE VENDAS
+-------------------------
+a) Visão Global
+   Endpoint: /api/vendas/
+   - Acompanhar todas as transações
+   - Verificar status de pedidos
+   - Resolver disputas
+   - Gerar relatórios
+
+b) Gestão Financeira
+   - Acompanhar faturamento
+   - Verificar comissões
+   - Monitorar pagamentos
+   - Gerar extratos
+
+5. CONFIGURAÇÕES DO SISTEMA
+--------------------------
+a) Configurações Gerais
+   - Ajustar parâmetros
+   - Definir políticas
+   - Configurar integrações
+   - Gerenciar APIs
+
+b) Segurança
+   - Logs de acesso
+   - Histórico de ações
+   - Backup de dados
+   - Controle de permissões
+
+6. RELATÓRIOS E ANÁLISES
+-----------------------
+a) Relatórios Gerais
+   - Vendas por período
+   - Desempenho de vendedores
+   - Produtos mais vendidos
+   - Análise de usuários
+
+b) Métricas Avançadas
+   - KPIs do negócio
+   - Gráficos de crescimento
+   - Projeções futuras
+   - Análise de tendências
+
+7. SUPORTE E MODERAÇÃO
+---------------------
+- Gerenciar reclamações
+- Resolver conflitos
+- Moderar conteúdo
+- Suporte a vendedores
+- Atendimento prioritário
+
+8. FERRAMENTAS ESPECIAIS
+-----------------------
+- Envio de notificações em massa
+- Gerenciamento de promoções
+- Configuração de destaque
+- Ferramentas de marketing
+- Gestão de conteúdo
+
+PERMISSÕES EXCLUSIVAS
+-------------------
+1. Acesso total ao sistema
+2. Modificação de configurações críticas
+3. Aprovação de vendedores
+4. Gestão financeira
+5. Moderação de conteúdo
+
+RESPONSABILIDADES
+---------------
+1. Manter a integridade do sistema
+2. Garantir a qualidade dos serviços
+3. Supervisionar operações
+4. Resolver problemas críticos
+5. Tomar decisões estratégicas
+
+OBSERVAÇÕES IMPORTANTES
+---------------------
+1. Acesso restrito e monitorado
+2. Ações são registradas em log
+3. Necessária autenticação de dois fatores
+4. Seguir políticas de segurança
+5. Manter confidencialidade dos dados 

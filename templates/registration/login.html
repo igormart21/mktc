@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}Login - AgroMarketplace{% endblock %}
+
+{% block content %}
+<div class="min-vh-100 d-flex align-items-center justify-content-center py-5" style="background-color: #f8fdfc;">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-5">
+                <div class="card shadow-sm border-0 rounded-3">
+                    <div class="card-body p-4 p-md-5">
+                        <!-- Ícone e Título -->
+                        <div class="text-center mb-4">
+                            <div class="bg-success bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 64px; height: 64px;">
+                                <i class="fas fa-user-lock text-success" style="font-size: 1.75rem;"></i>
+                            </div>
+                            <h4 class="fw-bold mb-2">Acessar Plataforma</h4>
+                            <p class="text-muted mb-4">Entre para gerenciar seu negócio agro</p>
+                        </div>
+
+                        <!-- Formulário -->
+                        <form method="post" action="{% url 'core:login' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="next" value="{{ next }}">
+                            
+                            {% if form.errors %}
+                            <div class="alert alert-danger d-flex align-items-center mb-4">
+                                <i class="fas fa-exclamation-circle me-2"></i>
+                                <div>Por favor, corrija os erros abaixo.</div>
+                            </div>
+                            {% endif %}
+                            
+                            {% if next %}
+                                {% if user.is_authenticated %}
+                                <div class="alert alert-warning d-flex align-items-center mb-4">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>
+                                    <div>Você não tem permissão para acessar esta página.</div>
+                                </div>
+                                {% else %}
+                                <div class="alert alert-info d-flex align-items-center mb-4">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    <div>Por favor, faça login para continuar.</div>
+                                </div>
+                                {% endif %}
+                            {% endif %}
+
+                            <!-- Campo de Email -->
+                            <div class="mb-3">
+                                <label class="form-label">Email</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0">
+                                        <i class="fas fa-envelope text-muted"></i>
+                                    </span>
+                                    <input type="email" name="username" class="form-control border-start-0 {% if form.username.errors %}is-invalid{% endif %}" placeholder="seu@email.com" required>
+                                </div>
+                                {% if form.username.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.username.errors.0 }}
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Campo de Senha -->
+                            <div class="mb-4">
+                                <label class="form-label">Senha</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0">
+                                        <i class="fas fa-lock text-muted"></i>
+                                    </span>
+                                    <input type="password" name="password" class="form-control border-start-0 {% if form.password.errors %}is-invalid{% endif %}" placeholder="••••••••" required>
+                                </div>
+                                {% if form.password.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.password.errors.0 }}
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Botão de Login -->
+                            <div class="d-grid mb-3">
+                                <button type="submit" class="btn btn-success btn-lg">
+                                    <i class="fas fa-sign-in-alt me-2"></i>Entrar
+                                </button>
+                            </div>
+
+                            <!-- Link Esqueci Senha -->
+                            <div class="text-center">
+                                <a href="#" class="text-decoration-none text-muted small">
+                                    <i class="fas fa-key me-1"></i>Esqueci minha senha
+                                </a>
+                            </div>
+                        </form>
+
+                        <hr class="my-4">
+
+                        <!-- Link para Cadastro -->
+                        <div class="text-center">
+                            <p class="mb-0">Ainda não tem uma conta?</p>
+                            <a href="{% url 'core:seller_registration' %}" class="btn btn-outline-success mt-3">
+                                <i class="fas fa-user-plus me-2"></i>Cadastre-se como Vendedor
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.card {
+    transition: transform 0.2s ease-in-out;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+}
+
+.form-control:focus {
+    border-color: #198754;
+    box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.25);
+}
+
+.input-group-text {
+    border-right: none;
+}
+
+.form-control {
+    border-left: none;
+}
+
+.btn-success {
+    transition: all 0.2s ease-in-out;
+}
+
+.btn-success:hover {
+    transform: scale(1.02);
+}
+
+@media (max-width: 768px) {
+    .card-body {
+        padding: 2rem !important;
+    }
+}
+</style>
+{% endblock %} 
