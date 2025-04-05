@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth.models import User
-from .models import Product, Category, Order, OrderItem, SellerRegistration
+from usuarios.models import Usuario
+from .models import Product, Category, Order, OrderItem, SellerRegistration, SolicitacaoProduto
 from vendedor.models import Vendedor
 import re
 
@@ -174,8 +174,8 @@ class SellerRegistrationForm(UserCreationForm):
     hectares_atendidos = forms.DecimalField(max_digits=10, decimal_places=2, label='Hectares Atendidos', required=False)
 
     class Meta:
-        model = User
-        fields = ('username', 'email', 'first_name', 'last_name', 'password1', 'password2')
+        model = Usuario
+        fields = ('email', 'nome', 'cpf', 'telefone', 'cep', 'rua', 'numero', 'hectares_atendidos', 'password1', 'password2')
 
     def save(self, commit=True):
         user = super().save(commit=False)
@@ -199,4 +199,17 @@ class LoginForm(forms.Form):
             'class': 'form-control',
             'placeholder': 'Digite sua senha'
         })
-    ) 
+    )
+
+class SolicitacaoProdutoForm(forms.ModelForm):
+    class Meta:
+        model = SolicitacaoProduto
+        fields = ['nome_produto', 'categoria_sugerida', 'descricao', 'volume', 'unidade', 'fabricante']
+        widgets = {
+            'nome_produto': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nome do produto'}),
+            'categoria_sugerida': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Categoria sugerida'}),
+            'descricao': forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'placeholder': 'Descreva o produto'}),
+            'volume': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Volume (opcional)'}),
+            'unidade': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Unidade (opcional)'}),
+            'fabricante': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Fabricante (opcional)'}),
+        } 

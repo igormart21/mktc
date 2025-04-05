@@ -1,0 +1,218 @@
+{% extends "base_internal.html" %}
+{% load static %}
+
+{% block title %}Catálogo de Produtos - AgroMarketplace{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Cabeçalho -->
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="h3 mb-2">Catálogo de Produtos</h1>
+            <p class="text-muted">Explore nossa variedade de produtos agrícolas</p>
+        </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-3">
+                    <label for="categoria" class="form-label">Categoria</label>
+                    <select name="categoria" id="categoria" class="form-select">
+                        <option value="">Todas as categorias</option>
+                        {% for categoria in categorias %}
+                        <option value="{{ categoria.id }}" {% if categoria_selecionada == categoria.id|stringformat:"s" %}selected{% endif %}>
+                            {{ categoria.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="tipo" class="form-label">Tipo</label>
+                    <select name="tipo" id="tipo" class="form-select">
+                        <option value="">Todos os tipos</option>
+                        {% for tipo in tipos %}
+                        <option value="{{ tipo.0 }}" {% if tipo_selecionado == tipo.0 %}selected{% endif %}>
+                            {{ tipo.1 }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="preco_min" class="form-label">Preço Mínimo</label>
+                    <input type="number" class="form-control" id="preco_min" name="preco_min" step="0.01" min="0" value="{{ preco_min }}">
+                </div>
+                <div class="col-md-3">
+                    <label for="preco_max" class="form-label">Preço Máximo</label>
+                    <input type="number" class="form-control" id="preco_max" name="preco_max" step="0.01" min="0" value="{{ preco_max }}">
+                </div>
+                <div class="col-md-6">
+                    <label for="busca" class="form-label">Buscar</label>
+                    <input type="text" class="form-control" id="busca" name="busca" placeholder="Nome ou descrição do produto..." value="{{ busca }}">
+                </div>
+                <div class="col-md-6">
+                    <label for="ordenar" class="form-label">Ordenar por</label>
+                    <select name="ordenar" id="ordenar" class="form-select">
+                        <option value="recentes" {% if ordenar == 'recentes' %}selected{% endif %}>Mais recentes</option>
+                        <option value="preco_menor" {% if ordenar == 'preco_menor' %}selected{% endif %}>Menor preço</option>
+                        <option value="preco_maior" {% if ordenar == 'preco_maior' %}selected{% endif %}>Maior preço</option>
+                        <option value="nome" {% if ordenar == 'nome' %}selected{% endif %}>Nome</option>
+                    </select>
+                </div>
+                <div class="col-12">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search me-2"></i>Filtrar
+                    </button>
+                    <a href="{% url 'core:catalogo' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-times me-2"></i>Limpar Filtros
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Lista de Produtos -->
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 g-4">
+        {% for produto in produtos %}
+        <div class="col">
+            <div class="card h-100 border-0 shadow-sm">
+                <a href="{% url 'core:produto_detalhe' produto.id %}" class="text-decoration-none">
+                    {% if produto.image %}
+                    <img src="{{ produto.image.url }}" class="card-img-top" alt="{{ produto.name }}" style="height: 200px; object-fit: cover;">
+                    {% else %}
+                    <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                        <i class="fas fa-image fa-3x text-muted"></i>
+                    </div>
+                    {% endif %}
+                </a>
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <a href="{% url 'core:produto_detalhe' produto.id %}" class="text-decoration-none text-dark">{{ produto.name }}</a>
+                    </h5>
+                    <p class="card-text text-muted">{{ produto.description|truncatewords:20 }}</p>
+                    <div class="mb-2">
+                        <span class="badge bg-primary">{{ produto.category.name }}</span>
+                        <span class="badge bg-secondary">{{ produto.get_product_type_display }}</span>
+                    </div>
+                    <h4 class="text-primary mb-3">{{ produto.get_price_display }}</h4>
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'core:produto_detalhe' produto.id %}" class="btn btn-outline-primary">
+                            <i class="fas fa-eye me-2"></i>Ver Detalhes
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal de Solicitação de Compra -->
+        <div class="modal fade" id="produtoModal{{ produto.id }}" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Solicitar Compra</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <form method="post" action="{% url 'vendas:solicitar_compra' produto.id %}">
+                        {% csrf_token %}
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <h6 class="text-muted mb-2">Produto</h6>
+                                <p class="mb-0">{{ produto.name }}</p>
+                            </div>
+                            <div class="mb-3">
+                                <h6 class="text-muted mb-2">Preço</h6>
+                                <p class="mb-0">{{ produto.get_price_display }}</p>
+                            </div>
+                            <div class="mb-3">
+                                <label for="quantidade" class="form-label">Quantidade</label>
+                                <input type="number" class="form-control" id="quantidade" name="quantidade" min="1" value="1" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="observacoes" class="form-label">Observações</label>
+                                <textarea class="form-control" id="observacoes" name="observacoes" rows="3"></textarea>
+                            </div>
+                            <div class="alert alert-info">
+                                <div class="d-flex align-items-center">
+                                    <div class="flex-shrink-0">
+                                        <i class="fas fa-info-circle fa-2x"></i>
+                                    </div>
+                                    <div class="flex-grow-1 ms-3">
+                                        <h6 class="alert-heading mb-1">Valor Total</h6>
+                                        <p class="mb-0" id="valorTotal">{{ produto.get_price_display }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-check me-2"></i>Confirmar Solicitação
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="text-center py-5">
+                <div class="text-muted">
+                    <i class="fas fa-box fa-3x mb-3"></i>
+                    <h5>Nenhum produto encontrado</h5>
+                    <p class="mb-0">Tente ajustar os filtros de busca.</p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Paginação -->
+    {% if produtos.has_other_pages %}
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if produtos.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ produtos.previous_page_number }}{% if categoria_selecionada %}&categoria={{ categoria_selecionada }}{% endif %}{% if tipo_selecionado %}&tipo={{ tipo_selecionado }}{% endif %}{% if preco_min %}&preco_min={{ preco_min }}{% endif %}{% if preco_max %}&preco_max={{ preco_max }}{% endif %}{% if busca %}&busca={{ busca }}{% endif %}{% if ordenar %}&ordenar={{ ordenar }}{% endif %}">
+                    <i class="fas fa-chevron-left"></i>
+                </a>
+            </li>
+            {% endif %}
+
+            {% for num in produtos.paginator.page_range %}
+            <li class="page-item {% if produtos.number == num %}active{% endif %}">
+                <a class="page-link" href="?page={{ num }}{% if categoria_selecionada %}&categoria={{ categoria_selecionada }}{% endif %}{% if tipo_selecionado %}&tipo={{ tipo_selecionado }}{% endif %}{% if preco_min %}&preco_min={{ preco_min }}{% endif %}{% if preco_max %}&preco_max={{ preco_max }}{% endif %}{% if busca %}&busca={{ busca }}{% endif %}{% if ordenar %}&ordenar={{ ordenar }}{% endif %}">
+                    {{ num }}
+                </a>
+            </li>
+            {% endfor %}
+
+            {% if produtos.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ produtos.next_page_number }}{% if categoria_selecionada %}&categoria={{ categoria_selecionada }}{% endif %}{% if tipo_selecionado %}&tipo={{ tipo_selecionado }}{% endif %}{% if preco_min %}&preco_min={{ preco_min }}{% endif %}{% if preco_max %}&preco_max={{ preco_max }}{% endif %}{% if busca %}&busca={{ busca }}{% endif %}{% if ordenar %}&ordenar={{ ordenar }}{% endif %}">
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Atualizar valor total ao mudar a quantidade
+    document.querySelectorAll('input[name="quantidade"]').forEach(input => {
+        input.addEventListener('change', function() {
+            const modalBody = this.closest('.modal-body');
+            const precoTexto = modalBody.querySelector('p.mb-0').textContent;
+            const preco = parseFloat(precoTexto.replace(/[^0-9,]/g, '').replace(',', '.'));
+            const quantidade = parseInt(this.value);
+            const valorTotal = preco * quantidade;
+            const moeda = precoTexto.match(/[R$€$]/)[0];
+            modalBody.querySelector('#valorTotal').textContent = `${moeda} ${valorTotal.toFixed(2)}`;
+        });
+    });
+</script>
+{% endblock %} 

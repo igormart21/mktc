@@ -1,0 +1,222 @@
+{% extends "base_internal.html" %}
+{% load static %}
+
+{% block title %}Dashboard - AgroMarketplace{% endblock %}
+
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Cabeçalho -->
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="h3 mb-2">Dashboard</h1>
+            <p class="text-muted">Bem-vindo ao seu painel de controle</p>
+        </div>
+    </div>
+
+    <!-- Cards de Métricas -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-primary bg-opacity-10 p-3 rounded">
+                                <i class="fas fa-shopping-cart fa-2x text-primary"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-muted mb-1">Total de Pedidos</h6>
+                            <h3 class="mb-0">{{ total_pedidos }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-warning bg-opacity-10 p-3 rounded">
+                                <i class="fas fa-clock fa-2x text-warning"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-muted mb-1">Pedidos Pendentes</h6>
+                            <h3 class="mb-0">{{ pedidos_pendentes }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-success bg-opacity-10 p-3 rounded">
+                                <i class="fas fa-check fa-2x text-success"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-muted mb-1">Pedidos Aprovados</h6>
+                            <h3 class="mb-0">{{ pedidos_aprovados }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-danger bg-opacity-10 p-3 rounded">
+                                <i class="fas fa-times fa-2x text-danger"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-muted mb-1">Pedidos Rejeitados</h6>
+                            <h3 class="mb-0">{{ pedidos_rejeitados }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Gráfico de Pedidos -->
+        <div class="col-md-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">Evolução dos Pedidos</h5>
+                    <canvas id="pedidosChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Últimos Pedidos -->
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">Últimos Pedidos</h5>
+                    <div class="list-group list-group-flush">
+                        {% for pedido in ultimos_pedidos %}
+                        <div class="list-group-item px-0">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-shrink-0">
+                                    <span class="badge {% if pedido.status == 'PENDENTE' %}bg-warning{% elif pedido.status == 'ACEITO' %}bg-success{% else %}bg-danger{% endif %}">
+                                        {{ pedido.get_status_display }}
+                                    </span>
+                                </div>
+                                <div class="flex-grow-1 ms-3">
+                                    <h6 class="mb-1">{{ pedido.produto.nome }}</h6>
+                                    <small class="text-muted">{{ pedido.data_criacao|date:"d/m/Y H:i" }}</small>
+                                </div>
+                                <div class="flex-shrink-0">
+                                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#pedidoModal{{ pedido.id }}">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Modal de Detalhes do Pedido -->
+                        <div class="modal fade" id="pedidoModal{{ pedido.id }}" tabindex="-1">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Detalhes do Pedido #{{ pedido.id }}</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="mb-3">
+                                            <h6 class="text-muted mb-2">Produto</h6>
+                                            <p class="mb-0">{{ pedido.produto.nome }}</p>
+                                        </div>
+                                        <div class="mb-3">
+                                            <h6 class="text-muted mb-2">Data do Pedido</h6>
+                                            <p class="mb-0">{{ pedido.data_criacao|date:"d/m/Y H:i" }}</p>
+                                        </div>
+                                        <div class="mb-3">
+                                            <h6 class="text-muted mb-2">Status</h6>
+                                            <span class="badge {% if pedido.status == 'PENDENTE' %}bg-warning{% elif pedido.status == 'ACEITO' %}bg-success{% else %}bg-danger{% endif %}">
+                                                {{ pedido.get_status_display }}
+                                            </span>
+                                        </div>
+                                        <div class="mb-3">
+                                            <h6 class="text-muted mb-2">Valor</h6>
+                                            <p class="mb-0">R$ {{ pedido.produto.preco|floatformat:2 }}</p>
+                                        </div>
+                                        {% if pedido.observacoes %}
+                                        <div class="mb-3">
+                                            <h6 class="text-muted mb-2">Observações</h6>
+                                            <p class="mb-0">{{ pedido.observacoes }}</p>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="text-center py-4">
+                            <div class="text-muted">
+                                <i class="fas fa-shopping-cart fa-2x mb-3"></i>
+                                <p class="mb-0">Nenhum pedido encontrado</p>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
+<script>
+    // Gráfico de Pedidos
+    const ctx = document.getElementById('pedidosChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: {{ datas|safe }},
+            datasets: [{
+                label: 'Pedidos',
+                data: {{ valores|safe }},
+                borderColor: '#0d6efd',
+                backgroundColor: 'rgba(13, 110, 253, 0.1)',
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            }
+        }
+    });
+</script>
+{% endblock %} 

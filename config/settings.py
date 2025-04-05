@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'vendas',
     'produtos',
     'usuarios',
+    'vendedor',
     
     # Apps de terceiros
     'crispy_forms',
@@ -79,21 +80,35 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'core.middleware.CustomCsrfMiddleware',  # Adicionando middleware personalizado
 ]
 
 # Configurações de CSRF
-CSRF_COOKIE_SECURE = False
-CSRF_COOKIE_HTTPONLY = False
-CSRF_USE_SESSIONS = False
-CSRF_COOKIE_SAMESITE = 'Lax'
+if DEBUG:
+    CSRF_COOKIE_SECURE = False
+    CSRF_COOKIE_HTTPONLY = False
+    CSRF_COOKIE_SAMESITE = 'Lax'
+    CSRF_USE_SESSIONS = False
+    SESSION_COOKIE_SECURE = False
+    SESSION_COOKIE_SAMESITE = 'Lax'
+else:
+    CSRF_COOKIE_SECURE = True
+    CSRF_COOKIE_HTTPONLY = False
+    CSRF_COOKIE_SAMESITE = None
+    CSRF_USE_SESSIONS = True
+    SESSION_COOKIE_SECURE = True
+    SESSION_COOKIE_SAMESITE = None
+
 CSRF_TRUSTED_ORIGINS = ['http://localhost:8000', 'http://127.0.0.1:8000']
 CSRF_COOKIE_NAME = 'csrftoken'
-CSRF_HEADER_NAME = 'HTTP_X_CSRFTOKEN'
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_DOMAIN = None
+SESSION_COOKIE_NAME = 'sessionid'
 
 # Configurações de Sessão
 SESSION_COOKIE_SECURE = False
 SESSION_COOKIE_HTTPONLY = True
-SESSION_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_SAMESITE = None
 SESSION_COOKIE_DOMAIN = None
 SESSION_COOKIE_NAME = 'sessionid'
 
@@ -143,6 +158,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'core.context_processors.mensagens_pendentes',
             ],
         },
     },
@@ -191,6 +207,9 @@ TIME_ZONE = 'America/Sao_Paulo'
 USE_I18N = True
 
 USE_TZ = True
+
+# Configuração do modelo de usuário personalizado
+AUTH_USER_MODEL = 'usuarios.Usuario'
 
 
 # Static files (CSS, JavaScript, Images)

@@ -1,0 +1,107 @@
+{% extends "base_internal.html" %}
+{% load static %}
+
+{% block title %}Detalhes da Solicitação - AgroMarketplace{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-info-circle text-primary me-2"></i>
+                            Detalhes da Solicitação #{{ solicitacao.id }}
+                        </h5>
+                        <span class="badge {% if solicitacao.status == 'PENDENTE' %}bg-warning{% else %}bg-success{% endif %}">
+                            {{ solicitacao.get_status_display }}
+                        </span>
+                    </div>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h6 class="text-muted mb-2">Informações do Vendedor</h6>
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <p class="mb-1"><strong>Nome:</strong> {{ solicitacao.vendedor.get_full_name }}</p>
+                                    <p class="mb-1"><strong>Usuário:</strong> {{ solicitacao.vendedor.username }}</p>
+                                    <p class="mb-0"><strong>Email:</strong> {{ solicitacao.vendedor.email }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-muted mb-2">Informações da Solicitação</h6>
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <p class="mb-1"><strong>Data:</strong> {{ solicitacao.data_solicitacao|date:"d/m/Y H:i" }}</p>
+                                    <p class="mb-1"><strong>Status:</strong> {{ solicitacao.get_status_display }}</p>
+                                    {% if solicitacao.resposta_superadmin %}
+                                        <p class="mb-0"><strong>Resposta:</strong> {{ solicitacao.resposta_superadmin }}</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <h6 class="text-muted mb-2">Informações do Produto</h6>
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <p class="mb-1"><strong>Nome:</strong> {{ solicitacao.nome_produto }}</p>
+                                <p class="mb-1"><strong>Categoria:</strong> {{ solicitacao.categoria_sugerida }}</p>
+                                {% if solicitacao.volume %}
+                                    <p class="mb-1"><strong>Volume:</strong> {{ solicitacao.volume }}</p>
+                                {% endif %}
+                                {% if solicitacao.unidade %}
+                                    <p class="mb-1"><strong>Unidade:</strong> {{ solicitacao.unidade }}</p>
+                                {% endif %}
+                                {% if solicitacao.fabricante %}
+                                    <p class="mb-1"><strong>Fabricante:</strong> {{ solicitacao.fabricante }}</p>
+                                {% endif %}
+                                <hr>
+                                <p class="mb-0"><strong>Descrição:</strong></p>
+                                <p class="mb-0">{{ solicitacao.descricao|linebreaks }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {% if solicitacao.status == 'PENDENTE' %}
+                    <form method="post" class="mb-4">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="resposta" class="form-label">Resposta</label>
+                            <textarea name="resposta" id="resposta" class="form-control" rows="3" placeholder="Digite sua resposta para o vendedor...">{{ solicitacao.resposta_superadmin }}</textarea>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'core:superadmin_solicitacoes' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-1"></i>
+                                Voltar para Lista
+                            </a>
+                            <div>
+                                <button type="submit" name="acao" value="excluir" class="btn btn-danger me-2" onclick="return confirm('Tem certeza que deseja excluir esta solicitação?')">
+                                    <i class="fas fa-trash me-1"></i>
+                                    Excluir
+                                </button>
+                                <button type="submit" name="acao" value="analisar" class="btn btn-success">
+                                    <i class="fas fa-check me-1"></i>
+                                    Marcar como Analisado
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                    {% else %}
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'core:superadmin_solicitacoes' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-1"></i>
+                            Voltar para Lista
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -12,12 +12,15 @@ urlpatterns = [
     path('perfil/', views.profile, name='profile'),
     path('vendedor/registro/', views.seller_registration, name='seller_registration'),
     path('vendedor/dashboard/', views.seller_dashboard, name='seller_dashboard'),
+    path('vendedor/perfil/', views.seller_profile, name='seller_profile'),
+    path('vendedor/solicitar-produto/', views.request_product, name='request_product'),
     path('superadmin/dashboard/', views.superadmin_dashboard, name='superadmin_dashboard'),
     path('produtos/', views.product_list, name='products'),
     path('produtos/criar/', views.product_create, name='product_create'),
     path('produtos/detalhe/<int:pk>/', views.product_detail, name='product_detail'),
     path('produtos/excluir/<int:pk>/', views.product_delete, name='product_delete'),
     path('superadmin/vendedores/', views.listar_vendedores, name='listar_vendedores'),
+    path('vendedores/', views.listar_vendedores, name='listar_vendedores'),
     path('superadmin/superadmins/', views.listar_superadmins, name='listar_superadmins'),
     path('superadmin/vendedores/aprovar/<int:vendedor_id>/', views.aprovar_vendedor, name='aprovar_vendedor'),
     path('superadmin/vendedores/reprovar/<int:vendedor_id>/', views.reprovar_vendedor, name='reprovar_vendedor'),
@@ -57,7 +60,6 @@ urlpatterns = [
     path('categorias/<int:pk>/excluir/', views.category_delete, name='category_delete'),
 
     # URLs de gerenciamento de vendedores
-    path('vendedores/', views.listar_vendedores, name='listar_vendedores'),
     path('vendedores/<int:seller_id>/', views.seller_detail, name='seller_detail'),
     path('vendedores/<int:seller_id>/editar/', views.seller_edit, name='seller_edit'),
     path('vendedores/<int:seller_id>/desativar/', views.seller_disable, name='seller_disable'),
@@ -75,4 +77,15 @@ urlpatterns = [
 
     path('consult-ia/', views.consult_ia, name="consult_ia"),
     path('consultar/', views.consult_ia_page, name="consult_ia_page"),
+
+    path('dashboard/', views.dashboard, name='dashboard'),
+    path('catalogo/', views.catalogo, name='catalogo'),
+    path('suporte/', views.suporte, name='suporte'),
+    path('superadmin/suporte/', views.superadmin_suporte, name='superadmin_suporte'),
+    path('superadmin/solicitacoes/', views.superadmin_solicitacoes, name='superadmin_solicitacoes'),
+    path('superadmin/solicitacoes/<int:pk>/', views.superadmin_detalhes_solicitacao, name='superadmin_detalhes_solicitacao'),
+    path('solicitar-produto/', views.solicitar_produto, name='solicitar_produto'),
+    path('minhas-solicitacoes/', views.minhas_solicitacoes, name='minhas_solicitacoes'),
+    path('detalhes-solicitacao/<int:pk>/', views.detalhes_solicitacao, name='detalhes_solicitacao'),
+    path('produtos/detalhe/<int:produto_id>/', views.produto_detalhe, name='produto_detalhe'),
 ] 

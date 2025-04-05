@@ -12,8 +12,8 @@ from django.template.loader import render_to_string
 from django.core.mail import send_mail
 from django.conf import settings
 from django.core.exceptions import ValidationError
-from .models import Product, Category, Order, OrderItem, VendorApplication, SellerRegistration
-from .forms import ProductForm, OrderForm, OrderItemFormSet, SellerRegistrationForm, LoginForm
+from .models import Product, Category, Order, OrderItem, VendorApplication, SellerRegistration, MensagemSuporte, SolicitacaoProduto
+from .forms import ProductForm, OrderForm, OrderItemFormSet, SellerRegistrationForm, LoginForm, SolicitacaoProdutoForm
 from .utils import validate_file_upload, validate_cpf
 from django.http import HttpResponse, JsonResponse
 import logging
@@ -54,16 +54,16 @@ def login_view(request):
             user = authenticate(username=username, password=password)
             if user is not None:
                 login(request, user)
-                messages.success(request, f'Bem-vindo, {username}!')
+                messages.success(request, f'Bem-vindo ao sistema, {username}!')
                 if user.is_superuser:
                     return redirect('core:superadmin_dashboard')
                 elif hasattr(user, 'vendedor'):
                     return redirect('core:seller_dashboard')
                 return redirect('core:home')
             else:
-                messages.error(request, 'Usuário ou senha inválidos.')
+                messages.error(request, 'Credenciais inválidas. Verifique seu usuário e senha.')
         else:
-            messages.error(request, 'Por favor, corrija os erros abaixo.')
+            messages.error(request, 'Por favor, corrija os erros no formulário.')
     else:
         form = LoginForm()
     return render(request, 'registration/login.html', {'form': form})
@@ -71,7 +71,7 @@ def login_view(request):
 def logout_view(request):
     """View de logout"""
     logout(request)
-    messages.success(request, 'Você saiu com sucesso!')
+    messages.info(request, 'Sessão encerrada com sucesso.')
     return redirect('core:login')
 
 def generate_email_confirmation_token(user):
@@ -244,24 +244,35 @@ def superadmin_dashboard(request):
     # Estatísticas gerais
     total_sellers = Vendedor.objects.count()
     active_sellers = Vendedor.objects.filter(usuario__is_active=True).count()
+    pending_sellers = Vendedor.objects.filter(usuario__is_active=False).count()
     total_products = Produto.objects.count()
     total_orders = Venda.objects.count()
 
-    # Vendedores pendentes
-    pending_sellers = Vendedor.objects.filter(usuario__is_active=False).select_related('usuario')[:5]
-
-    # Últimos pedidos
-    recent_orders = Venda.objects.all().order_by('-data_criacao')[:5]
+    # Estatísticas de vendas
+    vendas_por_status = Venda.objects.values('status').annotate(
+        total=Count('id'),
+        valor_total=Sum('produto__preco')
+    )
+    
+    # Mensagens de suporte pendentes
+    mensagens_pendentes = MensagemSuporte.objects.filter(respondido=False).count()
+    
+    # Últimos vendedores cadastrados
+    ultimos_vendedores = Vendedor.objects.select_related('usuario').order_by('-created_at')[:5]
+    
+    # Últimas vendas
+    ultimas_vendas = Venda.objects.select_related('vendedor', 'produto').order_by('-data_criacao')[:5]
 
     context = {
         'total_sellers': total_sellers,
         'active_sellers': active_sellers,
+        'pending_sellers': pending_sellers,
         'total_products': total_products,
         'total_orders': total_orders,
-        'pending_sellers': pending_sellers,
-        'recent_orders': recent_orders,
-        'pending_sellers_count': Vendedor.objects.filter(usuario__is_active=False).count(),
-        'pending_orders_count': Venda.objects.filter(status='pending').count(),
+        'vendas_por_status': vendas_por_status,
+        'mensagens_pendentes': mensagens_pendentes,
+        'ultimos_vendedores': ultimos_vendedores,
+        'ultimas_vendas': ultimas_vendas,
     }
 
     return render(request, 'core/superadmin_dashboard.html', context)
@@ -295,23 +306,75 @@ def seller_dashboard(request):
 @login_required
 @user_passes_test(is_superadmin)
 def aprovar_cadastro(request, cadastro_id):
-    vendedor = get_object_or_404(Vendedor, id=cadastro_id)
-    vendedor.usuario.is_active = True
-    vendedor.usuario.save()
+    """Aprova o cadastro de um vendedor"""
+    try:
+        vendedor = get_object_or_404(Vendedor, id=cadastro_id)
+        
+        # Verifica se o vendedor já está ativo
+        if vendedor.usuario.is_active:
+            messages.info(request, 'Este vendedor já está ativo no sistema.')
+            return redirect('core:superadmin_dashboard')
+        
+        # Ativa o usuário
+        vendedor.usuario.is_active = True
+        vendedor.usuario.save()
+        
+        # Envia e-mail de confirmação
+        try:
+            send_mail(
+                'Cadastro Aprovado - AgroMarketplace',
+                f'Olá {vendedor.usuario.nome},\n\nSeu cadastro foi aprovado! Você já pode acessar o sistema.',
+                settings.DEFAULT_FROM_EMAIL,
+                [vendedor.usuario.email],
+                fail_silently=False,
+            )
+        except Exception as e:
+            logger.error(f"Erro ao enviar e-mail de aprovação: {str(e)}")
+            messages.warning(request, 'Cadastro aprovado, mas não foi possível enviar o e-mail de confirmação.')
+        
+        messages.success(request, f'Cadastro de {vendedor.usuario.nome} aprovado com sucesso.')
+        return redirect('core:superadmin_dashboard')
     
-    messages.success(request, 'Vendedor aprovado com sucesso!')
-    return redirect('core:superadmin_dashboard')
+    except Exception as e:
+        messages.error(request, 'Não foi possível aprovar o cadastro. Tente novamente.')
+        return redirect('core:superadmin_dashboard')
 
 @login_required
 @user_passes_test(is_superadmin)
 def rejeitar_cadastro(request, cadastro_id):
-    vendedor = get_object_or_404(Vendedor, id=cadastro_id)
-    user = vendedor.usuario
-    vendedor.delete()
-    user.delete()
+    """Rejeita o cadastro de um vendedor"""
+    try:
+        vendedor = get_object_or_404(Vendedor, id=cadastro_id)
+        user = vendedor.usuario
+        
+        # Verifica se o vendedor já está ativo
+        if user.is_active:
+            messages.warning(request, 'Não é possível rejeitar um vendedor já ativo.')
+            return redirect('core:superadmin_dashboard')
+        
+        # Envia e-mail de rejeição
+        try:
+            send_mail(
+                'Cadastro Rejeitado - AgroMarketplace',
+                f'Olá {user.nome},\n\nInfelizmente seu cadastro não foi aprovado. Por favor, entre em contato conosco para mais informações.',
+                settings.DEFAULT_FROM_EMAIL,
+                [user.email],
+                fail_silently=False,
+            )
+        except Exception as e:
+            logger.error(f"Erro ao enviar e-mail de rejeição: {str(e)}")
+            messages.warning(request, 'Cadastro rejeitado, mas não foi possível enviar o e-mail de notificação.')
+        
+        # Remove o vendedor e o usuário
+        vendedor.delete()
+        user.delete()
+        
+        messages.success(request, 'Cadastro rejeitado e removido com sucesso.')
+        return redirect('core:superadmin_dashboard')
     
-    messages.success(request, 'Vendedor rejeitado com sucesso!')
-    return redirect('core:superadmin_dashboard')
+    except Exception as e:
+        messages.error(request, 'Não foi possível rejeitar o cadastro. Tente novamente.')
+        return redirect('core:superadmin_dashboard')
 
 @login_required
 def product_create(request):
@@ -476,7 +539,7 @@ def seller_disable(request, seller_id):
     vendedor = get_object_or_404(Vendedor, id=seller_id)
     vendedor.usuario.is_active = False
     vendedor.usuario.save()
-    messages.warning(request, f'Vendedor {vendedor.usuario.nome} desativado.')
+    messages.warning(request, f'A conta do vendedor {vendedor.usuario.nome} foi desativada.')
     return redirect('core:listar_vendedores')
 
 @login_required
@@ -501,8 +564,8 @@ def seller_delete(request, seller_id):
         
     vendedor = get_object_or_404(Vendedor, pk=seller_id)
     nome = vendedor.razao_social
-    vendedor.usuario.delete()  # Isso também excluirá o vendedor devido ao on_delete=CASCADE
-    messages.success(request, f'Conta do vendedor {nome} excluída com sucesso!')
+    vendedor.usuario.delete()
+    messages.success(request, f'A conta do vendedor {nome} foi excluída permanentemente.')
     return redirect('core:listar_vendedores')
 
 @login_required
@@ -752,12 +815,12 @@ def adicionar_ao_carrinho(request, product_id):
         try:
             quantity = float(request.POST.get('quantity', 0))
             if quantity <= 0:
-                messages.error(request, 'A quantidade deve ser maior que zero.')
+                messages.warning(request, 'A quantidade deve ser maior que zero.')
                 return redirect('core:products')
 
             product = Product.objects.get(pk=product_id)
             if quantity > product.available_volume:
-                messages.error(request, f'Quantidade indisponível. Volume disponível: {product.available_volume} {product.get_unit_display()}')
+                messages.warning(request, f'Quantidade indisponível. Máximo disponível: {product.available_volume} {product.get_unit_display()}')
                 return redirect('core:products')
 
             cart = request.session.get('cart', {'items': [], 'total': 0})
@@ -786,14 +849,14 @@ def adicionar_ao_carrinho(request, product_id):
             # Atualiza o total do carrinho
             cart['total'] = sum(item['subtotal'] for item in cart['items'])
             request.session['cart'] = cart
-            messages.success(request, 'Produto adicionado ao carrinho com sucesso!')
+            messages.success(request, f'{product.name} adicionado ao carrinho.')
             
         except ValueError:
-            messages.error(request, 'Quantidade inválida.')
+            messages.error(request, 'Quantidade inválida. Use apenas números.')
         except Product.DoesNotExist:
-            messages.error(request, 'Produto não encontrado.')
+            messages.error(request, 'Produto não encontrado no sistema.')
         except Exception as e:
-            messages.error(request, f'Erro ao adicionar produto ao carrinho: {str(e)}')
+            messages.error(request, 'Não foi possível adicionar o produto ao carrinho.')
             logger.error(f'Erro ao adicionar produto ao carrinho: {str(e)}')
 
     return redirect('core:products')
@@ -995,3 +1058,302 @@ def consult_ia(request):
 @user_passes_test(lambda u: u.is_superuser)
 def consult_ia_page(request):
     return render(request, 'core/consult_ia.html', {'message': 'Funcionalidade não disponível'})
+
+@login_required
+def dashboard(request):
+    # Verifica o tipo de usuário e redireciona para o dashboard apropriado
+    if request.user.is_superuser:
+        return redirect('core:superadmin_dashboard')
+    elif hasattr(request.user, 'vendedor'):
+        # Obtém as estatísticas dos pedidos
+        pedidos = Venda.objects.filter(vendedor=request.user)
+        total_pedidos = pedidos.count()
+        pedidos_pendentes = pedidos.filter(status='PENDENTE').count()
+        pedidos_aprovados = pedidos.filter(status='ACEITO').count()
+        pedidos_rejeitados = pedidos.filter(status='REJEITADO').count()
+        
+        # Obtém os últimos pedidos
+        ultimos_pedidos = pedidos.order_by('-data_criacao')[:10]
+        
+        # Conta o número de mensagens pendentes (apenas para superadmin)
+        mensagens_pendentes = 0
+        if request.user.is_superuser:
+            mensagens_pendentes = MensagemSuporte.objects.filter(respondido=False).count()
+        
+        context = {
+            'vendedor': request.user.vendedor,
+            'total_pedidos': total_pedidos,
+            'pedidos_pendentes': pedidos_pendentes,
+            'pedidos_aprovados': pedidos_aprovados,
+            'pedidos_rejeitados': pedidos_rejeitados,
+            'ultimos_pedidos': ultimos_pedidos,
+            'mensagens_pendentes': mensagens_pendentes,
+        }
+        
+        return render(request, 'core/seller_dashboard.html', context)
+    else:
+        # Usuário comum - redireciona para o catálogo
+        return redirect('core:catalogo')
+
+@login_required
+def catalogo(request):
+    # Obtém os filtros
+    categoria = request.GET.get('categoria')
+    tipo = request.GET.get('tipo')
+    busca = request.GET.get('busca')
+    preco_min = request.GET.get('preco_min')
+    preco_max = request.GET.get('preco_max')
+    ordenar = request.GET.get('ordenar', 'recentes')
+    
+    # Inicia a query
+    produtos = Product.objects.filter(is_active=True)
+    
+    # Log para depuração
+    print(f"Total de produtos antes dos filtros: {produtos.count()}")
+    
+    # Aplica os filtros
+    if categoria:
+        produtos = produtos.filter(category_id=categoria)
+        print(f"Total de produtos após filtro de categoria: {produtos.count()}")
+    if tipo:
+        produtos = produtos.filter(product_type=tipo)
+        print(f"Total de produtos após filtro de tipo: {produtos.count()}")
+    if busca:
+        produtos = produtos.filter(name__icontains=busca)
+        print(f"Total de produtos após filtro de busca: {produtos.count()}")
+    if preco_min:
+        produtos = produtos.filter(price__gte=preco_min)
+    if preco_max:
+        produtos = produtos.filter(price__lte=preco_max)
+    
+    # Aplica ordenação
+    if ordenar == 'preco_menor':
+        produtos = produtos.order_by('price')
+    elif ordenar == 'preco_maior':
+        produtos = produtos.order_by('-price')
+    elif ordenar == 'nome':
+        produtos = produtos.order_by('name')
+    else:  # recentes
+        produtos = produtos.order_by('-created_at')
+    
+    # Paginação
+    paginator = Paginator(produtos, 12)  # 12 itens por página
+    page = request.GET.get('page')
+    produtos = paginator.get_page(page)
+    
+    # Obtém todas as categorias para o filtro
+    categorias = Category.objects.all().order_by('name')
+    
+    # Obtém os tipos de produtos para o filtro
+    tipos = Product.PRODUCT_TYPE_CHOICES
+    
+    # Conta o número de mensagens pendentes (apenas para superadmin)
+    mensagens_pendentes = 0
+    if request.user.is_superuser:
+        mensagens_pendentes = MensagemSuporte.objects.filter(respondido=False).count()
+    
+    context = {
+        'produtos': produtos,
+        'categorias': categorias,
+        'tipos': tipos,
+        'categoria_selecionada': categoria,
+        'tipo_selecionado': tipo,
+        'busca': busca,
+        'preco_min': preco_min,
+        'preco_max': preco_max,
+        'ordenar': ordenar,
+        'mensagens_pendentes': mensagens_pendentes,
+    }
+    
+    return render(request, 'core/catalogo.html', context)
+
+@login_required
+def suporte(request):
+    """View para vendedores enviarem mensagens de suporte"""
+    # Verifica se o usuário é um vendedor
+    if not hasattr(request.user, 'vendedor'):
+        messages.error(request, 'Acesso negado. Apenas vendedores podem acessar esta página.')
+        return redirect('core:dashboard')
+        
+    if request.method == 'POST':
+        assunto = request.POST.get('assunto')
+        mensagem = request.POST.get('mensagem')
+        
+        if assunto and mensagem:
+            MensagemSuporte.objects.create(
+                usuario=request.user,
+                assunto=assunto,
+                mensagem=mensagem
+            )
+            messages.success(request, 'Mensagem enviada com sucesso! Em breve entraremos em contato.')
+            return redirect('core:suporte')
+        else:
+            messages.error(request, 'Por favor, preencha todos os campos.')
+            
+    # Buscar mensagens anteriores do usuário
+    mensagens = MensagemSuporte.objects.filter(usuario=request.user).order_by('-data_envio')[:5]
+    
+    context = {
+        'mensagens': mensagens
+    }
+    return render(request, 'core/suporte.html', context)
+
+@login_required
+@user_passes_test(is_superadmin)
+def superadmin_suporte(request):
+    try:
+        mensagens = MensagemSuporte.objects.select_related('usuario').order_by('-data_envio')
+        status = request.GET.get('status', '')
+        
+        if status:
+            mensagens = mensagens.filter(respondido=False)
+        
+        mensagens_pendentes = MensagemSuporte.objects.filter(respondido=False).count()
+                
+        context = {
+            'mensagens': mensagens,
+            'status_filtro': status,
+            'mensagens_pendentes': mensagens_pendentes
+        }
+        return render(request, 'core/superadmin_suporte.html', context)
+    except Exception as e:
+        logger.error(f"Erro ao acessar suporte: {str(e)}")
+        messages.error(request, 'Erro ao acessar o sistema de suporte. Por favor, tente novamente.')
+        return redirect('core:superadmin_dashboard')
+
+@login_required
+def solicitar_produto(request):
+    if not hasattr(request.user, 'vendedor'):
+        messages.error(request, 'Apenas vendedores podem solicitar produtos.')
+        return redirect('core:dashboard')
+    
+    if request.method == 'POST':
+        form = SolicitacaoProdutoForm(request.POST)
+        if form.is_valid():
+            solicitacao = form.save(commit=False)
+            solicitacao.vendedor = request.user
+            solicitacao.save()
+            messages.success(request, 'Sua solicitação foi enviada com sucesso para análise!')
+            return redirect('core:dashboard')
+    else:
+        form = SolicitacaoProdutoForm()
+    
+    return render(request, 'core/solicitar_produto.html', {'form': form})
+
+@login_required
+def minhas_solicitacoes(request):
+    if not hasattr(request.user, 'vendedor'):
+        messages.error(request, 'Apenas vendedores podem acessar esta página.')
+        return redirect('core:dashboard')
+    
+    solicitacoes = SolicitacaoProduto.objects.filter(vendedor=request.user).order_by('-data_solicitacao')
+    return render(request, 'core/minhas_solicitacoes.html', {'solicitacoes': solicitacoes})
+
+@login_required
+def detalhes_solicitacao(request, pk):
+    if not hasattr(request.user, 'vendedor'):
+        messages.error(request, 'Apenas vendedores podem acessar esta página.')
+        return redirect('core:dashboard')
+    
+    try:
+        solicitacao = SolicitacaoProduto.objects.get(pk=pk, vendedor=request.user)
+    except SolicitacaoProduto.DoesNotExist:
+        messages.error(request, 'Solicitação não encontrada.')
+        return redirect('core:minhas_solicitacoes')
+    
+    return render(request, 'core/detalhes_solicitacao.html', {'solicitacao': solicitacao})
+
+@login_required
+def superadmin_solicitacoes(request):
+    if not request.user.is_superuser:
+        messages.error(request, 'Acesso negado. Apenas superadministradores podem acessar esta página.')
+        return redirect('core:dashboard')
+    
+    solicitacoes = SolicitacaoProduto.objects.all().order_by('-data_solicitacao')
+    return render(request, 'core/superadmin_solicitacoes.html', {'solicitacoes': solicitacoes})
+
+@login_required
+def superadmin_detalhes_solicitacao(request, pk):
+    if not request.user.is_superuser:
+        messages.error(request, 'Acesso negado. Apenas superadministradores podem acessar esta página.')
+        return redirect('core:dashboard')
+    
+    try:
+        solicitacao = SolicitacaoProduto.objects.get(pk=pk)
+    except SolicitacaoProduto.DoesNotExist:
+        messages.error(request, 'Solicitação não encontrada.')
+        return redirect('core:superadmin_solicitacoes')
+    
+    if request.method == 'POST':
+        acao = request.POST.get('acao')
+        resposta = request.POST.get('resposta', '')
+        
+        if acao == 'analisar':
+            solicitacao.status = 'ANALISADO'
+            solicitacao.resposta_superadmin = resposta
+            solicitacao.save()
+            messages.success(request, 'Solicitação marcada como analisada com sucesso!')
+            return redirect('core:superadmin_solicitacoes')
+        elif acao == 'excluir':
+            solicitacao.delete()
+            messages.success(request, 'Solicitação excluída com sucesso!')
+            return redirect('core:superadmin_solicitacoes')
+    
+    return render(request, 'core/superadmin_detalhes_solicitacao.html', {'solicitacao': solicitacao})
+
+@login_required
+def request_product(request):
+    if request.method == 'POST':
+        form = SolicitacaoProdutoForm(request.POST)
+        if form.is_valid():
+            solicitacao = form.save(commit=False)
+            solicitacao.vendedor = request.user.vendedor
+            solicitacao.save()
+            messages.success(request, 'Solicitação de produto enviada com sucesso!')
+            return redirect('core:seller_dashboard')
+    else:
+        form = SolicitacaoProdutoForm()
+    
+    return render(request, 'core/request_product.html', {'form': form})
+
+@login_required
+def seller_profile(request):
+    vendedor = get_object_or_404(Vendedor, usuario=request.user)
+    
+    if request.method == 'POST':
+        # Atualizar informações do vendedor
+        vendedor.razao_social = request.POST.get('razao_social')
+        vendedor.nome_fantasia = request.POST.get('nome_fantasia')
+        vendedor.cnpj = request.POST.get('cnpj')
+        vendedor.telefone = request.POST.get('telefone')
+        vendedor.endereco = request.POST.get('endereco')
+        vendedor.cidade = request.POST.get('cidade')
+        vendedor.estado = request.POST.get('estado')
+        vendedor.cep = request.POST.get('cep')
+        vendedor.save()
+
+        # Processar redefinição de senha
+        current_password = request.POST.get('current_password')
+        new_password = request.POST.get('new_password')
+        confirm_password = request.POST.get('confirm_password')
+
+        if current_password and new_password and confirm_password:
+            if not request.user.check_password(current_password):
+                messages.error(request, 'Senha atual incorreta.')
+            elif new_password != confirm_password:
+                messages.error(request, 'As senhas não coincidem.')
+            else:
+                request.user.set_password(new_password)
+                request.user.save()
+                messages.success(request, 'Senha alterada com sucesso!')
+                return redirect('core:login')
+
+        messages.success(request, 'Perfil atualizado com sucesso!')
+        return redirect('core:seller_profile')
+
+    return render(request, 'core/seller_profile.html', {'vendedor': vendedor})
+
+@login_required
+def produto_detalhe(request, produto_id):
+    produto = get_object_or_404(Produto, id=produto_id)
+    return render(request, 'core/produto_detalhe.html', {'produto': produto})

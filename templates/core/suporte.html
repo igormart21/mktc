@@ -1,0 +1,158 @@
+{% extends "base_internal.html" %}
+{% load static %}
+
+{% block title %}Suporte - AgroMarketplace{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Cabeçalho -->
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="h3 mb-2">Suporte</h1>
+            <p class="text-muted">Precisa de ajuda? Entre em contato conosco</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Formulário de Contato -->
+        <div class="col-md-8">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">Envie sua mensagem</h5>
+                    <form method="post" action="{% url 'core:suporte' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+                        <div class="mb-3">
+                            <label for="assunto" class="form-label">Assunto</label>
+                            <select class="form-select" id="assunto" name="assunto" required>
+                                <option value="">Selecione um assunto</option>
+                                <option value="DUVIDA">Dúvida</option>
+                                <option value="PROBLEMA">Problema</option>
+                                <option value="SUGESTAO">Sugestão</option>
+                                <option value="OUTRO">Outro</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="mensagem" class="form-label">Mensagem</label>
+                            <textarea class="form-control" id="mensagem" name="mensagem" rows="5" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane me-2"></i>Enviar Mensagem
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Mensagens Anteriores -->
+            {% if mensagens %}
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">Mensagens Anteriores</h5>
+                    <div class="list-group list-group-flush">
+                        {% for msg in mensagens %}
+                        <div class="list-group-item px-0">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="badge {% if msg.respondido %}bg-success{% else %}bg-warning{% endif %}">
+                                    {{ msg.get_assunto_display }}
+                                </span>
+                                <small class="text-muted">{{ msg.data_envio|date:"d/m/Y H:i" }}</small>
+                            </div>
+                            <p class="mb-2">{{ msg.mensagem|truncatewords:30 }}</p>
+                            {% if msg.respondido %}
+                            <div class="alert alert-success mb-0">
+                                <strong>Resposta:</strong>
+                                <p class="mb-0">{{ msg.resposta }}</p>
+                                <small class="text-muted">Respondido em {{ msg.data_resposta|date:"d/m/Y H:i" }}</small>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Informações de Contato -->
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">Informações de Contato</h5>
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-envelope fa-2x text-primary"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="mb-1">Email</h6>
+                            <p class="mb-0">suporte@agromarketplace.com</p>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-phone fa-2x text-primary"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="mb-1">Telefone</h6>
+                            <p class="mb-0">(11) 1234-5678</p>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-clock fa-2x text-primary"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="mb-1">Horário de Atendimento</h6>
+                            <p class="mb-0">Segunda a Sexta<br>09:00 - 18:00</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FAQ -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">Perguntas Frequentes</h5>
+                    <div class="accordion" id="faqAccordion">
+                        <div class="accordion-item border-0">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                                    Como faço para solicitar um produto?
+                                </button>
+                            </h2>
+                            <div id="faq1" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    Acesse o catálogo de produtos, selecione o produto desejado e clique em "Solicitar Compra". Preencha as informações necessárias e aguarde a aprovação.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item border-0">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                                    Quanto tempo leva para aprovação?
+                                </button>
+                            </h2>
+                            <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    O prazo médio de aprovação é de 24 horas úteis. Você será notificado por email quando sua solicitação for analisada.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item border-0">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                                    Como cancelar uma solicitação?
+                                </button>
+                            </h2>
+                            <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    Na página "Meus Pedidos", localize a solicitação desejada e clique no ícone de cancelamento. Você precisará informar o motivo do cancelamento.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -6,6 +6,7 @@ from django.core.validators import MinValueValidator
 from django.core.exceptions import ValidationError
 import os
 from vendedor.models import Vendedor
+from usuarios.models import Usuario
 
 def product_image_path(instance, filename):
     return f'products/{filename}'
@@ -227,3 +228,52 @@ class VendorApplication(models.Model):
 
     def __str__(self):
         return f"Aplicação de {self.user.get_full_name()}"
+
+class MensagemSuporte(models.Model):
+    ASSUNTO_CHOICES = [
+        ('DUVIDA', 'Dúvida'),
+        ('PROBLEMA', 'Problema'),
+        ('SUGESTAO', 'Sugestão'),
+        ('OUTRO', 'Outro'),
+    ]
+    
+    usuario = models.ForeignKey('usuarios.Usuario', on_delete=models.CASCADE, related_name='mensagens_suporte')
+    assunto = models.CharField(max_length=20, choices=ASSUNTO_CHOICES)
+    mensagem = models.TextField()
+    data_envio = models.DateTimeField(auto_now_add=True)
+    respondido = models.BooleanField(default=False)
+    resposta = models.TextField(blank=True, null=True)
+    data_resposta = models.DateTimeField(null=True, blank=True)
+    
+    class Meta:
+        ordering = ['-data_envio']
+        verbose_name = 'Mensagem de Suporte'
+        verbose_name_plural = 'Mensagens de Suporte'
+        
+    def __str__(self):
+        return f'Mensagem de {self.usuario.username} - {self.get_assunto_display()}'
+
+class SolicitacaoProduto(models.Model):
+    STATUS_CHOICES = [
+        ('PENDENTE', 'Pendente'),
+        ('ANALISADO', 'Analisado'),
+    ]
+    
+    vendedor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='solicitacoes_produtos')
+    nome_produto = models.CharField(max_length=100)
+    categoria_sugerida = models.CharField(max_length=100)
+    descricao = models.TextField()
+    volume = models.CharField(max_length=50, blank=True, null=True)
+    unidade = models.CharField(max_length=50, blank=True, null=True)
+    fabricante = models.CharField(max_length=100, blank=True, null=True)
+    data_solicitacao = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PENDENTE')
+    resposta_superadmin = models.TextField(blank=True, null=True)
+    
+    class Meta:
+        verbose_name = 'Solicitação de Produto'
+        verbose_name_plural = 'Solicitações de Produtos'
+        ordering = ['-data_solicitacao']
+    
+    def __str__(self):
+        return f"{self.nome_produto} - {self.vendedor.username}"

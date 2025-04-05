@@ -1,19 +1,291 @@
-{% extends 'base.html' %}
-
-{% block extra_css %}
+{% load static %}
+{% load core_tags %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}AgroMarketplace{% endblock %}</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
 <style>
+        :root {
+            --sidebar-width: 250px;
+            --sidebar-bg: #f8f9fa;
+            --sidebar-active-bg: #e9ecef;
+            --sidebar-active-color: #28a745;
+            --sidebar-hover-bg: #f1f3f5;
+            --sidebar-hover-color: #28a745;
+            --main-bg: #f8fdfc;
+            --card-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            --transition-speed: 0.3s;
+            --primary-color: #28a745;
+            --primary-hover: #218838;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --info-color: #17a2b8;
+        }
+        
     body {
+            display: flex;
+            min-height: 100vh;
+            background-color: var(--main-bg);
+            transition: background-color var(--transition-speed);
+        }
+        
+        .sidebar {
+            width: var(--sidebar-width);
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            z-index: 100;
+            padding: 0;
+            box-shadow: var(--card-shadow);
+            background-color: var(--sidebar-bg);
+            transition: background-color var(--transition-speed);
+        }
+        
+        .sidebar-sticky {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            padding-top: 1rem;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+        
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
         min-height: 100vh;
-        display: flex;
+            background-color: var(--main-bg);
+            padding: 1.5rem;
+            transition: background-color var(--transition-speed), margin-left var(--transition-speed);
+        }
+        
+        .nav-link {
+            color: #6c757d;
+            padding: 0.8rem 1rem;
+            border-radius: 0.25rem;
+            margin: 0.2rem 1rem;
+            transition: all var(--transition-speed);
+        }
+        
+        .nav-link:hover {
+            color: var(--sidebar-hover-color);
+            background-color: var(--sidebar-hover-bg);
+        }
+        
+        .nav-link.active {
+            color: var(--sidebar-active-color);
+            background-color: var(--sidebar-active-bg);
+            font-weight: 500;
+        }
+        
+        .nav-link i {
+            width: 1.5rem;
+            text-align: center;
+        }
+        
+        .card {
+            transition: transform var(--transition-speed), box-shadow var(--transition-speed);
+            border: none;
+            box-shadow: var(--card-shadow);
+        }
+        
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+            border-color: var(--primary-hover);
+        }
+        
+        .btn-outline-primary {
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        
+        .btn-outline-primary:hover {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        
+        .text-primary {
+            color: var(--primary-color) !important;
+        }
+        
+        .bg-primary {
+            background-color: var(--primary-color) !important;
+        }
+        
+        .bg-success {
+            background-color: var(--success-color) !important;
+        }
+        
+        .bg-warning {
+            background-color: var(--warning-color) !important;
+        }
+        
+        .bg-danger {
+            background-color: var(--danger-color) !important;
+        }
+        
+        .bg-info {
+            background-color: var(--info-color) !important;
+        }
+        
+        .text-success {
+            color: var(--success-color) !important;
+        }
+        
+        .text-warning {
+            color: var(--warning-color) !important;
+        }
+        
+        .text-danger {
+            color: var(--danger-color) !important;
+        }
+        
+        .text-info {
+            color: var(--info-color) !important;
+        }
+        
+        @media (max-width: 768px) {
+            body {
         flex-direction: column;
     }
     
-    main {
-        flex: 1;
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+            
+            .main-content {
+                margin-left: 0;
+                padding: 1rem;
+            }
+            
+            .sidebar-sticky {
+                height: auto;
+            }
     }
 </style>
-{% endblock %}
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Sidebar -->
+    <nav class="sidebar">
+        <div class="sidebar-sticky">
+            <div class="mb-4">
+                <div class="d-flex justify-content-center align-items-center my-3">
+                    <i class="fas fa-leaf text-success me-1"></i>
+                    <span>AgroMais</span>
+                </div>
+            </div>
+            
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'seller_dashboard' %}active{% endif %}" href="{% url 'core:seller_dashboard' %}">
+                        <i class="fas fa-tachometer-alt"></i>
+                        Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'seller_profile' %}active{% endif %}" href="{% url 'core:seller_profile' %}">
+                        <i class="fas fa-user-cog"></i>
+                        Gerenciar Perfil
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'catalogo' %}active{% endif %}" href="{% url 'core:catalogo' %}">
+                        <i class="fas fa-store"></i>
+                        Catálogo
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'meus_pedidos' %}active{% endif %}" href="{% url 'vendas:meus_pedidos' %}">
+                        <i class="fas fa-shopping-cart"></i>
+                        Meus Pedidos
+                    </a>
+                </li>
+                {% if user|is_vendedor %}
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'suporte' %}active{% endif %}" href="{% url 'core:suporte' %}">
+                        <i class="fas fa-headset"></i>
+                        Suporte
+                    </a>
+                </li>
+                {% endif %}
+                {% if user.is_superuser %}
+                <li class="nav-item">
+                    <a class="nav-link" href="/admin/">
+                        <i class="fas fa-tachometer-alt"></i>
+                        Dashboard Admin
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'listar_vendedores' %}active{% endif %}" href="{% url 'core:listar_vendedores' %}">
+                        <i class="fas fa-users"></i>
+                        Gerenciar Vendedores
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'superadmin_products' %}active{% endif %}" href="{% url 'core:superadmin_products' %}">
+                        <i class="fas fa-box"></i>
+                        Gerenciar Produtos
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'superadmin_suporte' %}active{% endif %}" href="{% url 'core:superadmin_suporte' %}">
+                        <i class="fas fa-headset me-2"></i>
+                        Suporte
+                        {% if mensagens_pendentes > 0 %}
+                        <span class="badge bg-warning rounded-pill ms-2">{{ mensagens_pendentes }}</span>
+                        {% endif %}
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'superadmin_solicitacoes' %}active{% endif %}" href="{% url 'core:superadmin_solicitacoes' %}">
+                        <i class="fas fa-clipboard-list me-2"></i>
+                        Solicitações de Produtos
+                    </a>
+                </li>
+                {% endif %}
+                <li class="nav-item mt-4">
+                    <a class="nav-link text-danger" href="{% url 'core:logout' %}">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Sair
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
 
-{% block footer %}
-<!-- Este bloco vazio garante que o rodapé do template base seja exibido -->
-{% endblock %} 
+    <!-- Main Content -->
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html> 

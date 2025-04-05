@@ -1,0 +1,103 @@
+{% extends "base_internal.html" %}
+{% load static %}
+
+{% block title %}Perfil do Vendedor - AgroMarketplace{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Cabeçalho -->
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-4 border-bottom">
+        <div>
+            <h1 class="h2 mb-1">Perfil do Vendedor</h1>
+            <p class="text-muted">Gerencie suas informações pessoais e da empresa</p>
+        </div>
+    </div>
+
+    <!-- Formulário de Perfil -->
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card">
+                <div class="card-body">
+                    <form method="post" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        
+                        <!-- Informações da Empresa -->
+                        <h5 class="mb-4">Informações da Empresa</h5>
+                        <div class="row mb-4">
+                            <div class="col-md-6 mb-3">
+                                <label for="razao_social" class="form-label">Razão Social</label>
+                                <input type="text" class="form-control" id="razao_social" name="razao_social" value="{{ vendedor.razao_social }}" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="nome_fantasia" class="form-label">Nome Fantasia</label>
+                                <input type="text" class="form-control" id="nome_fantasia" name="nome_fantasia" value="{{ vendedor.nome_fantasia }}" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="cnpj" class="form-label">CNPJ</label>
+                                <input type="text" class="form-control" id="cnpj" name="cnpj" value="{{ vendedor.cnpj }}" required>
+                            </div>
+                        </div>
+
+                        <!-- Informações de Contato -->
+                        <h5 class="mb-4">Informações de Contato</h5>
+                        <div class="row mb-4">
+                            <div class="col-md-6 mb-3">
+                                <label for="telefone" class="form-label">Telefone</label>
+                                <input type="tel" class="form-control" id="telefone" name="telefone" value="{{ vendedor.telefone }}" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="email" class="form-label">E-mail</label>
+                                <input type="email" class="form-control" id="email" value="{{ vendedor.usuario.email }}" disabled>
+                            </div>
+                        </div>
+
+                        <!-- Endereço -->
+                        <h5 class="mb-4">Endereço</h5>
+                        <div class="row mb-4">
+                            <div class="col-12 mb-3">
+                                <label for="endereco" class="form-label">Endereço</label>
+                                <input type="text" class="form-control" id="endereco" name="endereco" value="{{ vendedor.endereco }}" required>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="cidade" class="form-label">Cidade</label>
+                                <input type="text" class="form-control" id="cidade" name="cidade" value="{{ vendedor.cidade }}" required>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="estado" class="form-label">Estado</label>
+                                <input type="text" class="form-control" id="estado" name="estado" value="{{ vendedor.estado }}" required>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="cep" class="form-label">CEP</label>
+                                <input type="text" class="form-control" id="cep" name="cep" value="{{ vendedor.cep }}" required>
+                            </div>
+                        </div>
+
+                        <!-- Redefinição de Senha -->
+                        <h5 class="mb-4">Redefinir Senha</h5>
+                        <div class="row mb-4">
+                            <div class="col-md-6 mb-3">
+                                <label for="current_password" class="form-label">Senha Atual</label>
+                                <input type="password" class="form-control" id="current_password" name="current_password">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="new_password" class="form-label">Nova Senha</label>
+                                <input type="password" class="form-control" id="new_password" name="new_password">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="confirm_password" class="form-label">Confirmar Nova Senha</label>
+                                <input type="password" class="form-control" id="confirm_password" name="confirm_password">
+                            </div>
+                        </div>
+
+                        <!-- Botões -->
+                        <div class="d-flex justify-content-end gap-2">
+                            <a href="{% url 'core:seller_dashboard' %}" class="btn btn-secondary">Cancelar</a>
+                            <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
