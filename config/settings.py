@@ -61,6 +61,10 @@ INSTALLED_APPS = [
     'corsheaders',
 ]
 
+# Configurações do Crispy Forms
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+CRISPY_TEMPLATE_PACK = "bootstrap5"
+
 # Adiciona o debug toolbar apenas em desenvolvimento
 # if DEBUG:
 #     INSTALLED_APPS += ['debug_toolbar']
@@ -287,10 +291,6 @@ if DEBUG:
     EMAIL_HOST_PASSWORD = ''
     EMAIL_USE_TLS = False
     DEFAULT_FROM_EMAIL = 'noreply@agromais.com'
-
-# Configurações do Crispy Forms
-CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
-CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 # Logging Configuration
 LOG_LEVEL = os.getenv('LOG_LEVEL', 'INFO')

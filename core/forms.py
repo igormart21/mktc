@@ -3,67 +3,57 @@ from django.contrib.auth.forms import UserCreationForm
 from django.core.exceptions import ValidationError
 from .models import Product, Order, OrderItem, SellerRegistration, SolicitacaoProduto
 from usuarios.models import Usuario
+from vendedor.models import Vendedor
+from produtos.models import Produto
 from django.utils.translation import gettext_lazy as _
+
+def validar_cpf(cpf):
+    # Remove caracteres não numéricos
+    cpf = ''.join(filter(str.isdigit, cpf))
+    
+    # Verifica se tem 11 dígitos
+    if len(cpf) != 11:
+        return False
+    
+    # Verifica se todos os dígitos são iguais
+    if cpf == cpf[0] * 11:
+        return False
+    
+    # Calcula o primeiro dígito verificador
+    soma = 0
+    for i in range(9):
+        soma += int(cpf[i]) * (10 - i)
+    resto = 11 - (soma % 11)
+    if resto > 9:
+        resto = 0
+    if resto != int(cpf[9]):
+        return False
+    
+    # Calcula o segundo dígito verificador
+    soma = 0
+    for i in range(10):
+        soma += int(cpf[i]) * (11 - i)
+    resto = 11 - (soma % 11)
+    if resto > 9:
+        resto = 0
+    if resto != int(cpf[10]):
+        return False
+    
+    return True
 
 class ProductForm(forms.ModelForm):
     class Meta:
-        model = Product
+        model = Produto
         fields = [
-            'name', 'description', 'product_type', 'sieve', 'variety', 'lot',
-            'available_volume', 'unit', 'packaging', 'currency', 'price',
-            'manufacturer', 'minimum_quantity', 'expiration_date', 'allow_exchange',
-            'image', 'is_active'
+            'nome', 'descricao', 'preco', 'volume_disponivel', 'unidade_medida',
+            'categoria', 'tipo', 'fabricante', 'lote',
+            'validade', 'quantidade_minima', 'embalagem',
+            'peneira', 'variedade', 'moeda', 'permite_troca'
         ]
         widgets = {
-            'description': forms.Textarea(attrs={'rows': 4}),
-            'expiration_date': forms.DateInput(attrs={'type': 'date'}),
-            'available_volume': forms.NumberInput(attrs={'min': '0', 'step': '0.01'}),
-            'price': forms.NumberInput(attrs={'min': '0', 'step': '0.01'}),
-            'minimum_quantity': forms.NumberInput(attrs={'min': '0', 'step': '0.01'}),
+            'descricao': forms.Textarea(attrs={'rows': 4}),
+            'validade': forms.DateInput(attrs={'type': 'date'}),
         }
-        labels = {
-            'name': 'Nome do Produto',
-            'description': 'Descrição',
-            'product_type': 'Tipo de Produto',
-            'sieve': 'Peneira',
-            'variety': 'Variedade',
-            'lot': 'Lote',
-            'available_volume': 'Volume Disponível',
-            'unit': 'Unidade',
-            'packaging': 'Embalagem',
-            'currency': 'Moeda',
-            'price': 'Preço',
-            'manufacturer': 'Fabricante',
-            'minimum_quantity': 'Quantidade Mínima',
-            'expiration_date': 'Data de Validade',
-            'allow_exchange': 'Permite Troca',
-            'image': 'Imagem',
-            'is_active': 'Ativo'
-        }
-
-    def clean_available_volume(self):
-        available_volume = self.cleaned_data.get('available_volume')
-        if available_volume is None:
-            raise forms.ValidationError('O volume disponível é obrigatório.')
-        return available_volume
-
-    def clean_price(self):
-        price = self.cleaned_data.get('price')
-        if price is None:
-            raise forms.ValidationError('O preço é obrigatório.')
-        return price
-
-    def clean_unit(self):
-        unit = self.cleaned_data.get('unit')
-        if not unit:
-            raise forms.ValidationError('A unidade é obrigatória.')
-        return unit
-
-    def clean_product_type(self):
-        product_type = self.cleaned_data.get('product_type')
-        if not product_type:
-            raise forms.ValidationError('O tipo de produto é obrigatório.')
-        return product_type
 
 class OrderForm(forms.ModelForm):
     class Meta:
@@ -84,32 +74,86 @@ OrderItemFormSet = forms.inlineformset_factory(
 )
 
 class SellerRegistrationForm(UserCreationForm):
+    nome = forms.CharField(
+        max_length=100, 
+        label='Nome', 
+        required=False
+    )
+    sobrenome = forms.CharField(
+        max_length=100, 
+        label='Sobrenome', 
+        required=False
+    )
+    email = forms.EmailField(
+        label='E-mail', 
+        required=False
+    )
+    cpf = forms.CharField(
+        max_length=11,
+        label='CPF',
+        required=False
+    )
+    telefone = forms.CharField(
+        max_length=20, 
+        label='Telefone', 
+        required=False
+    )
+    tipo_documento = forms.ChoiceField(
+        choices=[('RG', 'RG'), ('CNH', 'CNH')],
+        label='Tipo de Documento',
+        required=False
+    )
+    numero_documento = forms.CharField(
+        max_length=20, 
+        label='Número do Documento', 
+        required=False
+    )
+    arquivo_documento = forms.FileField(
+        label='Arquivo do Documento', 
+        required=False
+    )
+    cep = forms.CharField(
+        max_length=9, 
+        label='CEP', 
+        required=False
+    )
+    endereco = forms.CharField(
+        max_length=255, 
+        label='Endereço', 
+        required=False
+    )
+    cidade = forms.CharField(
+        max_length=100, 
+        label='Cidade', 
+        required=False
+    )
+    estado = forms.CharField(
+        max_length=2, 
+        label='Estado', 
+        required=False
+    )
+    hectares_atendidos = forms.IntegerField(
+        label='Hectares Atendidos',
+        required=False
+    )
+
     class Meta:
         model = Usuario
-        fields = ['email', 'password1', 'password2', 'nome', 'cpf', 'telefone', 'cep', 'rua', 'numero']
-        labels = {
-            'email': _('Email'),
-            'password1': _('Senha'),
-            'password2': _('Confirmar Senha'),
-            'nome': _('Nome Completo'),
-            'cpf': _('CPF'),
-            'telefone': _('Telefone'),
-            'cep': _('CEP'),
-            'rua': _('Endereço'),
-            'numero': _('Número'),
-        }
-
-    def clean_cpf(self):
-        cpf = self.cleaned_data.get('cpf')
-        if Usuario.objects.filter(cpf=cpf).exists():
-            raise ValidationError(_('Este CPF já está cadastrado.'))
-        return cpf
+        fields = [
+            'nome', 'sobrenome', 'email', 'cpf', 'password1', 'password2',
+            'telefone', 'tipo_documento', 'numero_documento', 'arquivo_documento',
+            'cep', 'endereco', 'cidade', 'estado', 'hectares_atendidos'
+        ]
 
     def clean_email(self):
-        email = self.cleaned_data.get('email')
-        if Usuario.objects.filter(email=email).exists():
-            raise ValidationError(_('Este email já está cadastrado.'))
-        return email
+        return self.cleaned_data.get('email')
+
+    def clean_cpf(self):
+        return self.cleaned_data.get('cpf')
+
+    def clean_estado(self):
+        estado = self.cleaned_data.get('estado')
+        return estado.upper() if estado else estado
 
 class LoginForm(forms.Form):
     username = forms.EmailField(label='Email')
@@ -125,4 +169,33 @@ class SolicitacaoProdutoForm(forms.ModelForm):
             'categoria_sugerida': _('Categoria Sugerida'),
             'quantidade': _('Quantidade'),
             'unidade_medida': _('Unidade de Medida'),
+        }
+
+class SellerProfileForm(forms.ModelForm):
+    class Meta:
+        model = Vendedor
+        fields = [
+            'nome_fantasia',
+            'inscricao_estadual',
+            'telefone',
+            'endereco',
+            'cidade',
+            'estado',
+            'cep',
+            'hectares_atendidos',
+            'rg',
+            'cnh'
+        ]
+        widgets = {
+            'telefone': forms.TextInput(attrs={'placeholder': '(00) 00000-0000'}),
+            'cep': forms.TextInput(attrs={'placeholder': '00000-000'}),
+        }
+
+class AdminProfileForm(forms.ModelForm):
+    class Meta:
+        model = Usuario
+        fields = ['nome', 'email', 'telefone', 'cep', 'rua', 'numero', 'complemento']
+        widgets = {
+            'telefone': forms.TextInput(attrs={'placeholder': '(00) 00000-0000'}),
+            'cep': forms.TextInput(attrs={'placeholder': '00000-000'}),
         } 

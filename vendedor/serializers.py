@@ -7,8 +7,6 @@ class VendedorSerializer(serializers.ModelSerializer):
         fields = [
             'id',
             'usuario',
-            'cnpj',
-            'razao_social',
             'nome_fantasia',
             'inscricao_estadual',
             'telefone',
@@ -16,8 +14,18 @@ class VendedorSerializer(serializers.ModelSerializer):
             'cidade',
             'estado',
             'cep',
+            'hectares_atendidos',
             'rg',
             'cnh',
+            # Campos do Jogo
+            'nivel',
+            'pontos_experiencia',
+            'moedas',
+            'conquistas',
+            'itens_inventario',
+            'ultima_missao',
+            'missoes_completadas',
+            'ranking',
             'created_at',
             'updated_at'
         ]

@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'base_internal.html' %}
 {% load static %}
 {% load crispy_forms_tags %}
 
@@ -13,103 +13,24 @@
     {% include 'core/partials/back_button.html' %}
     
     <div class="row justify-content-center">
-        <div class="col-md-10">
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-white py-3">
-                    <h5 class="mb-0">
-                        <i class="fas fa-box text-primary me-2"></i>
-                        {{ title }}
-                    </h5>
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-white">
+                    <h4 class="mb-0">{{ title }}</h4>
                 </div>
                 <div class="card-body">
-                    <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+                    <div id="messages"></div>
+
+                    <form id="productForm" method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
                         {% csrf_token %}
-                        
-                        {% if form.non_field_errors %}
-                        <div class="alert alert-danger">
-                            {% for error in form.non_field_errors %}
-                                {{ error }}
-                            {% endfor %}
-                        </div>
-                        {% endif %}
-                        
-                        <!-- Nome do Produto em largura total -->
-                        <div class="mb-4">
-                            {{ form.name|as_crispy_field }}
-                        </div>
-                        
-                        <div class="row">
-                            <!-- Coluna 1 -->
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    {{ form.product_type|as_crispy_field }}
-                                </div>
-                                <div class="mb-3">
-                                    {{ form.sieve|as_crispy_field }}
-                                </div>
-                                <div class="mb-3">
-                                    {{ form.variety|as_crispy_field }}
-                                </div>
-                                <div class="mb-3">
-                                    {{ form.lot|as_crispy_field }}
-                                </div>
-                                <div class="mb-3">
-                                    {{ form.available_volume|as_crispy_field }}
-                                </div>
-                                <div class="mb-3">
-                                    {{ form.unit|as_crispy_field }}
-                                </div>
-                                <div class="mb-3">
-                                    {{ form.packaging|as_crispy_field }}
-                                </div>
-                            </div>
-                            
-                            <!-- Coluna 2 -->
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    {{ form.currency|as_crispy_field }}
-                                </div>
-                                <div class="mb-3">
-                                    {{ form.price|as_crispy_field }}
-                                </div>
-                                <div class="mb-3">
-                                    {{ form.manufacturer|as_crispy_field }}
-                                </div>
-                                <div class="mb-3">
-                                    {{ form.minimum_quantity|as_crispy_field }}
-                                </div>
-                                <div class="mb-3">
-                                    {{ form.expiration_date|as_crispy_field }}
-                                </div>
-                                <div class="mb-3">
-                                    {{ form.allow_exchange|as_crispy_field }}
-                                </div>
-                                <div class="mb-3">
-                                    {{ form.image|as_crispy_field }}
-                                </div>
-                                {% if form.instance.image %}
-                                <div class="mb-3">
-                                    <label class="form-label">Imagem Atual</label>
-                                    <div class="mt-2">
-                                        <img src="{{ form.instance.image.url }}" alt="Imagem atual" class="img-thumbnail" style="max-height: 200px;">
-                                    </div>
-                                </div>
-                                {% endif %}
-                            </div>
-                        </div>
-                        
-                        <!-- Descrição em largura total -->
-                        <div class="mb-4">
-                            {{ form.description|as_crispy_field }}
-                        </div>
-                        
-                        <div class="d-flex justify-content-between align-items-center">
-                            <a href="{% url 'core:superadmin_dashboard' %}" class="btn btn-outline-secondary">
+                        {{ form|crispy }}
+                        <div class="mt-4">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Salvar
+                            </button>
+                            <a href="{% url 'core:superadmin_products' %}" class="btn btn-secondary">
                                 <i class="fas fa-arrow-left me-2"></i>Voltar
                             </a>
-                            <button type="submit" class="btn btn-success">
-                                <i class="fas fa-save me-2"></i>Salvar Produto
-                            </button>
                         </div>
                     </form>
                 </div>
@@ -120,6 +41,17 @@
 
 <script>
 $(document).ready(function() {
+    // Função para exibir mensagens
+    function showMessage(message, type) {
+        const messagesDiv = $('#messages');
+        messagesDiv.html(`
+            <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        `);
+    }
+
     // Configuração do CSRF token para todas as requisições AJAX
     function getCookie(name) {
         let cookieValue = null;
@@ -137,13 +69,7 @@ $(document).ready(function() {
     }
 
     const csrftoken = getCookie('csrftoken');
-
-    $.ajaxSetup({
-        beforeSend: function(xhr) {
-            xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-            xhr.setRequestHeader('X-CSRFToken', csrftoken);
-        }
-    });
+    console.log('CSRF Token:', csrftoken); // Log do CSRF token
 
     // Preview da imagem
     const imageInput = $('input[type="file"]');
@@ -162,15 +88,53 @@ $(document).ready(function() {
         });
     }
     
-    // Validação do formulário
-    const forms = $('.needs-validation');
-    forms.each(function() {
-        $(this).on('submit', function(event) {
-            if (!this.checkValidity()) {
-                event.preventDefault();
-                event.stopPropagation();
+    // Envio do formulário via API
+    $('#productForm').on('submit', function(e) {
+        e.preventDefault();
+        console.log('Formulário submetido'); // Log de submissão
+        
+        const formData = new FormData(this);
+        
+        // Log dos dados do formulário
+        for (let pair of formData.entries()) {
+            console.log(pair[0] + ': ' + pair[1]);
+        }
+        
+        $.ajax({
+            url: '{% url "produtos:produto-list-create" %}', // URL correta da API
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            headers: {
+                'X-CSRFToken': csrftoken,
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            success: function(response) {
+                console.log('Resposta do servidor:', response); // Log da resposta
+                showMessage('Produto cadastrado com sucesso!', 'success');
+                setTimeout(function() {
+                    window.location.href = "{% url 'core:superadmin_products' %}";
+                }, 2000);
+            },
+            error: function(xhr, status, error) {
+                console.error('Erro na requisição:', error); // Log do erro
+                console.error('Status:', status);
+                console.error('Resposta:', xhr.responseText);
+                
+                const errors = xhr.responseJSON;
+                let errorMessage = 'Erro ao cadastrar produto. ';
+                
+                if (errors) {
+                    Object.keys(errors).forEach(function(key) {
+                        errorMessage += `${key}: ${errors[key]}. `;
+                    });
+                } else {
+                    errorMessage += 'Erro desconhecido. Por favor, tente novamente.';
+                }
+                
+                showMessage(errorMessage, 'danger');
             }
-            $(this).addClass('was-validated');
         });
     });
 });

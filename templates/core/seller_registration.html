@@ -131,11 +131,12 @@
                 </div>
 
                 <div class="mb-3">
-                    <label for="hectares" class="form-label">Quantidade de Hectares</label>
+                    <label for="hectares_atendidos" class="form-label">Quantidade de Hectares</label>
                     <div class="input-group">
-                        <input type="number" class="form-control" id="hectares" name="hectares" step="0.01" min="0" required>
+                        {{ form.hectares_atendidos }}
                         <span class="input-group-text">ha</span>
                     </div>
+                    <div class="form-text">Digite um número entre 10 e 300 hectares</div>
                 </div>
 
                 <div class="d-grid gap-2">

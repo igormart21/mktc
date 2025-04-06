@@ -25,6 +25,7 @@ urlpatterns = [
     path('', include('core.urls', namespace='core')),  # Inclui as URLs do core
     path('vendas/', include('vendas.urls')),  # Inclui as URLs do vendas
     path('vendedor/', include('vendedor.urls')),  # Inclui as URLs do vendedor
+    path('produtos/', include('produtos.urls')),  # Inclui as URLs da API de produtos
     # URLs de autenticação
     path('password_reset/', auth_views.PasswordResetView.as_view(), name='password_reset'),
     path('password_reset/done/', auth_views.PasswordResetDoneView.as_view(), name='password_reset_done'),

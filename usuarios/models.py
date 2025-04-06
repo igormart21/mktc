@@ -101,15 +101,21 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
         ('TO', 'Tocantins'),
     ]
 
-    email = models.EmailField(unique=True, verbose_name='Email')
-    nome = models.CharField(max_length=255, verbose_name='Nome')
-    cpf = models.CharField(max_length=14, unique=True, verbose_name='CPF')
-    telefone = models.CharField(max_length=15, verbose_name='Telefone')
-    cep = models.CharField(max_length=9, verbose_name='CEP')
-    rua = models.CharField(max_length=255, verbose_name='Rua')
-    numero = models.CharField(max_length=20, verbose_name='Número')
+    email = models.EmailField(
+        verbose_name='Email',
+        max_length=255,
+        unique=True,
+        null=True,
+        blank=True
+    )
+    nome = models.CharField(max_length=255, verbose_name='Nome', null=True, blank=True)
+    cpf = models.CharField(max_length=14, verbose_name='CPF', null=True, blank=True)
+    telefone = models.CharField(max_length=15, verbose_name='Telefone', null=True, blank=True)
+    cep = models.CharField(max_length=9, verbose_name='CEP', null=True, blank=True)
+    rua = models.CharField(max_length=255, verbose_name='Rua', null=True, blank=True)
+    numero = models.CharField(max_length=20, verbose_name='Número', null=True, blank=True)
     complemento = models.CharField(max_length=255, blank=True, null=True, verbose_name='Complemento')
-    hectares_atendidos = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Hectares Atendidos')
+    hectares_atendidos = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Hectares Atendidos', null=True, blank=True)
     
     # Campos de documento
     tipo_documento = models.CharField(max_length=3, choices=TIPO_DOCUMENTO_CHOICES, verbose_name='Tipo de Documento', null=True, blank=True)
@@ -124,67 +130,36 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
     aprovado = models.BooleanField(default=False, verbose_name='Aprovado')
     date_joined = models.DateTimeField(default=timezone.now, verbose_name='Data de Cadastro')
 
-    # Sobrescrevendo os campos ManyToMany do PermissionsMixin
     groups = models.ManyToManyField(
         'auth.Group',
         verbose_name='groups',
         blank=True,
         help_text='The groups this user belongs to.',
-        related_name='usuario_set',
-        related_query_name='usuario'
+        related_name='usuario_custom_set',
+        related_query_name='usuario_custom'
     )
     user_permissions = models.ManyToManyField(
         'auth.Permission',
         verbose_name='user permissions',
         blank=True,
         help_text='Specific permissions for this user.',
-        related_name='usuario_set',
-        related_query_name='usuario'
+        related_name='usuario_custom_set',
+        related_query_name='usuario_custom'
     )
 
     objects = UsuarioManager()
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['nome', 'cpf', 'telefone', 'cep', 'rua', 'numero', 'hectares_atendidos']
+    REQUIRED_FIELDS = []
 
     def __str__(self):
-        return self.nome
+        return self.nome or self.email or 'Usuário sem nome'
 
     def has_perm(self, perm, obj=None):
         return True
 
     def has_module_perms(self, app_label):
         return True
-
-    def clean(self):
-        if not validar_cpf(self.cpf):
-            raise ValidationError('CPF inválido')
-        if not validar_telefone(self.telefone):
-            raise ValidationError('Telefone inválido')
-        
-        # Validações de documento
-        if self.tipo_documento == 'RG':
-            if not self.uf_documento:
-                raise ValidationError('UF do documento é obrigatória para RG')
-            if not self.orgao_emissor:
-                raise ValidationError('Órgão emissor é obrigatório para RG')
-            if not self.documento:
-                raise ValidationError('Documento é obrigatório')
-            if not self.numero_documento:
-                raise ValidationError('Número do documento é obrigatório')
-        elif self.tipo_documento == 'CNH':
-            if self.uf_documento:
-                raise ValidationError('UF do documento não deve ser preenchida para CNH')
-            if self.orgao_emissor:
-                raise ValidationError('Órgão emissor não deve ser preenchido para CNH')
-            if not self.documento:
-                raise ValidationError('Documento é obrigatório')
-            if not self.numero_documento:
-                raise ValidationError('Número do documento é obrigatório')
-
-    def save(self, *args, **kwargs):
-        self.clean()
-        super().save(*args, **kwargs)
 
     class Meta:
         verbose_name = 'Usuário'

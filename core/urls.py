@@ -82,4 +82,5 @@ urlpatterns = [
     path('minhas-solicitacoes/', views.minhas_solicitacoes, name='minhas_solicitacoes'),
     path('detalhes-solicitacao/<int:pk>/', views.detalhes_solicitacao, name='detalhes_solicitacao'),
     path('produtos/detalhe/<int:produto_id>/', views.produto_detalhe, name='produto_detalhe'),
+    path('superadmin/perfil/', views.admin_profile, name='admin_profile'),
 ] 
