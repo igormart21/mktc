@@ -6,12 +6,13 @@
 
 {% block content %}
 <div class="container py-5">
-    {% include 'core/partials/back_button.html' %}
-    
     <div class="row justify-content-center">
         <div class="col-md-8">
-            <div class="d-flex justify-content-between align-items-center mb-2">
+            <div class="d-flex justify-content-between align-items-center mb-4">
                 <h1 class="h3">Editar Vendedor</h1>
+                <a href="{% url 'core:seller_detail' seller.id %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Voltar
+                </a>
             </div>
 
             {% if messages %}
@@ -28,67 +29,158 @@
                     <form method="post" class="needs-validation" novalidate>
                         {% csrf_token %}
                         
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label for="razao_social" class="form-label">Razão Social</label>
-                                <input type="text" class="form-control" id="razao_social" name="razao_social" value="{{ vendedor.razao_social }}" required>
+                        <!-- Informações Pessoais -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-white">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-user text-primary me-2"></i>
+                                    Informações Pessoais
+                                </h5>
                             </div>
-                            <div class="col-md-6">
-                                <label for="telefone" class="form-label">Telefone</label>
-                                <input type="tel" class="form-control" id="telefone" name="telefone" value="{{ vendedor.telefone }}" required>
-                            </div>
-                        </div>
+                            <div class="card-body">
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="first_name" class="form-label">Nome</label>
+                                        <input type="text" class="form-control" id="first_name" name="first_name" value="{{ seller.usuario.first_name }}" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="last_name" class="form-label">Sobrenome</label>
+                                        <input type="text" class="form-control" id="last_name" name="last_name" value="{{ seller.usuario.last_name }}" required>
+                                    </div>
+                                </div>
 
-                        <div class="row mb-3">
-                            <div class="col-md-4">
-                                <label for="cep" class="form-label">CEP</label>
-                                <input type="text" class="form-control" id="cep" name="cep" value="{{ vendedor.cep }}" required>
-                            </div>
-                            <div class="col-md-8">
-                                <label for="endereco" class="form-label">Endereço</label>
-                                <input type="text" class="form-control" id="endereco" name="endereco" value="{{ vendedor.endereco }}" required>
-                            </div>
-                        </div>
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="email" class="form-label">E-mail</label>
+                                        <input type="email" class="form-control" id="email" name="email" value="{{ seller.usuario.email }}" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="cpf" class="form-label">CPF</label>
+                                        <input type="text" class="form-control" id="cpf" name="cpf" value="{{ seller.usuario.cpf }}" required>
+                                    </div>
+                                </div>
 
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label for="cidade" class="form-label">Cidade</label>
-                                <input type="text" class="form-control" id="cidade" name="cidade" value="{{ vendedor.cidade }}" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label for="estado" class="form-label">Estado</label>
-                                <input type="text" class="form-control" id="estado" name="estado" value="{{ vendedor.estado }}" required>
-                            </div>
-                        </div>
-
-                        <div class="row mb-3">
-                            <div class="col-md-12">
-                                <label for="hectares_atendidos" class="form-label">Hectares Atendidos</label>
-                                <div class="input-group">
-                                    <input type="number" class="form-control" id="hectares_atendidos" name="hectares_atendidos" value="{{ vendedor.hectares_atendidos }}" step="0.01" min="0" required>
-                                    <span class="input-group-text">ha</span>
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="phone" class="form-label">Telefone</label>
+                                        <input type="tel" class="form-control" id="phone" name="phone" value="{{ seller.telefone }}" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="document_type" class="form-label">Tipo de Documento</label>
+                                        <select class="form-select" id="document_type" name="document_type" required>
+                                            <option value="RG" {% if seller.usuario.document_type == 'RG' %}selected{% endif %}>RG</option>
+                                            <option value="CNH" {% if seller.usuario.document_type == 'CNH' %}selected{% endif %}>CNH</option>
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="row mb-3">
-                            <div class="col-md-12">
-                                <div class="card border-warning">
-                                    <div class="card-header bg-warning text-white">
-                                        <h5 class="mb-0">
-                                            <i class="fas fa-key me-2"></i>Redefinir Senha
-                                        </h5>
+                        <!-- Informações do Vendedor -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-white">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-store text-primary me-2"></i>
+                                    Informações do Vendedor
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="razao_social" class="form-label">Razão Social</label>
+                                        <input type="text" class="form-control" id="razao_social" name="razao_social" value="{{ seller.razao_social }}" required>
                                     </div>
-                                    <div class="card-body">
-                                        <div class="mb-3">
-                                            <label for="new_password" class="form-label">Nova Senha</label>
-                                            <input type="password" class="form-control" id="new_password" name="new_password">
-                                            <div class="form-text">Deixe em branco para manter a senha atual</div>
+                                    <div class="col-md-6">
+                                        <label for="nome_fantasia" class="form-label">Nome Fantasia</label>
+                                        <input type="text" class="form-control" id="nome_fantasia" name="nome_fantasia" value="{{ seller.nome_fantasia }}" required>
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="cnpj" class="form-label">CNPJ</label>
+                                        <input type="text" class="form-control" id="cnpj" name="cnpj" value="{{ seller.cnpj }}" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="inscricao_estadual" class="form-label">Inscrição Estadual</label>
+                                        <input type="text" class="form-control" id="inscricao_estadual" name="inscricao_estadual" value="{{ seller.inscricao_estadual }}">
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <div class="col-md-12">
+                                        <label for="hectares_atendidos" class="form-label">Hectares Atendidos</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" id="hectares_atendidos" name="hectares_atendidos" value="{{ seller.hectares_atendidos }}" step="0.01" min="0" required>
+                                            <span class="input-group-text">ha</span>
                                         </div>
-                                        <div class="mb-3">
-                                            <label for="confirm_password" class="form-label">Confirmar Nova Senha</label>
-                                            <input type="password" class="form-control" id="confirm_password" name="confirm_password">
-                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Endereço -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-white">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-map-marker-alt text-primary me-2"></i>
+                                    Endereço
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row mb-3">
+                                    <div class="col-md-4">
+                                        <label for="cep" class="form-label">CEP</label>
+                                        <input type="text" class="form-control" id="cep" name="cep" value="{{ seller.usuario.cep }}" required>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <label for="rua" class="form-label">Endereço</label>
+                                        <input type="text" class="form-control" id="rua" name="rua" value="{{ seller.usuario.rua }}" required>
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <div class="col-md-4">
+                                        <label for="numero" class="form-label">Número</label>
+                                        <input type="text" class="form-control" id="numero" name="numero" value="{{ seller.usuario.numero }}" required>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <label for="bairro" class="form-label">Bairro</label>
+                                        <input type="text" class="form-control" id="bairro" name="bairro" value="{{ seller.usuario.bairro }}">
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="cidade" class="form-label">Cidade</label>
+                                        <input type="text" class="form-control" id="cidade" name="cidade" value="{{ seller.usuario.cidade }}" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="estado" class="form-label">Estado</label>
+                                        <input type="text" class="form-control" id="estado" name="estado" value="{{ seller.usuario.estado }}" required>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Redefinir Senha -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-warning text-white">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-key me-2"></i>
+                                    Redefinir Senha
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="new_password" class="form-label">Nova Senha</label>
+                                        <input type="password" class="form-control" id="new_password" name="new_password">
+                                        <div class="form-text">Deixe em branco para manter a senha atual</div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="confirm_password" class="form-label">Confirmar Nova Senha</label>
+                                        <input type="password" class="form-control" id="confirm_password" name="confirm_password">
                                     </div>
                                 </div>
                             </div>
@@ -119,6 +211,39 @@ document.addEventListener('DOMContentLoaded', function() {
         e.target.value = value;
     });
 
+    // Máscara para o CPF
+    const cpfInput = document.getElementById('cpf');
+    cpfInput.addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length > 11) value = value.slice(0, 11);
+        value = value.replace(/(\d{3})(\d)/, '$1.$2');
+        value = value.replace(/(\d{3})(\d)/, '$1.$2');
+        value = value.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+        e.target.value = value;
+    });
+
+    // Máscara para o CNPJ
+    const cnpjInput = document.getElementById('cnpj');
+    cnpjInput.addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length > 14) value = value.slice(0, 14);
+        value = value.replace(/(\d{2})(\d)/, '$1.$2');
+        value = value.replace(/(\d{3})(\d)/, '$1.$2');
+        value = value.replace(/(\d{3})(\d)/, '$1/$2');
+        value = value.replace(/(\d{4})(\d{1,2})$/, '$1-$2');
+        e.target.value = value;
+    });
+
+    // Máscara para o telefone
+    const phoneInput = document.getElementById('phone');
+    phoneInput.addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length > 11) value = value.slice(0, 11);
+        if (value.length > 2) value = `(${value.slice(0, 2)}) ${value.slice(2)}`;
+        if (value.length > 9) value = `${value.slice(0, 9)}-${value.slice(9)}`;
+        e.target.value = value;
+    });
+
     // Buscar endereço pelo CEP
     cepInput.addEventListener('blur', function(e) {
         const cep = e.target.value.replace(/\D/g, '');
@@ -131,7 +256,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     alert('CEP não encontrado');
                     return;
                 }
-                document.getElementById('endereco').value = data.logradouro;
+                document.getElementById('rua').value = data.logradouro;
+                document.getElementById('bairro').value = data.bairro;
                 document.getElementById('cidade').value = data.localidade;
                 document.getElementById('estado').value = data.uf;
             })
@@ -144,6 +270,15 @@ document.addEventListener('DOMContentLoaded', function() {
     // Validação do formulário
     const form = document.querySelector('form');
     form.addEventListener('submit', function(event) {
+        const newPassword = document.getElementById('new_password').value;
+        const confirmPassword = document.getElementById('confirm_password').value;
+
+        if (newPassword && newPassword !== confirmPassword) {
+            event.preventDefault();
+            alert('As senhas não coincidem!');
+            return;
+        }
+
         if (!form.checkValidity()) {
             event.preventDefault();
             event.stopPropagation();

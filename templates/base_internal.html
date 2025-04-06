@@ -203,6 +203,14 @@
             </div>
             
             <ul class="nav flex-column">
+                {% if user|is_vendedor %}
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'seller_dashboard' %}active{% endif %}" href="{% url 'core:seller_dashboard' %}">
+                        <i class="fas fa-tachometer-alt"></i>
+                        Dashboard
+                    </a>
+                </li>
+                {% endif %}
                 {% if user.is_superuser %}
                 <li class="nav-item">
                     <a class="nav-link {% if request.resolver_match.url_name == 'admin:index' %}active{% endif %}" href="{% url 'admin:index' %}">

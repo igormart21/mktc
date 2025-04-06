@@ -2,35 +2,142 @@
 {% load static %}
 {% load crispy_forms_tags %}
 
-{% block title %}{{ title }} - AgroMarketplace{% endblock %}
-
-{% block extra_js %}
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-{% endblock %}
+{% block title %}Novo Produto - AgroMais{% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    {% include 'core/partials/back_button.html' %}
-    
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow">
-                <div class="card-header bg-white">
-                    <h4 class="mb-0">{{ title }}</h4>
-                </div>
-                <div class="card-body">
-                    <div id="messages"></div>
+<div class="container">
+    <div class="d-flex align-items-center mb-4">
+        <a href="javascript:history.back()" class="text-primary text-decoration-none">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+    </div>
 
-                    <form id="productForm" method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-4">
+                        <i class="fas fa-box text-primary me-2"></i>
+                        <h4 class="mb-0">Novo Produto</h4>
+                    </div>
+
+                    <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
                         {% csrf_token %}
-                        {{ form|crispy }}
-                        <div class="mt-4">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save me-2"></i>Salvar
-                            </button>
-                            <a href="{% url 'core:superadmin_products' %}" class="btn btn-secondary">
-                                <i class="fas fa-arrow-left me-2"></i>Voltar
-                            </a>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label for="nome" class="form-label">Nome do Produto*</label>
+                                <input type="text" class="form-control" id="nome" name="nome" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="categoria" class="form-label">Categoria*</label>
+                                <input type="text" class="form-control" id="categoria" name="categoria" required>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-3">
+                                <label for="preco" class="form-label">Preço*</label>
+                                <input type="number" class="form-control" id="preco" name="preco" step="0.01" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="moeda" class="form-label">Moeda*</label>
+                                <select class="form-select" id="moeda" name="moeda" required>
+                                    <option value="Real (R$)" selected>Real (R$)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="volume_disponivel" class="form-label">Volume Disponível*</label>
+                                <input type="number" class="form-control" id="volume_disponivel" name="volume_disponivel" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="unidade_medida" class="form-label">Unidade de Medida*</label>
+                                <select class="form-select" id="unidade_medida" name="unidade_medida" required>
+                                    <option value="">---------</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label for="tipo_produto" class="form-label">Tipo do Produto*</label>
+                                <select class="form-select" id="tipo_produto" name="tipo_produto" required>
+                                    <option value="">---------</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="embalagem" class="form-label">Embalagem</label>
+                                <select class="form-select" id="embalagem" name="embalagem">
+                                    <option value="Selecione uma embalagem">Selecione uma embalagem</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label for="fabricante" class="form-label">Fabricante</label>
+                                <input type="text" class="form-control" id="fabricante" name="fabricante">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="lote" class="form-label">Lote</label>
+                                <input type="text" class="form-control" id="lote" name="lote">
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label for="data_validade" class="form-label">Data de Validade</label>
+                                <input type="date" class="form-control" id="data_validade" name="data_validade">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="quantidade_minima" class="form-label">Quantidade Mínima</label>
+                                <input type="number" class="form-control" id="quantidade_minima" name="quantidade_minima">
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label for="peneira" class="form-label">Peneira da Semente</label>
+                                <input type="text" class="form-control" id="peneira" name="peneira">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="variedade" class="form-label">Variedade da Semente</label>
+                                <input type="text" class="form-control" id="variedade" name="variedade">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="imagem" class="form-label">Imagem do Produto</label>
+                            <input type="file" class="form-control" id="imagem" name="imagem">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="descricao" class="form-label">Descrição do Produto</label>
+                            <textarea class="form-control" id="descricao" name="descricao" rows="3"></textarea>
+                        </div>
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="permite_troca" name="permite_troca">
+                                    <label class="form-check-label" for="permite_troca">
+                                        Permitir Troca
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="produto_ativo" name="produto_ativo" checked>
+                                    <label class="form-check-label" for="produto_ativo">
+                                        Produto Ativo
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2">
+                            <button type="button" class="btn btn-outline-secondary" onclick="history.back()">Voltar</button>
+                            <button type="submit" class="btn btn-success">Salvar Produto</button>
                         </div>
                     </form>
                 </div>
@@ -38,104 +145,52 @@
         </div>
     </div>
 </div>
+{% endblock %}
 
+{% block extra_js %}
 <script>
-$(document).ready(function() {
-    // Função para exibir mensagens
-    function showMessage(message, type) {
-        const messagesDiv = $('#messages');
-        messagesDiv.html(`
-            <div class="alert alert-${type} alert-dismissible fade show" role="alert">
-                ${message}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        `);
-    }
+document.addEventListener('DOMContentLoaded', function() {
+    // Opções para Unidade de Medida
+    const unidadeMedidaSelect = document.getElementById('unidade_medida');
+    const unidadeMedidaOptions = [
+        { value: 'kg', label: 'Quilograma (kg)' },
+        { value: 'g', label: 'Grama (g)' },
+        { value: 'l', label: 'Litro (L)' },
+        { value: 'ml', label: 'Mililitro (mL)' },
+        { value: 'un', label: 'Unidade (un)' }
+    ];
+    unidadeMedidaOptions.forEach(option => {
+        const optionElement = new Option(option.label, option.value);
+        unidadeMedidaSelect.add(optionElement);
+    });
 
-    // Configuração do CSRF token para todas as requisições AJAX
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-    }
+    // Opções para Tipo do Produto
+    const tipoProdutoSelect = document.getElementById('tipo_produto');
+    const tipoProdutoOptions = [
+        { value: 'feijao', label: 'Feijão' },
+        { value: 'algodao', label: 'Algodão' },
+        { value: 'gergelim', label: 'Gergelim' },
+        { value: 'pastagem', label: 'Pastagem' },
+        { value: 'milho', label: 'Milho' },
+        { value: 'soja', label: 'Soja' }
+    ];
+    tipoProdutoOptions.forEach(option => {
+        const optionElement = new Option(option.label, option.value);
+        tipoProdutoSelect.add(optionElement);
+    });
 
-    const csrftoken = getCookie('csrftoken');
-    console.log('CSRF Token:', csrftoken); // Log do CSRF token
-
-    // Preview da imagem
-    const imageInput = $('input[type="file"]');
-    if (imageInput.length) {
-        imageInput.on('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const previewImagem = $('#preview-imagem');
-                    previewImagem.attr('src', e.target.result);
-                    previewImagem.removeClass('d-none');
-                }
-                reader.readAsDataURL(file);
-            }
-        });
-    }
-    
-    // Envio do formulário via API
-    $('#productForm').on('submit', function(e) {
-        e.preventDefault();
-        console.log('Formulário submetido'); // Log de submissão
-        
-        const formData = new FormData(this);
-        
-        // Log dos dados do formulário
-        for (let pair of formData.entries()) {
-            console.log(pair[0] + ': ' + pair[1]);
-        }
-        
-        $.ajax({
-            url: '{% url "produtos:produto-list-create" %}', // URL correta da API
-            type: 'POST',
-            data: formData,
-            processData: false,
-            contentType: false,
-            headers: {
-                'X-CSRFToken': csrftoken,
-                'X-Requested-With': 'XMLHttpRequest'
-            },
-            success: function(response) {
-                console.log('Resposta do servidor:', response); // Log da resposta
-                showMessage('Produto cadastrado com sucesso!', 'success');
-                setTimeout(function() {
-                    window.location.href = "{% url 'core:superadmin_products' %}";
-                }, 2000);
-            },
-            error: function(xhr, status, error) {
-                console.error('Erro na requisição:', error); // Log do erro
-                console.error('Status:', status);
-                console.error('Resposta:', xhr.responseText);
-                
-                const errors = xhr.responseJSON;
-                let errorMessage = 'Erro ao cadastrar produto. ';
-                
-                if (errors) {
-                    Object.keys(errors).forEach(function(key) {
-                        errorMessage += `${key}: ${errors[key]}. `;
-                    });
-                } else {
-                    errorMessage += 'Erro desconhecido. Por favor, tente novamente.';
-                }
-                
-                showMessage(errorMessage, 'danger');
-            }
-        });
+    // Opções para Embalagem
+    const embalagemSelect = document.getElementById('embalagem');
+    const embalagemOptions = [
+        { value: 'bag', label: 'Saco' },
+        { value: 'box', label: 'Caixa' },
+        { value: 'bottle', label: 'Garrafa' },
+        { value: 'can', label: 'Lata' },
+        { value: 'other', label: 'Outro' }
+    ];
+    embalagemOptions.forEach(option => {
+        const optionElement = new Option(option.label, option.value);
+        embalagemSelect.add(optionElement);
     });
 });
 </script>

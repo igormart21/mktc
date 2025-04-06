@@ -284,14 +284,40 @@ def seller_edit(request, seller_id):
     """Edita um vendedor"""
     seller = get_object_or_404(Vendedor, id=seller_id)
     if request.method == 'POST':
-        form = SellerRegistrationForm(request.POST, instance=seller)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Vendedor atualizado com sucesso!')
-            return redirect('core:listar_vendedores')
-    else:
-        form = SellerRegistrationForm(instance=seller)
-    return render(request, 'core/seller_form.html', {'form': form})
+        # Atualizar dados do usuário
+        seller.usuario.first_name = request.POST.get('first_name')
+        seller.usuario.last_name = request.POST.get('last_name')
+        seller.usuario.email = request.POST.get('email')
+        seller.usuario.cpf = request.POST.get('cpf')
+        seller.usuario.document_type = request.POST.get('document_type')
+        seller.usuario.cep = request.POST.get('cep')
+        seller.usuario.rua = request.POST.get('rua')
+        seller.usuario.numero = request.POST.get('numero')
+        seller.usuario.bairro = request.POST.get('bairro')
+        seller.usuario.cidade = request.POST.get('cidade')
+        seller.usuario.estado = request.POST.get('estado')
+        
+        # Atualizar dados do vendedor
+        seller.telefone = request.POST.get('phone')
+        seller.razao_social = request.POST.get('razao_social')
+        seller.nome_fantasia = request.POST.get('nome_fantasia')
+        seller.cnpj = request.POST.get('cnpj')
+        seller.inscricao_estadual = request.POST.get('inscricao_estadual')
+        seller.hectares_atendidos = request.POST.get('hectares_atendidos')
+        
+        # Processar redefinição de senha
+        new_password = request.POST.get('new_password')
+        if new_password:
+            seller.usuario.set_password(new_password)
+        
+        # Salvar alterações
+        seller.usuario.save()
+        seller.save()
+        
+        messages.success(request, 'Vendedor atualizado com sucesso!')
+        return redirect('core:seller_detail', seller_id=seller.id)
+        
+    return render(request, 'core/seller_edit.html', {'seller': seller})
 
 @login_required
 @user_passes_test(is_superadmin)

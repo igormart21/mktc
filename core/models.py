@@ -249,11 +249,36 @@ class SolicitacaoProduto(models.Model):
         ('un', 'Unidade')
     ]
     
+    TIPO_PRODUTO_CHOICES = [
+        ('feijao', 'Feijão'),
+        ('algodao', 'Algodão'),
+        ('gergelim', 'Gergelim'),
+        ('pastagem', 'Pastagem'),
+        ('milho', 'Milho'),
+        ('soja', 'Soja'),
+    ]
+    
+    EMBALAGEM_CHOICES = [
+        ('bag', 'Saco'),
+        ('box', 'Caixa'),
+        ('bottle', 'Garrafa'),
+        ('can', 'Lata'),
+        ('other', 'Outro'),
+    ]
+    
     nome_produto = models.CharField(max_length=200)
     descricao = models.TextField()
     categoria_sugerida = models.CharField(max_length=100)
     quantidade = models.PositiveIntegerField(default=1)
     unidade_medida = models.CharField(max_length=2, choices=UNIDADE_CHOICES, default='un')
+    tipo_produto = models.CharField(max_length=20, choices=TIPO_PRODUTO_CHOICES, blank=True, null=True)
+    fabricante = models.CharField(max_length=100, blank=True, null=True)
+    lote = models.CharField(max_length=50, blank=True, null=True)
+    peneira = models.CharField(max_length=50, blank=True, null=True)
+    variedade = models.CharField(max_length=100, blank=True, null=True)
+    embalagem = models.CharField(max_length=20, choices=EMBALAGEM_CHOICES, blank=True, null=True)
+    data_validade = models.DateField(null=True, blank=True)
+    observacoes = models.TextField(blank=True, null=True)
     vendedor = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='solicitacoes_produto')
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pendente')
     data_solicitacao = models.DateTimeField(auto_now_add=True)

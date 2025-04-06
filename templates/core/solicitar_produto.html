@@ -1,90 +1,203 @@
 {% extends "base_internal.html" %}
 {% load static %}
+{% load crispy_forms_tags %}
 
 {% block title %}Solicitar Produto - AgroMarketplace{% endblock %}
 
 {% block content %}
 <div class="container-fluid px-4 py-4">
+    <!-- Cabeçalho -->
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-1">Solicitar Novo Produto</h1>
+            <p class="text-muted mb-0">Preencha os dados do produto que deseja solicitar</p>
+        </div>
+        <div class="btn-toolbar mb-2 mb-md-0">
+            <a href="{% url 'core:dashboard' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i>
+                Voltar
+            </a>
+        </div>
+    </div>
+
     <div class="row justify-content-center">
-        <div class="col-md-8">
+        <div class="col-lg-10">
             <div class="card border-0 shadow-sm">
                 <div class="card-header bg-white py-3">
                     <h5 class="card-title mb-0">
-                        <i class="fas fa-plus-circle text-primary me-2"></i>
-                        Solicitar Novo Produto
+                        <i class="fas fa-box text-primary me-2"></i>
+                        Informações do Produto
                     </h5>
                 </div>
                 <div class="card-body p-4">
                     <form method="post" class="needs-validation" novalidate>
                         {% csrf_token %}
-                        <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
                         
-                        <div class="mb-3">
-                            <label for="{{ form.nome_produto.id_for_label }}" class="form-label">Nome do Produto *</label>
-                            {{ form.nome_produto }}
-                            {% if form.nome_produto.errors %}
-                                <div class="invalid-feedback d-block">
-                                    {{ form.nome_produto.errors|join:", " }}
-                                </div>
-                            {% endif %}
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {% for error in form.non_field_errors %}
+                                {{ error }}
+                            {% endfor %}
                         </div>
+                        {% endif %}
                         
-                        <div class="mb-3">
-                            <label for="{{ form.categoria_sugerida.id_for_label }}" class="form-label">Categoria Sugerida *</label>
-                            {{ form.categoria_sugerida }}
-                            {% if form.categoria_sugerida.errors %}
-                                <div class="invalid-feedback d-block">
-                                    {{ form.categoria_sugerida.errors|join:", " }}
-                                </div>
-                            {% endif %}
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="{{ form.descricao.id_for_label }}" class="form-label">Descrição *</label>
-                            {{ form.descricao }}
-                            {% if form.descricao.errors %}
-                                <div class="invalid-feedback d-block">
-                                    {{ form.descricao.errors|join:", " }}
-                                </div>
-                            {% endif %}
-                        </div>
-                        
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label for="{{ form.volume.id_for_label }}" class="form-label">Volume</label>
-                                {{ form.volume }}
-                                {% if form.volume.errors %}
-                                    <div class="invalid-feedback d-block">
-                                        {{ form.volume.errors|join:", " }}
-                                    </div>
-                                {% endif %}
-                            </div>
-                            <div class="col-md-6">
-                                <label for="{{ form.unidade.id_for_label }}" class="form-label">Unidade</label>
-                                {{ form.unidade }}
-                                {% if form.unidade.errors %}
-                                    <div class="invalid-feedback d-block">
-                                        {{ form.unidade.errors|join:", " }}
-                                    </div>
-                                {% endif %}
-                            </div>
-                        </div>
-                        
+                        <!-- Informações Básicas -->
                         <div class="mb-4">
-                            <label for="{{ form.fabricante.id_for_label }}" class="form-label">Fabricante</label>
-                            {{ form.fabricante }}
-                            {% if form.fabricante.errors %}
-                                <div class="invalid-feedback d-block">
-                                    {{ form.fabricante.errors|join:", " }}
+                            <h5 class="card-title mb-3">
+                                <i class="fas fa-info-circle text-primary me-2"></i>
+                                Informações Básicas
+                            </h5>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ form.nome_produto.id_for_label }}" class="form-label">Nome do Produto *</label>
+                                        {{ form.nome_produto }}
+                                        {% if form.nome_produto.errors %}
+                                            <div class="invalid-feedback d-block">
+                                                {{ form.nome_produto.errors|join:", " }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
                                 </div>
-                            {% endif %}
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ form.categoria_sugerida.id_for_label }}" class="form-label">Categoria Sugerida *</label>
+                                        {{ form.categoria_sugerida }}
+                                        {% if form.categoria_sugerida.errors %}
+                                            <div class="invalid-feedback d-block">
+                                                {{ form.categoria_sugerida.errors|join:", " }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="{{ form.descricao.id_for_label }}" class="form-label">Descrição *</label>
+                                {{ form.descricao }}
+                                {% if form.descricao.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.descricao.errors|join:", " }}
+                                    </div>
+                                {% endif %}
+                            </div>
                         </div>
                         
-                        <div class="d-flex justify-content-between">
-                            <a href="{% url 'core:dashboard' %}" class="btn btn-outline-secondary">
-                                <i class="fas fa-arrow-left me-1"></i>
-                                Voltar
-                            </a>
+                        <!-- Especificações Técnicas -->
+                        <div class="mb-4">
+                            <h5 class="card-title mb-3">
+                                <i class="fas fa-cogs text-primary me-2"></i>
+                                Especificações Técnicas
+                            </h5>
+                            
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="{{ form.quantidade.id_for_label }}" class="form-label">Quantidade *</label>
+                                        {{ form.quantidade }}
+                                        {% if form.quantidade.errors %}
+                                            <div class="invalid-feedback d-block">
+                                                {{ form.quantidade.errors|join:", " }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="{{ form.unidade_medida.id_for_label }}" class="form-label">Unidade de Medida *</label>
+                                        {{ form.unidade_medida }}
+                                        {% if form.unidade_medida.errors %}
+                                            <div class="invalid-feedback d-block">
+                                                {{ form.unidade_medida.errors|join:", " }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="tipo_produto" class="form-label">Tipo de Produto</label>
+                                        <select class="form-select" id="tipo_produto" name="tipo_produto">
+                                            <option value="">Selecione...</option>
+                                            <option value="feijao">Feijão</option>
+                                            <option value="algodao">Algodão</option>
+                                            <option value="gergelim">Gergelim</option>
+                                            <option value="pastagem">Pastagem</option>
+                                            <option value="milho">Milho</option>
+                                            <option value="soja">Soja</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="fabricante" class="form-label">Fabricante</label>
+                                        <input type="text" class="form-control" id="fabricante" name="fabricante">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="lote" class="form-label">Lote</label>
+                                        <input type="text" class="form-control" id="lote" name="lote">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="peneira" class="form-label">Peneira</label>
+                                        <input type="text" class="form-control" id="peneira" name="peneira">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="variedade" class="form-label">Variedade</label>
+                                        <input type="text" class="form-control" id="variedade" name="variedade">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="embalagem" class="form-label">Embalagem</label>
+                                        <select class="form-select" id="embalagem" name="embalagem">
+                                            <option value="">Selecione...</option>
+                                            <option value="bag">Saco</option>
+                                            <option value="box">Caixa</option>
+                                            <option value="bottle">Garrafa</option>
+                                            <option value="can">Lata</option>
+                                            <option value="other">Outro</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="validade" class="form-label">Data de Validade</label>
+                                        <input type="date" class="form-control" id="validade" name="validade">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Observações Adicionais -->
+                        <div class="mb-4">
+                            <h5 class="card-title mb-3">
+                                <i class="fas fa-comment-alt text-primary me-2"></i>
+                                Observações Adicionais
+                            </h5>
+                            
+                            <div class="mb-3">
+                                <label for="observacoes" class="form-label">Observações</label>
+                                <textarea class="form-control" id="observacoes" name="observacoes" rows="3" placeholder="Adicione informações complementares sobre o produto..."></textarea>
+                            </div>
+                        </div>
+                        
+                        <!-- Botões de Ação -->
+                        <div class="d-flex justify-content-end">
                             <button type="submit" class="btn btn-primary">
                                 <i class="fas fa-paper-plane me-1"></i>
                                 Enviar Solicitação
@@ -96,4 +209,28 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Adiciona classes do Bootstrap aos campos do formulário
+    document.addEventListener('DOMContentLoaded', function() {
+        const formInputs = document.querySelectorAll('input, select, textarea');
+        formInputs.forEach(input => {
+            input.classList.add('form-control');
+        });
+        
+        // Adiciona validação do formulário
+        const forms = document.querySelectorAll('.needs-validation');
+        Array.from(forms).forEach(form => {
+            form.addEventListener('submit', event => {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+    });
+</script>
 {% endblock %} 

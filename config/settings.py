@@ -66,8 +66,8 @@ CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 # Adiciona o debug toolbar apenas em desenvolvimento
-# if DEBUG:
-#     INSTALLED_APPS += ['debug_toolbar']
+if DEBUG:
+    INSTALLED_APPS += ['debug_toolbar']
 
 # Configurações de Autenticação
 LOGIN_URL = 'core:login'
@@ -86,6 +86,10 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'core.middleware.CustomCsrfMiddleware',  # Adicionando middleware personalizado
 ]
+
+# Adiciona o middleware do debug toolbar apenas em desenvolvimento
+if DEBUG:
+    MIDDLEWARE += ['debug_toolbar.middleware.DebugToolbarMiddleware']
 
 # Configurações de CSRF
 if DEBUG:
@@ -120,10 +124,6 @@ SESSION_COOKIE_NAME = 'sessionid'
 SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = 'DENY'
-
-# Adiciona o middleware do debug toolbar apenas em desenvolvimento
-# if DEBUG:
-#     MIDDLEWARE += ['debug_toolbar.middleware.DebugToolbarMiddleware']
 
 # Configuração do Debug Toolbar
 if DEBUG:

@@ -45,14 +45,49 @@ class ProductForm(forms.ModelForm):
     class Meta:
         model = Produto
         fields = [
-            'nome', 'descricao', 'preco', 'volume_disponivel', 'unidade_medida',
-            'categoria', 'tipo', 'fabricante', 'lote',
-            'validade', 'quantidade_minima', 'embalagem',
-            'peneira', 'variedade', 'moeda', 'permite_troca'
+            'nome', 'categoria', 'preco', 'moeda', 'volume_disponivel', 'unidade_medida',
+            'tipo', 'embalagem', 'fabricante', 'lote', 'validade', 'quantidade_minima',
+            'peneira', 'variedade', 'imagem', 'descricao', 'permite_troca', 'ativo'
         ]
         widgets = {
-            'descricao': forms.Textarea(attrs={'rows': 4}),
-            'validade': forms.DateInput(attrs={'type': 'date'}),
+            'nome': forms.TextInput(attrs={'class': 'form-control', 'required': True}),
+            'categoria': forms.TextInput(attrs={'class': 'form-control', 'required': True}),
+            'preco': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'required': True}),
+            'moeda': forms.Select(attrs={'class': 'form-select', 'required': True}),
+            'volume_disponivel': forms.NumberInput(attrs={'class': 'form-control', 'required': True}),
+            'unidade_medida': forms.Select(attrs={'class': 'form-select', 'required': True}),
+            'tipo': forms.Select(attrs={'class': 'form-select', 'required': True}),
+            'embalagem': forms.Select(attrs={'class': 'form-select'}),
+            'fabricante': forms.TextInput(attrs={'class': 'form-control'}),
+            'lote': forms.TextInput(attrs={'class': 'form-control'}),
+            'validade': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'quantidade_minima': forms.NumberInput(attrs={'class': 'form-control'}),
+            'peneira': forms.TextInput(attrs={'class': 'form-control'}),
+            'variedade': forms.TextInput(attrs={'class': 'form-control'}),
+            'imagem': forms.FileInput(attrs={'class': 'form-control'}),
+            'descricao': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'permite_troca': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'ativo': forms.CheckboxInput(attrs={'class': 'form-check-input', 'checked': True})
+        }
+        labels = {
+            'nome': 'Nome do Produto*',
+            'categoria': 'Categoria*',
+            'preco': 'Preço*',
+            'moeda': 'Moeda*',
+            'volume_disponivel': 'Volume Disponível*',
+            'unidade_medida': 'Unidade de Medida*',
+            'tipo': 'Tipo do Produto*',
+            'embalagem': 'Embalagem',
+            'fabricante': 'Fabricante',
+            'lote': 'Lote',
+            'validade': 'Data de Validade',
+            'quantidade_minima': 'Quantidade Mínima',
+            'peneira': 'Peneira da Semente',
+            'variedade': 'Variedade da Semente',
+            'imagem': 'Imagem do Produto',
+            'descricao': 'Descrição do Produto',
+            'permite_troca': 'Permitir Troca',
+            'ativo': 'Produto Ativo'
         }
 
 class OrderForm(forms.ModelForm):
@@ -175,13 +210,50 @@ class LoginForm(forms.Form):
 class SolicitacaoProdutoForm(forms.ModelForm):
     class Meta:
         model = SolicitacaoProduto
-        fields = ['nome_produto', 'descricao', 'categoria_sugerida', 'quantidade', 'unidade_medida']
+        fields = [
+            'nome_produto', 
+            'descricao', 
+            'categoria_sugerida', 
+            'quantidade', 
+            'unidade_medida',
+            'tipo_produto',
+            'fabricante',
+            'lote',
+            'peneira',
+            'variedade',
+            'embalagem',
+            'data_validade',
+            'observacoes'
+        ]
         labels = {
             'nome_produto': _('Nome do Produto'),
             'descricao': _('Descrição'),
             'categoria_sugerida': _('Categoria Sugerida'),
             'quantidade': _('Quantidade'),
             'unidade_medida': _('Unidade de Medida'),
+            'tipo_produto': _('Tipo de Produto'),
+            'fabricante': _('Fabricante'),
+            'lote': _('Lote'),
+            'peneira': _('Peneira'),
+            'variedade': _('Variedade'),
+            'embalagem': _('Embalagem'),
+            'data_validade': _('Data de Validade'),
+            'observacoes': _('Observações Adicionais')
+        }
+        widgets = {
+            'nome_produto': forms.TextInput(attrs={'class': 'form-control', 'required': True}),
+            'descricao': forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'required': True}),
+            'categoria_sugerida': forms.TextInput(attrs={'class': 'form-control', 'required': True}),
+            'quantidade': forms.NumberInput(attrs={'class': 'form-control', 'min': '1', 'required': True}),
+            'unidade_medida': forms.Select(attrs={'class': 'form-select', 'required': True}),
+            'tipo_produto': forms.Select(attrs={'class': 'form-select'}),
+            'fabricante': forms.TextInput(attrs={'class': 'form-control'}),
+            'lote': forms.TextInput(attrs={'class': 'form-control'}),
+            'peneira': forms.TextInput(attrs={'class': 'form-control'}),
+            'variedade': forms.TextInput(attrs={'class': 'form-control'}),
+            'embalagem': forms.Select(attrs={'class': 'form-select'}),
+            'data_validade': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'observacoes': forms.Textarea(attrs={'class': 'form-control', 'rows': 3})
         }
 
 class SellerProfileForm(forms.ModelForm):

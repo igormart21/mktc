@@ -3,54 +3,36 @@ from .models import Produto
 
 @admin.register(Produto)
 class ProdutoAdmin(admin.ModelAdmin):
-    list_display = ('nome', 'get_categoria_display', 'tipo', 'variedade', 'validade', 'preco', 'permite_troca', 'vendedor')
-    list_filter = ('categoria', 'tipo', 'moeda', 'validade', 'permite_troca')
-    search_fields = ('nome', 'variedade', 'fabricante', 'lote')
-    readonly_fields = ('created_at', 'updated_at')
-    
+    list_display = ['nome', 'categoria', 'preco', 'volume_disponivel', 'ativo']
+    list_filter = ['categoria', 'tipo', 'ativo']
+    search_fields = ['nome', 'descricao']
+    readonly_fields = ['created_at', 'updated_at']
     fieldsets = (
         ('Informações Básicas', {
-            'fields': (
-                'nome',
-                'descricao',
-                'vendedor',
-                'preco',
-                'moeda',
-                'permite_troca',
-            )
+            'fields': ('nome', 'categoria', 'descricao')
         }),
-        ('Categorização', {
-            'fields': (
-                'categoria',
-                'tipo',
-                'variedade',
-            )
+        ('Preço e Volume', {
+            'fields': ('preco', 'moeda', 'volume_disponivel', 'unidade_medida')
         }),
-        ('Detalhes do Produto', {
-            'fields': (
-                'fabricante',
-                'lote',
-                'peneira',
-                'embalagem',
-            )
+        ('Classificação', {
+            'fields': ('tipo', 'embalagem')
         }),
-        ('Controle de Estoque', {
-            'fields': (
-                'quantidade',
-                'quantidade_minima',
-                'volume_disponivel',
-                'unidade_medida',
-                'validade',
-            ),
-            'classes': ('collapse',)
+        ('Informações Adicionais', {
+            'fields': ('fabricante', 'lote', 'validade', 'quantidade_minima')
+        }),
+        ('Informações da Semente', {
+            'fields': ('peneira', 'variedade')
+        }),
+        ('Imagem', {
+            'fields': ('imagem',)
+        }),
+        ('Status', {
+            'fields': ('permite_troca', 'ativo')
         }),
         ('Metadados', {
-            'fields': (
-                'created_at',
-                'updated_at',
-            ),
+            'fields': ('vendedor', 'created_at', 'updated_at'),
             'classes': ('collapse',)
-        }),
+        })
     )
 
     def save_model(self, request, obj, form, change):
