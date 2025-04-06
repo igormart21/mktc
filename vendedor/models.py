@@ -4,9 +4,8 @@ from django.utils import timezone
 from django.core.validators import MinValueValidator, MaxValueValidator
 
 class Vendedor(models.Model):
-    usuario = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    usuario = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='vendedor')
     nome_fantasia = models.CharField(max_length=200, blank=True, null=True)
-    inscricao_estadual = models.CharField(max_length=20, blank=True, null=True)
     telefone = models.CharField(max_length=20, blank=True, null=True)
     endereco = models.CharField(max_length=200, blank=True, null=True)
     cidade = models.CharField(max_length=100, blank=True, null=True)
@@ -24,16 +23,7 @@ class Vendedor(models.Model):
     )
     rg = models.FileField(upload_to='documentos/rg/', blank=True, null=True)
     cnh = models.FileField(upload_to='documentos/cnh/', blank=True, null=True)
-    
-    # Campos do Jogo (JG)
-    nivel = models.IntegerField(default=1, help_text='Nível do vendedor no jogo')
-    pontos_experiencia = models.IntegerField(default=0, help_text='Pontos de experiência acumulados')
-    moedas = models.IntegerField(default=0, help_text='Moedas do jogo')
-    conquistas = models.JSONField(default=dict, help_text='Conquistas desbloqueadas')
-    itens_inventario = models.JSONField(default=dict, help_text='Itens no inventário')
-    ultima_missao = models.DateTimeField(null=True, blank=True, help_text='Data da última missão completada')
-    missoes_completadas = models.IntegerField(default=0, help_text='Total de missões completadas')
-    ranking = models.IntegerField(default=0, help_text='Posição no ranking')
+    data_aprovacao = models.DateTimeField(null=True, blank=True)
     
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)

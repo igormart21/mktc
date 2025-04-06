@@ -1,0 +1,82 @@
+{% extends "base_internal.html" %}
+{% load static %}
+
+{% block title %}Vendas Pendentes - AgroMarketplace{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3">Vendas Pendentes de Aprovação</h1>
+                <a href="{% url 'core:superadmin_dashboard' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Voltar
+                </a>
+            </div>
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Produto</th>
+                                    <th>Comprador</th>
+                                    <th>Vendedor</th>
+                                    <th>Data</th>
+                                    <th>Status</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for venda in vendas %}
+                                <tr>
+                                    <td>{{ venda.id }}</td>
+                                    <td>{{ venda.produto.nome }}</td>
+                                    <td>{{ venda.comprador.get_full_name }}</td>
+                                    <td>{{ venda.vendedor.get_full_name }}</td>
+                                    <td>{{ venda.data_criacao|date:"d/m/Y H:i" }}</td>
+                                    <td>
+                                        <span class="badge bg-warning">Pendente</span>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <form method="post" action="{% url 'core:aprovar_venda' venda.id %}" class="d-inline">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-sm btn-success" title="Aprovar" onclick="return confirm('Tem certeza que deseja aprovar esta venda?')">
+                                                    <i class="fas fa-check"></i> Aprovar
+                                                </button>
+                                            </form>
+                                            <form method="post" action="{% url 'core:rejeitar_venda' venda.id %}" class="d-inline">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-sm btn-danger" title="Rejeitar" onclick="return confirm('Tem certeza que deseja rejeitar esta venda?')">
+                                                    <i class="fas fa-times"></i> Rejeitar
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="7" class="text-center">Nenhuma venda pendente de aprovação</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

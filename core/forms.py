@@ -77,79 +77,92 @@ class SellerRegistrationForm(UserCreationForm):
     nome = forms.CharField(
         max_length=100, 
         label='Nome', 
-        required=False
+        required=True,
+        widget=forms.TextInput(attrs={'class': 'form-control'})
     )
     sobrenome = forms.CharField(
         max_length=100, 
         label='Sobrenome', 
-        required=False
+        required=True,
+        widget=forms.TextInput(attrs={'class': 'form-control'})
     )
     email = forms.EmailField(
         label='E-mail', 
-        required=False
+        required=True,
+        widget=forms.EmailInput(attrs={'class': 'form-control'})
     )
     cpf = forms.CharField(
         max_length=11,
         label='CPF',
-        required=False
+        required=True,
+        widget=forms.TextInput(attrs={'class': 'form-control'})
     )
     telefone = forms.CharField(
         max_length=20, 
         label='Telefone', 
-        required=False
+        required=True,
+        widget=forms.TextInput(attrs={'class': 'form-control'})
     )
     tipo_documento = forms.ChoiceField(
         choices=[('RG', 'RG'), ('CNH', 'CNH')],
         label='Tipo de Documento',
-        required=False
-    )
-    numero_documento = forms.CharField(
-        max_length=20, 
-        label='Número do Documento', 
-        required=False
+        required=True,
+        widget=forms.Select(attrs={'class': 'form-control'})
     )
     arquivo_documento = forms.FileField(
         label='Arquivo do Documento', 
-        required=False
-    )
-    cep = forms.CharField(
-        max_length=9, 
-        label='CEP', 
-        required=False
+        required=True,
+        widget=forms.FileInput(attrs={'class': 'form-control'})
     )
     endereco = forms.CharField(
         max_length=255, 
         label='Endereço', 
-        required=False
+        required=True,
+        widget=forms.TextInput(attrs={'class': 'form-control'})
     )
     cidade = forms.CharField(
         max_length=100, 
         label='Cidade', 
-        required=False
+        required=True,
+        widget=forms.TextInput(attrs={'class': 'form-control'})
     )
     estado = forms.CharField(
         max_length=2, 
         label='Estado', 
-        required=False
+        required=True,
+        widget=forms.TextInput(attrs={'class': 'form-control'})
+    )
+    cep = forms.CharField(
+        max_length=9, 
+        label='CEP', 
+        required=True,
+        widget=forms.TextInput(attrs={'class': 'form-control'})
     )
     hectares_atendidos = forms.IntegerField(
         label='Hectares Atendidos',
-        required=False
+        required=True,
+        widget=forms.NumberInput(attrs={'class': 'form-control'})
     )
 
     class Meta:
         model = Usuario
         fields = [
             'nome', 'sobrenome', 'email', 'cpf', 'password1', 'password2',
-            'telefone', 'tipo_documento', 'numero_documento', 'arquivo_documento',
-            'cep', 'endereco', 'cidade', 'estado', 'hectares_atendidos'
+            'telefone', 'tipo_documento', 'arquivo_documento',
+            'endereco', 'cidade', 'estado', 'cep', 'hectares_atendidos'
         ]
 
     def clean_email(self):
-        return self.cleaned_data.get('email')
+        email = self.cleaned_data.get('email')
+        if Usuario.objects.filter(email=email).exists():
+            raise forms.ValidationError('Este email já está em uso.')
+        return email
 
     def clean_cpf(self):
-        return self.cleaned_data.get('cpf')
+        cpf = self.cleaned_data.get('cpf')
+        if Usuario.objects.filter(cpf=cpf).exists():
+            raise forms.ValidationError('Este CPF já está cadastrado.')
+        return cpf
 
     def clean_estado(self):
         estado = self.cleaned_data.get('estado')
@@ -176,7 +189,6 @@ class SellerProfileForm(forms.ModelForm):
         model = Vendedor
         fields = [
             'nome_fantasia',
-            'inscricao_estadual',
             'telefone',
             'endereco',
             'cidade',

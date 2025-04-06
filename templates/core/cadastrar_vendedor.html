@@ -26,7 +26,7 @@
 
             <div class="card shadow-sm">
                 <div class="card-body">
-                    <form method="post" class="needs-validation" novalidate enctype="multipart/form-data">
+                    <form method="post" action="{% url 'core:cadastrar_vendedor' %}" class="needs-validation" novalidate enctype="multipart/form-data">
                         {% csrf_token %}
                         
                         {% if form.errors %}
@@ -42,30 +42,14 @@
                             </div>
                         {% endif %}
 
-                        <div class="row g-3">
-                            <!-- Informações do Usuário -->
+                        <div class="row">
                             <div class="col-md-6">
                                 <h5 class="mb-3 text-primary">
-                                    <i class="fas fa-user me-2"></i>Informações do Usuário
+                                    <i class="fas fa-user me-2"></i>Informações Pessoais
                                 </h5>
-                                
-                                <div class="mb-3">
-                                    <label for="{{ form.email.id_for_label }}" class="form-label">Email</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text bg-light">
-                                            <i class="fas fa-envelope"></i>
-                                        </span>
-                                        {{ form.email }}
-                                    </div>
-                                    {% if form.email.errors %}
-                                        <div class="invalid-feedback d-block">
-                                            {{ form.email.errors }}
-                                        </div>
-                                    {% endif %}
-                                </div>
 
                                 <div class="mb-3">
-                                    <label for="{{ form.nome.id_for_label }}" class="form-label">Nome Completo</label>
+                                    <label for="{{ form.nome.id_for_label }}" class="form-label">Nome</label>
                                     <div class="input-group">
                                         <span class="input-group-text bg-light">
                                             <i class="fas fa-user"></i>
@@ -75,6 +59,21 @@
                                     {% if form.nome.errors %}
                                         <div class="invalid-feedback d-block">
                                             {{ form.nome.errors }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="{{ form.sobrenome.id_for_label }}" class="form-label">Sobrenome</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light">
+                                            <i class="fas fa-user"></i>
+                                        </span>
+                                        {{ form.sobrenome }}
+                                    </div>
+                                    {% if form.sobrenome.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.sobrenome.errors }}
                                         </div>
                                     {% endif %}
                                 </div>
@@ -90,6 +89,36 @@
                                     {% if form.cpf.errors %}
                                         <div class="invalid-feedback d-block">
                                             {{ form.cpf.errors }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="{{ form.telefone.id_for_label }}" class="form-label">Telefone</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light">
+                                            <i class="fas fa-phone"></i>
+                                        </span>
+                                        {{ form.telefone }}
+                                    </div>
+                                    {% if form.telefone.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.telefone.errors }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="{{ form.email.id_for_label }}" class="form-label">Email</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light">
+                                            <i class="fas fa-envelope"></i>
+                                        </span>
+                                        {{ form.email }}
+                                    </div>
+                                    {% if form.email.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.email.errors }}
                                         </div>
                                     {% endif %}
                                 </div>
@@ -125,128 +154,52 @@
                                 </div>
                             </div>
 
-                            <!-- Informações do Vendedor -->
                             <div class="col-md-6">
                                 <h5 class="mb-3 text-primary">
                                     <i class="fas fa-store me-2"></i>Informações do Vendedor
                                 </h5>
 
                                 <div class="mb-3">
-                                    <label for="{{ form.razao_social.id_for_label }}" class="form-label">Razão Social</label>
+                                    <label for="{{ form.tipo_documento.id_for_label }}" class="form-label">Tipo de Documento</label>
                                     <div class="input-group">
                                         <span class="input-group-text bg-light">
-                                            <i class="fas fa-building"></i>
+                                            <i class="fas fa-file"></i>
                                         </span>
-                                        {{ form.razao_social }}
+                                        {{ form.tipo_documento }}
                                     </div>
-                                    {% if form.razao_social.errors %}
+                                    {% if form.tipo_documento.errors %}
                                         <div class="invalid-feedback d-block">
-                                            {{ form.razao_social.errors }}
+                                            {{ form.tipo_documento.errors }}
                                         </div>
                                     {% endif %}
                                 </div>
 
                                 <div class="mb-3">
-                                    <label for="{{ form.nome_fantasia.id_for_label }}" class="form-label">Nome Fantasia</label>
+                                    <label for="{{ form.arquivo_documento.id_for_label }}" class="form-label">Arquivo do Documento</label>
                                     <div class="input-group">
                                         <span class="input-group-text bg-light">
-                                            <i class="fas fa-store"></i>
+                                            <i class="fas fa-upload"></i>
                                         </span>
-                                        {{ form.nome_fantasia }}
+                                        {{ form.arquivo_documento }}
                                     </div>
-                                    {% if form.nome_fantasia.errors %}
+                                    {% if form.arquivo_documento.errors %}
                                         <div class="invalid-feedback d-block">
-                                            {{ form.nome_fantasia.errors }}
+                                            {{ form.arquivo_documento.errors }}
                                         </div>
                                     {% endif %}
                                 </div>
 
                                 <div class="mb-3">
-                                    <label for="{{ form.cnpj.id_for_label }}" class="form-label">CNPJ</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text bg-light">
-                                            <i class="fas fa-id-card"></i>
-                                        </span>
-                                        {{ form.cnpj }}
-                                    </div>
-                                    {% if form.cnpj.errors %}
-                                        <div class="invalid-feedback d-block">
-                                            {{ form.cnpj.errors }}
-                                        </div>
-                                    {% endif %}
-                                </div>
-
-                                <div class="mb-3">
-                                    <label for="{{ form.inscricao_estadual.id_for_label }}" class="form-label">Inscrição Estadual</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text bg-light">
-                                            <i class="fas fa-id-card"></i>
-                                        </span>
-                                        {{ form.inscricao_estadual }}
-                                    </div>
-                                    {% if form.inscricao_estadual.errors %}
-                                        <div class="invalid-feedback d-block">
-                                            {{ form.inscricao_estadual.errors }}
-                                        </div>
-                                    {% endif %}
-                                </div>
-
-                                <div class="mb-3">
-                                    <label for="{{ form.telefone.id_for_label }}" class="form-label">Telefone</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text bg-light">
-                                            <i class="fas fa-phone"></i>
-                                        </span>
-                                        {{ form.telefone }}
-                                    </div>
-                                    {% if form.telefone.errors %}
-                                        <div class="invalid-feedback d-block">
-                                            {{ form.telefone.errors }}
-                                        </div>
-                                    {% endif %}
-                                </div>
-
-                                <div class="mb-3">
-                                    <label for="{{ form.cep.id_for_label }}" class="form-label">CEP</label>
+                                    <label for="{{ form.endereco.id_for_label }}" class="form-label">Endereço</label>
                                     <div class="input-group">
                                         <span class="input-group-text bg-light">
                                             <i class="fas fa-map-marker-alt"></i>
                                         </span>
-                                        {{ form.cep }}
+                                        {{ form.endereco }}
                                     </div>
-                                    {% if form.cep.errors %}
+                                    {% if form.endereco.errors %}
                                         <div class="invalid-feedback d-block">
-                                            {{ form.cep.errors }}
-                                        </div>
-                                    {% endif %}
-                                </div>
-
-                                <div class="mb-3">
-                                    <label for="{{ form.rua.id_for_label }}" class="form-label">Endereço</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text bg-light">
-                                            <i class="fas fa-map"></i>
-                                        </span>
-                                        {{ form.rua }}
-                                    </div>
-                                    {% if form.rua.errors %}
-                                        <div class="invalid-feedback d-block">
-                                            {{ form.rua.errors }}
-                                        </div>
-                                    {% endif %}
-                                </div>
-
-                                <div class="mb-3">
-                                    <label for="{{ form.numero.id_for_label }}" class="form-label">Número</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text bg-light">
-                                            <i class="fas fa-hashtag"></i>
-                                        </span>
-                                        {{ form.numero }}
-                                    </div>
-                                    {% if form.numero.errors %}
-                                        <div class="invalid-feedback d-block">
-                                            {{ form.numero.errors }}
+                                            {{ form.endereco.errors }}
                                         </div>
                                     {% endif %}
                                 </div>
@@ -270,13 +223,28 @@
                                     <label for="{{ form.estado.id_for_label }}" class="form-label">Estado</label>
                                     <div class="input-group">
                                         <span class="input-group-text bg-light">
-                                            <i class="fas fa-map-marker-alt"></i>
+                                            <i class="fas fa-map"></i>
                                         </span>
                                         {{ form.estado }}
                                     </div>
                                     {% if form.estado.errors %}
                                         <div class="invalid-feedback d-block">
                                             {{ form.estado.errors }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="{{ form.cep.id_for_label }}" class="form-label">CEP</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light">
+                                            <i class="fas fa-map-pin"></i>
+                                        </span>
+                                        {{ form.cep }}
+                                    </div>
+                                    {% if form.cep.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.cep.errors }}
                                         </div>
                                     {% endif %}
                                 </div>
@@ -295,40 +263,10 @@
                                         </div>
                                     {% endif %}
                                 </div>
-
-                                <div class="mb-3">
-                                    <label for="{{ form.rg.id_for_label }}" class="form-label">RG</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text bg-light">
-                                            <i class="fas fa-file"></i>
-                                        </span>
-                                        {{ form.rg }}
-                                    </div>
-                                    {% if form.rg.errors %}
-                                        <div class="invalid-feedback d-block">
-                                            {{ form.rg.errors }}
-                                        </div>
-                                    {% endif %}
-                                </div>
-
-                                <div class="mb-3">
-                                    <label for="{{ form.cnh.id_for_label }}" class="form-label">CNH</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text bg-light">
-                                            <i class="fas fa-file"></i>
-                                        </span>
-                                        {{ form.cnh }}
-                                    </div>
-                                    {% if form.cnh.errors %}
-                                        <div class="invalid-feedback d-block">
-                                            {{ form.cnh.errors }}
-                                        </div>
-                                    {% endif %}
-                                </div>
                             </div>
                         </div>
 
-                        <div class="text-end mt-4">
+                        <div class="mt-4">
                             <button type="submit" class="btn btn-primary">
                                 <i class="fas fa-save me-2"></i>Cadastrar Vendedor
                             </button>

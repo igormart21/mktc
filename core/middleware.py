@@ -9,6 +9,7 @@ class CustomCsrfMiddleware(CsrfViewMiddleware):
         # Lista de URLs que não precisam de verificação CSRF
         csrf_exempt_urls = [
             '/api/',  # Exemplo: todas as URLs que começam com /api/
+            '/superadmin/vendedores/cadastrar/',  # URL do formulário de vendedor
         ]
         
         # Verifica se a URL atual está na lista de exceções

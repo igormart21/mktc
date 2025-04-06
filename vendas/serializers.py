@@ -5,23 +5,26 @@ from usuarios.serializers import UsuarioSerializer
 
 class VendaSerializer(serializers.ModelSerializer):
     produto = ProdutoSerializer(read_only=True)
-    comprador = UsuarioSerializer(read_only=True)
     vendedor = UsuarioSerializer(read_only=True)
+    comprador = UsuarioSerializer(read_only=True)
     
     class Meta:
         model = Venda
         fields = [
             'id',
             'produto',
-            'comprador',
             'vendedor',
+            'comprador',
             'quantidade',
             'preco_unitario',
             'preco_total',
+            'status',
+            'observacoes',
+            'data_criacao',
             'data_venda',
-            'status'
+            'estoque_atualizado'
         ]
-        read_only_fields = ['id', 'data_venda']
+        read_only_fields = ['id', 'data_criacao', 'data_venda', 'estoque_atualizado']
 
     def validate(self, data):
         request = self.context.get('request')
@@ -32,12 +35,8 @@ class VendaSerializer(serializers.ModelSerializer):
         if not produto:
             raise serializers.ValidationError("Produto é obrigatório")
 
-        # Verifica se o usuário não está tentando comprar de si mesmo
-        if request.user == produto.criado_por:
-            raise serializers.ValidationError("Você não pode comprar seus próprios produtos")
-
         # Verifica se há estoque suficiente
-        if produto.estoque < 1:
+        if produto.quantidade < data.get('quantidade', 1):
             raise serializers.ValidationError("Estoque insuficiente para este produto.")
 
         return data
@@ -46,10 +45,16 @@ class VendaSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         produto = validated_data.get('produto')
         
-        # Cria a venda com o comprador atual
+        # Calcula preço unitário e total
+        if not validated_data.get('preco_unitario'):
+            validated_data['preco_unitario'] = produto.preco
+        
+        if not validated_data.get('preco_total'):
+            validated_data['preco_total'] = validated_data['quantidade'] * validated_data['preco_unitario']
+        
+        # Cria a venda com o vendedor atual
         venda = Venda.objects.create(
-            comprador=request.user,
-            vendedor=produto.criado_por,
+            vendedor=request.user,
             **validated_data
         )
         return venda 

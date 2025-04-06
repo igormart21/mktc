@@ -50,6 +50,7 @@ class Produto(models.Model):
     quantidade_minima = models.IntegerField(default=1, blank=True, null=True)
     validade = models.DateField(default=timezone.now, blank=True, null=True)
     permite_troca = models.BooleanField(default=False, blank=True, null=True)
+    imagem = models.ImageField(upload_to='produtos/', blank=True, null=True)
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
 

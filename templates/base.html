@@ -66,6 +66,11 @@
                                     <span>Meu Perfil</span>
                                 </a>
                             </li>
+                            {% if user.is_authenticated and user.is_vendedor %}
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{% url 'core:historico_pedidos' %}">Histórico de Pedidos</a>
+                                </li>
+                            {% endif %}
                         {% endif %}
                         <li class="nav-item">
                             <a class="nav-link text-dark fw-medium d-flex align-items-center gap-2" href="{% url 'core:logout' %}">

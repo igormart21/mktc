@@ -22,8 +22,8 @@
                     <select name="categoria" id="categoria" class="form-select">
                         <option value="">Todas as categorias</option>
                         {% for categoria in categorias %}
-                        <option value="{{ categoria.id }}" {% if categoria_selecionada == categoria.id|stringformat:"s" %}selected{% endif %}>
-                            {{ categoria.name }}
+                        <option value="{{ categoria.0 }}" {% if categoria_selecionada == categoria.0 %}selected{% endif %}>
+                            {{ categoria.1 }}
                         </option>
                         {% endfor %}
                     </select>
@@ -78,8 +78,8 @@
         <div class="col">
             <div class="card h-100 border-0 shadow-sm">
                 <a href="{% url 'core:produto_detalhe' produto.id %}" class="text-decoration-none">
-                    {% if produto.image %}
-                    <img src="{{ produto.image.url }}" class="card-img-top" alt="{{ produto.name }}" style="height: 200px; object-fit: cover;">
+                    {% if produto.imagem %}
+                    <img src="{{ produto.imagem.url }}" class="card-img-top" alt="{{ produto.nome }}" style="height: 200px; object-fit: cover;">
                     {% else %}
                     <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
                         <i class="fas fa-image fa-3x text-muted"></i>
@@ -88,14 +88,14 @@
                 </a>
                 <div class="card-body">
                     <h5 class="card-title">
-                        <a href="{% url 'core:produto_detalhe' produto.id %}" class="text-decoration-none text-dark">{{ produto.name }}</a>
+                        <a href="{% url 'core:produto_detalhe' produto.id %}" class="text-decoration-none text-dark">{{ produto.nome }}</a>
                     </h5>
-                    <p class="card-text text-muted">{{ produto.description|truncatewords:20 }}</p>
+                    <p class="card-text text-muted">{{ produto.descricao|truncatewords:20 }}</p>
                     <div class="mb-2">
-                        <span class="badge bg-primary">{{ produto.category.name }}</span>
-                        <span class="badge bg-secondary">{{ produto.get_product_type_display }}</span>
+                        <span class="badge bg-primary">{{ produto.get_categoria_display }}</span>
+                        <span class="badge bg-secondary">{{ produto.get_tipo_display }}</span>
                     </div>
-                    <h4 class="text-primary mb-3">{{ produto.get_price_display }}</h4>
+                    <h4 class="text-primary mb-3">R$ {{ produto.preco }}</h4>
                     <div class="d-grid gap-2">
                         <a href="{% url 'core:produto_detalhe' produto.id %}" class="btn btn-outline-primary">
                             <i class="fas fa-eye me-2"></i>Ver Detalhes
@@ -118,11 +118,11 @@
                         <div class="modal-body">
                             <div class="mb-3">
                                 <h6 class="text-muted mb-2">Produto</h6>
-                                <p class="mb-0">{{ produto.name }}</p>
+                                <p class="mb-0">{{ produto.nome }}</p>
                             </div>
                             <div class="mb-3">
                                 <h6 class="text-muted mb-2">Preço</h6>
-                                <p class="mb-0">{{ produto.get_price_display }}</p>
+                                <p class="mb-0">R$ {{ produto.preco }}</p>
                             </div>
                             <div class="mb-3">
                                 <label for="quantidade" class="form-label">Quantidade</label>
@@ -139,7 +139,7 @@
                                     </div>
                                     <div class="flex-grow-1 ms-3">
                                         <h6 class="alert-heading mb-1">Valor Total</h6>
-                                        <p class="mb-0" id="valorTotal">{{ produto.get_price_display }}</p>
+                                        <p class="mb-0" id="valorTotal">R$ {{ produto.preco }}</p>
                                     </div>
                                 </div>
                             </div>

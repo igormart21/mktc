@@ -83,4 +83,11 @@ urlpatterns = [
     path('detalhes-solicitacao/<int:pk>/', views.detalhes_solicitacao, name='detalhes_solicitacao'),
     path('produtos/detalhe/<int:produto_id>/', views.produto_detalhe, name='produto_detalhe'),
     path('superadmin/perfil/', views.admin_profile, name='admin_profile'),
+    path('superadmin/vendas/pendentes/', views.listar_vendas_pendentes, name='listar_vendas_pendentes'),
+    path('superadmin/vendas/<int:venda_id>/aprovar/', views.aprovar_venda, name='aprovar_venda'),
+    path('superadmin/vendas/<int:venda_id>/rejeitar/', views.rejeitar_venda, name='rejeitar_venda'),
+    path('vendedores/aprovar/<int:vendedor_id>/', views.aprovar_vendedor, name='aprovar_vendedor'),
+    path('vendedores/reprovar/<int:vendedor_id>/', views.reprovar_vendedor, name='reprovar_vendedor'),
+    path('historico-pedidos/', views.historico_pedidos_vendedor, name='historico_pedidos'),
+    path('vendedores/<int:vendedor_id>/historico-pedidos/', views.historico_pedidos_vendedor_admin, name='historico_pedidos_admin'),
 ] 

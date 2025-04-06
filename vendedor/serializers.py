@@ -8,7 +8,6 @@ class VendedorSerializer(serializers.ModelSerializer):
             'id',
             'usuario',
             'nome_fantasia',
-            'inscricao_estadual',
             'telefone',
             'endereco',
             'cidade',
@@ -17,15 +16,6 @@ class VendedorSerializer(serializers.ModelSerializer):
             'hectares_atendidos',
             'rg',
             'cnh',
-            # Campos do Jogo
-            'nivel',
-            'pontos_experiencia',
-            'moedas',
-            'conquistas',
-            'itens_inventario',
-            'ultima_missao',
-            'missoes_completadas',
-            'ranking',
             'created_at',
             'updated_at'
         ]

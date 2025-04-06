@@ -69,3 +69,11 @@ def validate_cpf(cpf):
     
     # Verifica se os dígitos calculados correspondem aos dígitos informados
     return int(cpf[9]) == digito1 and int(cpf[10]) == digito2 
+
+def is_superadmin(user):
+    """Verifica se o usuário é um superadmin"""
+    return user.is_superuser
+
+def is_vendedor(user):
+    """Verifica se o usuário é um vendedor"""
+    return hasattr(user, 'vendedor') 
