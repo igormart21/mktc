@@ -18,7 +18,10 @@ class ProdutoListCreateAPIView(generics.ListCreateAPIView):
     serializer_class = ProdutoSerializer
 
     def perform_create(self, serializer):
-        serializer.save(vendedor=self.request.user.vendedor)
+        if self.request.user.is_superuser:
+            serializer.save()
+        else:
+            serializer.save(vendedor=self.request.user.vendedor)
 
 class ProdutoRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsVendedorAprovadoOrSuperAdmin]

@@ -19,7 +19,9 @@
                     <h4 class="mb-0">{{ title }}</h4>
                 </div>
                 <div class="card-body">
-                    <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+                    <div id="messages"></div>
+
+                    <form id="productForm" method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
                         {% csrf_token %}
                         {{ form|crispy }}
                         <div class="mt-4">
@@ -39,6 +41,17 @@
 
 <script>
 $(document).ready(function() {
+    // Função para exibir mensagens
+    function showMessage(message, type) {
+        const messagesDiv = $('#messages');
+        messagesDiv.html(`
+            <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        `);
+    }
+
     // Configuração do CSRF token para todas as requisições AJAX
     function getCookie(name) {
         let cookieValue = null;
@@ -56,13 +69,7 @@ $(document).ready(function() {
     }
 
     const csrftoken = getCookie('csrftoken');
-
-    $.ajaxSetup({
-        beforeSend: function(xhr) {
-            xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-            xhr.setRequestHeader('X-CSRFToken', csrftoken);
-        }
-    });
+    console.log('CSRF Token:', csrftoken); // Log do CSRF token
 
     // Preview da imagem
     const imageInput = $('input[type="file"]');
@@ -81,15 +88,53 @@ $(document).ready(function() {
         });
     }
     
-    // Validação do formulário
-    const forms = $('.needs-validation');
-    forms.each(function() {
-        $(this).on('submit', function(event) {
-            if (!this.checkValidity()) {
-                event.preventDefault();
-                event.stopPropagation();
+    // Envio do formulário via API
+    $('#productForm').on('submit', function(e) {
+        e.preventDefault();
+        console.log('Formulário submetido'); // Log de submissão
+        
+        const formData = new FormData(this);
+        
+        // Log dos dados do formulário
+        for (let pair of formData.entries()) {
+            console.log(pair[0] + ': ' + pair[1]);
+        }
+        
+        $.ajax({
+            url: '{% url "produtos:produto-list-create" %}', // URL correta da API
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            headers: {
+                'X-CSRFToken': csrftoken,
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            success: function(response) {
+                console.log('Resposta do servidor:', response); // Log da resposta
+                showMessage('Produto cadastrado com sucesso!', 'success');
+                setTimeout(function() {
+                    window.location.href = "{% url 'core:superadmin_products' %}";
+                }, 2000);
+            },
+            error: function(xhr, status, error) {
+                console.error('Erro na requisição:', error); // Log do erro
+                console.error('Status:', status);
+                console.error('Resposta:', xhr.responseText);
+                
+                const errors = xhr.responseJSON;
+                let errorMessage = 'Erro ao cadastrar produto. ';
+                
+                if (errors) {
+                    Object.keys(errors).forEach(function(key) {
+                        errorMessage += `${key}: ${errors[key]}. `;
+                    });
+                } else {
+                    errorMessage += 'Erro desconhecido. Por favor, tente novamente.';
+                }
+                
+                showMessage(errorMessage, 'danger');
             }
-            $(this).addClass('was-validated');
         });
     });
 });

@@ -7,8 +7,6 @@ class VendedorSerializer(serializers.ModelSerializer):
         fields = [
             'id',
             'usuario',
-            'cnpj',
-            'razao_social',
             'nome_fantasia',
             'inscricao_estadual',
             'telefone',

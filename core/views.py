@@ -13,7 +13,7 @@ from django.core.mail import send_mail
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from .models import Product, Order, OrderItem, VendorApplication, SellerRegistration, MensagemSuporte, SolicitacaoProduto
-from .forms import ProductForm, OrderForm, OrderItemFormSet, SellerRegistrationForm, LoginForm, SolicitacaoProdutoForm
+from .forms import ProductForm, OrderForm, OrderItemFormSet, SellerRegistrationForm, LoginForm, SolicitacaoProdutoForm, SellerProfileForm, AdminProfileForm
 from .utils import validate_file_upload, validate_cpf
 from django.http import HttpResponse, JsonResponse
 import logging
@@ -27,7 +27,7 @@ from vendas.models import Venda
 import os
 import json
 from django.views.decorators.csrf import csrf_exempt
-from .decorators import superuser_required
+from .decorators import superuser_required, is_seller
 
 logger = logging.getLogger(__name__)
 
@@ -166,6 +166,7 @@ def superadmin_dashboard(request):
     return render(request, 'core/superadmin_dashboard.html', context)
 
 @login_required
+@is_seller
 def seller_dashboard(request):
     """Dashboard do vendedor"""
     seller = request.user.vendedor
@@ -456,13 +457,38 @@ def superadmin_products(request):
 def superadmin_product_create(request):
     """Cria um novo produto como superadmin"""
     if request.method == 'POST':
+        print("="*50)
+        print("Dados do POST recebidos:")
+        for key, value in request.POST.items():
+            print(f"{key}: {value}")
+        print("Arquivos recebidos:", request.FILES)
+        print("="*50)
+        
         form = ProductForm(request.POST, request.FILES)
+        print("Formulário é válido:", form.is_valid())
+        if not form.is_valid():
+            print("Erros do formulário:")
+            for field, errors in form.errors.items():
+                print(f"{field}: {errors}")
+        
         if form.is_valid():
-            form.save()
-            messages.success(request, 'Produto criado com sucesso!')
-            return redirect('core:superadmin_products')
+            try:
+                product = form.save(commit=False)
+                print("Produto antes de salvar:")
+                for key, value in product.__dict__.items():
+                    print(f"{key}: {value}")
+                
+                product.save()
+                print("Produto salvo com sucesso! ID:", product.id)
+                messages.success(request, 'Produto criado com sucesso!')
+                return redirect('core:superadmin_products')
+            except Exception as e:
+                print("Erro ao salvar:", str(e))
+                messages.error(request, f'Erro ao salvar o produto: {str(e)}')
         else:
-            messages.error(request, 'Por favor, corrija os erros abaixo.')
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f'{field}: {error}')
     else:
         form = ProductForm()
     
@@ -734,19 +760,49 @@ def request_product(request):
 @login_required
 def seller_profile(request):
     """Perfil do vendedor"""
-    seller = request.user.vendedor
+    try:
+        seller = request.user.vendedor
+    except Vendedor.DoesNotExist:
+        messages.error(request, 'Você precisa ser um vendedor para acessar esta página.')
+        return redirect('core:dashboard')
+    
     if request.method == 'POST':
-        form = SellerRegistrationForm(request.POST, instance=seller)
+        form = SellerProfileForm(request.POST, request.FILES, instance=seller)
         if form.is_valid():
             form.save()
             messages.success(request, 'Perfil atualizado com sucesso!')
             return redirect('core:seller_profile')
     else:
-        form = SellerRegistrationForm(instance=seller)
-    return render(request, 'core/seller_profile.html', {'form': form})
+        form = SellerProfileForm(instance=seller)
+    
+    context = {
+        'form': form,
+        'seller': seller,
+    }
+    return render(request, 'core/seller_profile.html', context)
 
 @login_required
 def produto_detalhe(request, produto_id):
     """Mostra os detalhes de um produto"""
     produto = get_object_or_404(Produto, id=produto_id)
     return render(request, 'core/produto_detalhe.html', {'produto': produto})
+
+@login_required
+@user_passes_test(is_superadmin)
+def admin_profile(request):
+    """View para gerenciar o perfil do administrador"""
+    user = request.user
+    if request.method == 'POST':
+        form = AdminProfileForm(request.POST, instance=user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Perfil atualizado com sucesso!')
+            return redirect('core:admin_profile')
+    else:
+        form = AdminProfileForm(instance=user)
+    
+    context = {
+        'form': form,
+        'user': user,
+    }
+    return render(request, 'core/admin_profile.html', context)

@@ -1,10 +1,17 @@
 from django.contrib import admin
-from .models import Order, OrderItem, SellerRegistration
+from .models import Order, OrderItem, SellerRegistration, Product
 
 class OrderItemInline(admin.TabularInline):
     model = OrderItem
     extra = 0
     readonly_fields = ['subtotal']
+
+@admin.register(Product)
+class ProductAdmin(admin.ModelAdmin):
+    list_display = ['name', 'price', 'available_volume', 'unit', 'is_active', 'product_type', 'created_at']
+    list_filter = ['is_active', 'product_type', 'unit']
+    search_fields = ['name', 'description', 'manufacturer']
+    readonly_fields = ['created_at', 'updated_at']
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):

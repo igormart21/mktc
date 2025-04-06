@@ -4,6 +4,7 @@ from django.core.exceptions import ValidationError
 from .models import Product, Order, OrderItem, SellerRegistration, SolicitacaoProduto
 from usuarios.models import Usuario
 from vendedor.models import Vendedor
+from produtos.models import Produto
 from django.utils.translation import gettext_lazy as _
 
 def validar_cpf(cpf):
@@ -42,16 +43,16 @@ def validar_cpf(cpf):
 
 class ProductForm(forms.ModelForm):
     class Meta:
-        model = Product
+        model = Produto
         fields = [
-            'name', 'description', 'price', 'available_volume', 'unit',
-            'is_active', 'product_type', 'manufacturer', 'lot',
-            'expiration_date', 'minimum_quantity', 'packaging',
-            'sieve', 'variety', 'currency', 'allow_exchange', 'image'
+            'nome', 'descricao', 'preco', 'volume_disponivel', 'unidade_medida',
+            'categoria', 'tipo', 'fabricante', 'lote',
+            'validade', 'quantidade_minima', 'embalagem',
+            'peneira', 'variedade', 'moeda', 'permite_troca'
         ]
         widgets = {
-            'description': forms.Textarea(attrs={'rows': 4}),
-            'expiration_date': forms.DateInput(attrs={'type': 'date'}),
+            'descricao': forms.Textarea(attrs={'rows': 4}),
+            'validade': forms.DateInput(attrs={'type': 'date'}),
         }
 
 class OrderForm(forms.ModelForm):
@@ -168,4 +169,33 @@ class SolicitacaoProdutoForm(forms.ModelForm):
             'categoria_sugerida': _('Categoria Sugerida'),
             'quantidade': _('Quantidade'),
             'unidade_medida': _('Unidade de Medida'),
+        }
+
+class SellerProfileForm(forms.ModelForm):
+    class Meta:
+        model = Vendedor
+        fields = [
+            'nome_fantasia',
+            'inscricao_estadual',
+            'telefone',
+            'endereco',
+            'cidade',
+            'estado',
+            'cep',
+            'hectares_atendidos',
+            'rg',
+            'cnh'
+        ]
+        widgets = {
+            'telefone': forms.TextInput(attrs={'placeholder': '(00) 00000-0000'}),
+            'cep': forms.TextInput(attrs={'placeholder': '00000-000'}),
+        }
+
+class AdminProfileForm(forms.ModelForm):
+    class Meta:
+        model = Usuario
+        fields = ['nome', 'email', 'telefone', 'cep', 'rua', 'numero', 'complemento']
+        widgets = {
+            'telefone': forms.TextInput(attrs={'placeholder': '(00) 00000-0000'}),
+            'cep': forms.TextInput(attrs={'placeholder': '00000-000'}),
         } 
