@@ -6,6 +6,9 @@
 {% block extra_js %}
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    const NO_IMAGE_URL = "{% static 'img/no-image.png' %}";
+</script>
 {% endblock %}
 
 {% block content %}
@@ -132,38 +135,66 @@ $(document).ready(function() {
 
     // Função para carregar os produtos
     function loadProducts() {
+        // Obter os parâmetros de filtro
+        const category = $('#category').val();
+        const status = $('#status').val();
+        const search = $('#search').val();
+        
+        // Construir a URL com os parâmetros
+        let url = '/produtos/produtos/';
+        const params = new URLSearchParams();
+        if (category) params.append('category', category);
+        if (status) params.append('status', status);
+        if (search) params.append('search', search);
+        if (params.toString()) url += '?' + params.toString();
+        
         $.ajax({
-            url: '/produtos/api/produtos/',
+            url: url,
             type: 'GET',
             headers: {
                 'X-CSRFToken': getCookie('csrftoken'),
                 'X-Requested-With': 'XMLHttpRequest'
             },
             success: function(response) {
-                console.log('Resposta da API:', response); // Log da resposta
+                console.log('Resposta da API:', response);
                 const tbody = $('#productsTable tbody');
                 tbody.empty();
+                
+                if (response.length === 0) {
+                    tbody.append(`
+                        <tr>
+                            <td colspan="8" class="text-center py-4">
+                                <p class="mb-0 text-muted">Nenhum produto encontrado</p>
+                                <small class="text-muted">Tente ajustar os filtros de busca.</small>
+                            </td>
+                        </tr>
+                    `);
+                    return;
+                }
                 
                 response.forEach(function(product) {
                     const row = `
                         <tr>
                             <td>${product.id}</td>
                             <td>
-                                <img src="${product.image || '{% static "img/no-image.png" %}'}" alt="${product.nome}" class="img-thumbnail" style="max-width: 50px;">
+                                <img src="${product.imagem || NO_IMAGE_URL}" alt="${product.nome}" class="img-thumbnail" style="max-width: 50px;">
                             </td>
                             <td>${product.nome}</td>
                             <td>${product.categoria || 'N/A'}</td>
                             <td>${formatPrice(product.preco, product.moeda)}</td>
                             <td>${product.volume_disponivel || 0} ${product.unidade_medida || ''}</td>
                             <td>
-                                <span class="badge bg-success">
-                                    Ativo
+                                <span class="badge ${product.ativo ? 'bg-success' : 'bg-danger'}">
+                                    ${product.ativo ? 'Ativo' : 'Inativo'}
                                 </span>
                             </td>
                             <td>
-                                <a href="/superadmin/produtos/${product.id}/editar/" class="btn btn-sm btn-primary">
+                                <a href="/superadmin/produtos/editar/${product.id}/" class="btn btn-sm btn-primary">
                                     <i class="fas fa-edit"></i>
                                 </a>
+                                <button class="btn btn-sm ${product.ativo ? 'btn-warning' : 'btn-success'} toggle-status" data-id="${product.id}">
+                                    <i class="fas ${product.ativo ? 'fa-ban' : 'fa-check'}"></i>
+                                </button>
                                 <button class="btn btn-sm btn-danger delete-product" data-id="${product.id}">
                                     <i class="fas fa-trash"></i>
                                 </button>
@@ -184,6 +215,17 @@ $(document).ready(function() {
 
     // Carregar produtos ao carregar a página
     loadProducts();
+
+    // Recarregar produtos quando os filtros mudarem
+    $('#category, #status').change(function() {
+        loadProducts();
+    });
+
+    // Recarregar produtos quando o formulário de busca for enviado
+    $('form').on('submit', function(e) {
+        e.preventDefault();
+        loadProducts();
+    });
 
     // Deletar produto
     $(document).on('click', '.delete-product', function() {
@@ -209,6 +251,47 @@ $(document).ready(function() {
                 }
             });
         }
+    });
+
+    // Toggle status do produto
+    $(document).on('click', '.toggle-status', function() {
+        const productId = $(this).data('id');
+        const button = $(this);
+        const row = button.closest('tr');
+        const statusBadge = row.find('.badge');
+        
+        $.ajax({
+            url: `/produtos/api/produtos/${productId}/toggle_status/`,
+            type: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            success: function(response) {
+                if (response.success) {
+                    const isActive = response.ativo;
+                    statusBadge
+                        .removeClass('bg-success bg-danger')
+                        .addClass(isActive ? 'bg-success' : 'bg-danger')
+                        .text(isActive ? 'Ativo' : 'Inativo');
+                    
+                    button
+                        .removeClass('btn-warning btn-success')
+                        .addClass(isActive ? 'btn-warning' : 'btn-success')
+                        .find('i')
+                        .removeClass('fa-ban fa-check')
+                        .addClass(isActive ? 'fa-ban' : 'fa-check');
+                    
+                    showMessage('Status do produto atualizado com sucesso!', 'success');
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('Erro ao atualizar status:', error);
+                console.error('Status:', status);
+                console.error('Resposta:', xhr.responseText);
+                showMessage('Erro ao atualizar status do produto. Por favor, tente novamente.', 'danger');
+            }
+        });
     });
 });
 </script>

@@ -8,8 +8,15 @@
     <!-- Cabeçalho -->
     <div class="row mb-4">
         <div class="col">
-            <h1 class="h3 mb-2">Catálogo de Produtos</h1>
-            <p class="text-muted">Explore nossa variedade de produtos agrícolas</p>
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 mb-2">Catálogo de Produtos</h1>
+                    <p class="text-muted">Explore nossa variedade de produtos agrícolas</p>
+                </div>
+                <a href="{% url 'core:carrinho' %}" class="btn btn-primary">
+                    <i class="fas fa-shopping-cart me-2"></i>Carrinho
+                </a>
+            </div>
         </div>
     </div>
 
@@ -41,15 +48,15 @@
                 </div>
                 <div class="col-md-3">
                     <label for="preco_min" class="form-label">Preço Mínimo</label>
-                    <input type="number" class="form-control" id="preco_min" name="preco_min" step="0.01" min="0" value="{{ preco_min }}">
+                    <input type="number" class="form-control" id="preco_min" name="preco_min" step="0.01" min="0" value="{{ preco_min|default:'' }}">
                 </div>
                 <div class="col-md-3">
                     <label for="preco_max" class="form-label">Preço Máximo</label>
-                    <input type="number" class="form-control" id="preco_max" name="preco_max" step="0.01" min="0" value="{{ preco_max }}">
+                    <input type="number" class="form-control" id="preco_max" name="preco_max" step="0.01" min="0" value="{{ preco_max|default:'' }}">
                 </div>
                 <div class="col-md-6">
                     <label for="busca" class="form-label">Buscar</label>
-                    <input type="text" class="form-control" id="busca" name="busca" placeholder="Nome ou descrição do produto..." value="{{ busca }}">
+                    <input type="text" class="form-control" id="busca" name="busca" placeholder="Nome ou descrição do produto..." value="{{ busca|default:'' }}">
                 </div>
                 <div class="col-md-6">
                     <label for="ordenar" class="form-label">Ordenar por</label>
@@ -90,27 +97,47 @@
                     <h5 class="card-title">
                         <a href="{% url 'core:produto_detalhe' produto.id %}" class="text-decoration-none text-dark">{{ produto.nome }}</a>
                     </h5>
-                    <p class="card-text text-muted">{{ produto.descricao|truncatewords:20 }}</p>
+                    <p class="card-text text-muted">{{ produto.descricao|truncatewords:20|default:"Sem descrição" }}</p>
                     <div class="mb-2">
-                        <span class="badge bg-primary">{{ produto.get_categoria_display }}</span>
-                        <span class="badge bg-secondary">{{ produto.get_tipo_display }}</span>
+                        <span class="badge bg-primary">{{ produto.get_categoria_display|default:"Sem categoria" }}</span>
+                        <span class="badge bg-secondary">{{ produto.get_tipo_display|default:"Sem tipo" }}</span>
                     </div>
-                    <h4 class="text-primary mb-3">R$ {{ produto.preco }}</h4>
+                    <h4 class="text-primary mb-3">R$ {{ produto.preco|default:"0.00" }}</h4>
                     <div class="d-grid gap-2">
                         <a href="{% url 'core:produto_detalhe' produto.id %}" class="btn btn-outline-primary">
                             <i class="fas fa-eye me-2"></i>Ver Detalhes
                         </a>
+                        {% if produto.vendedor %}
+                            {% if user.is_authenticated and user.vendedor == produto.vendedor %}
+                            <button type="button" class="btn btn-secondary" disabled>
+                                <i class="fas fa-shopping-cart me-2"></i>Seu Produto
+                            </button>
+                            {% elif not produto.ativo %}
+                            <button type="button" class="btn btn-secondary" disabled>
+                                <i class="fas fa-shopping-cart me-2"></i>Produto Indisponível
+                            </button>
+                            {% else %}
+                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#produtoModal{{ produto.id }}">
+                                <i class="fas fa-shopping-cart me-2"></i>Adicionar ao Carrinho
+                            </button>
+                            {% endif %}
+                        {% else %}
+                        <button type="button" class="btn btn-secondary" disabled>
+                            <i class="fas fa-shopping-cart me-2"></i>Sem vendedor
+                        </button>
+                        {% endif %}
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Modal de Solicitação de Compra -->
+        {% if produto.vendedor %}
         <div class="modal fade" id="produtoModal{{ produto.id }}" tabindex="-1">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">Solicitar Compra</h5>
+                        <h5 class="modal-title">Adicionar ao Carrinho</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <form method="post" action="{% url 'vendas:solicitar_compra' produto.id %}">
@@ -122,7 +149,7 @@
                             </div>
                             <div class="mb-3">
                                 <h6 class="text-muted mb-2">Preço</h6>
-                                <p class="mb-0">R$ {{ produto.preco }}</p>
+                                <p class="mb-0">R$ {{ produto.preco|default:"0.00" }}</p>
                             </div>
                             <div class="mb-3">
                                 <label for="quantidade" class="form-label">Quantidade</label>
@@ -139,7 +166,18 @@
                                     </div>
                                     <div class="flex-grow-1 ms-3">
                                         <h6 class="alert-heading mb-1">Valor Total</h6>
-                                        <p class="mb-0" id="valorTotal">R$ {{ produto.preco }}</p>
+                                        <p class="mb-0" id="valorTotal">R$ {{ produto.preco|default:"0.00" }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="alert alert-success">
+                                <div class="d-flex align-items-center">
+                                    <div class="flex-shrink-0">
+                                        <i class="fas fa-check-circle fa-2x"></i>
+                                    </div>
+                                    <div class="flex-grow-1 ms-3">
+                                        <h6 class="alert-heading mb-1">Confirmação</h6>
+                                        <p class="mb-0">Deseja adicionar este produto ao carrinho?</p>
                                     </div>
                                 </div>
                             </div>
@@ -147,13 +185,14 @@
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                             <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-check me-2"></i>Confirmar Solicitação
+                                <i class="fas fa-check me-2"></i>Confirmar
                             </button>
                         </div>
                     </form>
                 </div>
             </div>
         </div>
+        {% endif %}
         {% empty %}
         <div class="col-12">
             <div class="text-center py-5">
@@ -178,15 +217,11 @@
                 </a>
             </li>
             {% endif %}
-
             {% for num in produtos.paginator.page_range %}
             <li class="page-item {% if produtos.number == num %}active{% endif %}">
-                <a class="page-link" href="?page={{ num }}{% if categoria_selecionada %}&categoria={{ categoria_selecionada }}{% endif %}{% if tipo_selecionado %}&tipo={{ tipo_selecionado }}{% endif %}{% if preco_min %}&preco_min={{ preco_min }}{% endif %}{% if preco_max %}&preco_max={{ preco_max }}{% endif %}{% if busca %}&busca={{ busca }}{% endif %}{% if ordenar %}&ordenar={{ ordenar }}{% endif %}">
-                    {{ num }}
-                </a>
+                <a class="page-link" href="?page={{ num }}{% if categoria_selecionada %}&categoria={{ categoria_selecionada }}{% endif %}{% if tipo_selecionado %}&tipo={{ tipo_selecionado }}{% endif %}{% if preco_min %}&preco_min={{ preco_min }}{% endif %}{% if preco_max %}&preco_max={{ preco_max }}{% endif %}{% if busca %}&busca={{ busca }}{% endif %}{% if ordenar %}&ordenar={{ ordenar }}{% endif %}">{{ num }}</a>
             </li>
             {% endfor %}
-
             {% if produtos.has_next %}
             <li class="page-item">
                 <a class="page-link" href="?page={{ produtos.next_page_number }}{% if categoria_selecionada %}&categoria={{ categoria_selecionada }}{% endif %}{% if tipo_selecionado %}&tipo={{ tipo_selecionado }}{% endif %}{% if preco_min %}&preco_min={{ preco_min }}{% endif %}{% if preco_max %}&preco_max={{ preco_max }}{% endif %}{% if busca %}&busca={{ busca }}{% endif %}{% if ordenar %}&ordenar={{ ordenar }}{% endif %}">

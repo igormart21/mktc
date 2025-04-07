@@ -17,7 +17,7 @@ class IsVendedorAprovado(permissions.BasePermission):
             return False
         try:
             vendedor = Vendedor.objects.get(usuario=request.user)
-            return True
+            return vendedor.data_aprovacao is not None
         except Vendedor.DoesNotExist:
             return False
 
@@ -32,7 +32,7 @@ class IsVendedorAprovadoOrSuperAdmin(permissions.BasePermission):
     def has_permission(self, request, view):
         return (request.user and request.user.is_authenticated and 
                 (request.user.is_superuser or 
-                 (request.user.vendedor and request.user.vendedor.status_aprovacao == 'aprovado')))
+                 (hasattr(request.user, 'vendedor') and request.user.vendedor.data_aprovacao is not None)))
 
 class IsOwnerOrAdmin(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):

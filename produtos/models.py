@@ -49,7 +49,7 @@ class Produto(models.Model):
 
     # Campos básicos
     nome = models.CharField(max_length=200)
-    categoria = models.CharField(max_length=100, choices=CATEGORIA_CHOICES, default='OUTROS')
+    categoria = models.CharField(max_length=100)
     descricao = models.TextField(blank=True)
     
     # Preço e volume
@@ -98,5 +98,7 @@ class Produto(models.Model):
             raise ValidationError('A quantidade mínima não pode ser maior que o volume disponível.')
         if self.volume_disponivel < 0:
             raise ValidationError('O volume disponível não pode ser negativo.')
+        if self.preco is None:
+            raise ValidationError('O preço é obrigatório.')
         if self.preco < 0:
             raise ValidationError('O preço não pode ser negativo.')

@@ -135,18 +135,18 @@
                                     </div>
                                     <div class="col-md-8">
                                         <label for="rua" class="form-label">Endereço</label>
-                                        <input type="text" class="form-control" id="rua" name="rua" value="{{ seller.usuario.rua }}" required>
+                                        <input type="text" class="form-control" id="rua" name="rua" value="{{ seller.usuario.rua|default:'' }}" required>
                                     </div>
                                 </div>
 
                                 <div class="row mb-3">
                                     <div class="col-md-4">
                                         <label for="numero" class="form-label">Número</label>
-                                        <input type="text" class="form-control" id="numero" name="numero" value="{{ seller.usuario.numero }}" required>
+                                        <input type="text" class="form-control" id="numero" name="numero" value="{{ seller.usuario.numero|default:'' }}" required>
                                     </div>
                                     <div class="col-md-8">
                                         <label for="bairro" class="form-label">Bairro</label>
-                                        <input type="text" class="form-control" id="bairro" name="bairro" value="{{ seller.usuario.bairro }}">
+                                        <input type="text" class="form-control" id="bairro" name="bairro" value="{{ seller.usuario.bairro|default:'' }}">
                                     </div>
                                 </div>
 

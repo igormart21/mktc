@@ -212,12 +212,12 @@ class SolicitacaoProdutoForm(forms.ModelForm):
         model = SolicitacaoProduto
         fields = [
             'nome_produto', 
-            'descricao', 
             'categoria_sugerida', 
+            'descricao', 
             'quantidade', 
             'unidade_medida',
-            'tipo_produto',
             'fabricante',
+            'tipo_produto',
             'lote',
             'peneira',
             'variedade',
@@ -226,34 +226,70 @@ class SolicitacaoProdutoForm(forms.ModelForm):
             'observacoes'
         ]
         labels = {
-            'nome_produto': _('Nome do Produto'),
-            'descricao': _('Descrição'),
-            'categoria_sugerida': _('Categoria Sugerida'),
-            'quantidade': _('Quantidade'),
-            'unidade_medida': _('Unidade de Medida'),
-            'tipo_produto': _('Tipo de Produto'),
-            'fabricante': _('Fabricante'),
-            'lote': _('Lote'),
-            'peneira': _('Peneira'),
-            'variedade': _('Variedade'),
-            'embalagem': _('Embalagem'),
-            'data_validade': _('Data de Validade'),
-            'observacoes': _('Observações Adicionais')
+            'nome_produto': 'Nome do Produto',
+            'categoria_sugerida': 'Categoria Sugerida',
+            'descricao': 'Descrição',
+            'quantidade': 'Volume',
+            'unidade_medida': 'Unidade',
+            'fabricante': 'Fabricante',
+            'tipo_produto': 'Tipo de Produto',
+            'lote': 'Lote',
+            'peneira': 'Peneira',
+            'variedade': 'Variedade',
+            'embalagem': 'Embalagem',
+            'data_validade': 'Data de Validade',
+            'observacoes': 'Observações'
         }
         widgets = {
-            'nome_produto': forms.TextInput(attrs={'class': 'form-control', 'required': True}),
-            'descricao': forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'required': True}),
-            'categoria_sugerida': forms.TextInput(attrs={'class': 'form-control', 'required': True}),
-            'quantidade': forms.NumberInput(attrs={'class': 'form-control', 'min': '1', 'required': True}),
-            'unidade_medida': forms.Select(attrs={'class': 'form-select', 'required': True}),
-            'tipo_produto': forms.Select(attrs={'class': 'form-select'}),
-            'fabricante': forms.TextInput(attrs={'class': 'form-control'}),
-            'lote': forms.TextInput(attrs={'class': 'form-control'}),
-            'peneira': forms.TextInput(attrs={'class': 'form-control'}),
-            'variedade': forms.TextInput(attrs={'class': 'form-control'}),
-            'embalagem': forms.Select(attrs={'class': 'form-select'}),
-            'data_validade': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
-            'observacoes': forms.Textarea(attrs={'class': 'form-control', 'rows': 3})
+            'nome_produto': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Ex: Semente de Soja, Fertilizante NPK'
+            }),
+            'categoria_sugerida': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Ex: Sementes, Fertilizantes, Defensivos'
+            }),
+            'descricao': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 3,
+                'placeholder': 'Descreva as características específicas do produto que você precisa'
+            }),
+            'quantidade': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'min': '0.01',
+                'step': '0.01',
+                'placeholder': 'Digite o volume'
+            }),
+            'unidade_medida': forms.Select(attrs={
+                'class': 'form-select'
+            }),
+            'fabricante': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Não especificado'
+            }),
+            'tipo_produto': forms.Select(attrs={
+                'class': 'form-select'
+            }),
+            'lote': forms.TextInput(attrs={
+                'class': 'form-control'
+            }),
+            'peneira': forms.TextInput(attrs={
+                'class': 'form-control'
+            }),
+            'variedade': forms.TextInput(attrs={
+                'class': 'form-control'
+            }),
+            'embalagem': forms.Select(attrs={
+                'class': 'form-select'
+            }),
+            'data_validade': forms.DateInput(attrs={
+                'class': 'form-control',
+                'type': 'date'
+            }),
+            'observacoes': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 2
+            })
         }
 
 class SellerProfileForm(forms.ModelForm):

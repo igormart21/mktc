@@ -235,62 +235,65 @@ class MensagemSuporte(models.Model):
         return f"Mensagem de {self.usuario.get_full_name()} - {self.assunto}"
 
 class SolicitacaoProduto(models.Model):
-    STATUS_CHOICES = [
-        ('pendente', 'Pendente'),
-        ('aprovada', 'Aprovada'),
-        ('rejeitada', 'Rejeitada')
-    ]
-    
-    UNIDADE_CHOICES = [
+    UNIDADE_MEDIDA_CHOICES = [
+        ('ton', 'Tonelada'),
         ('kg', 'Quilograma'),
         ('g', 'Grama'),
         ('l', 'Litro'),
         ('ml', 'Mililitro'),
-        ('un', 'Unidade')
+        ('un', 'Unidade'),
+        ('cx', 'Caixa'),
+        ('sc', 'Saco')
     ]
-    
-    TIPO_PRODUTO_CHOICES = [
-        ('feijao', 'Feijão'),
-        ('algodao', 'Algodão'),
-        ('gergelim', 'Gergelim'),
-        ('pastagem', 'Pastagem'),
-        ('milho', 'Milho'),
-        ('soja', 'Soja'),
-    ]
-    
-    EMBALAGEM_CHOICES = [
-        ('bag', 'Saco'),
-        ('box', 'Caixa'),
-        ('bottle', 'Garrafa'),
-        ('can', 'Lata'),
-        ('other', 'Outro'),
-    ]
-    
-    nome_produto = models.CharField(max_length=200)
-    descricao = models.TextField()
-    categoria_sugerida = models.CharField(max_length=100)
-    quantidade = models.PositiveIntegerField(default=1)
-    unidade_medida = models.CharField(max_length=2, choices=UNIDADE_CHOICES, default='un')
-    tipo_produto = models.CharField(max_length=20, choices=TIPO_PRODUTO_CHOICES, blank=True, null=True)
-    fabricante = models.CharField(max_length=100, blank=True, null=True)
-    lote = models.CharField(max_length=50, blank=True, null=True)
-    peneira = models.CharField(max_length=50, blank=True, null=True)
-    variedade = models.CharField(max_length=100, blank=True, null=True)
-    embalagem = models.CharField(max_length=20, choices=EMBALAGEM_CHOICES, blank=True, null=True)
-    data_validade = models.DateField(null=True, blank=True)
-    observacoes = models.TextField(blank=True, null=True)
-    vendedor = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='solicitacoes_produto')
-    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pendente')
-    data_solicitacao = models.DateTimeField(auto_now_add=True)
-    data_analise = models.DateTimeField(null=True, blank=True)
-    resposta_superadmin = models.TextField(null=True, blank=True)
 
-    def __str__(self):
-        return f'Solicitação de {self.nome_produto} por {self.vendedor.email}'
+    TIPO_PRODUTO_CHOICES = [
+        ('ins', 'Insumo'),
+        ('sem', 'Semente'),
+        ('def', 'Defensivo'),
+        ('fer', 'Fertilizante'),
+        ('equ', 'Equipamento'),
+        ('out', 'Outro')
+    ]
+
+    EMBALAGEM_CHOICES = [
+        ('big', 'Big Bag'),
+        ('sac', 'Saco'),
+        ('cax', 'Caixa'),
+        ('gal', 'Galão'),
+        ('bom', 'Bombona'),
+        ('con', 'Container'),
+        ('out', 'Outro')
+    ]
+
+    vendedor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='solicitacoes', verbose_name='Vendedor', null=True, blank=True)
+    nome_produto = models.CharField(max_length=100, verbose_name='Nome do Produto', null=True, blank=True)
+    descricao = models.TextField(verbose_name='Descrição', null=True, blank=True)
+    categoria_sugerida = models.CharField(max_length=50, verbose_name='Categoria Sugerida', null=True, blank=True)
+    quantidade = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Volume', null=True, blank=True)
+    unidade_medida = models.CharField(max_length=3, choices=UNIDADE_MEDIDA_CHOICES, verbose_name='Unidade de Medida', null=True, blank=True)
+    fabricante = models.CharField(max_length=100, verbose_name='Fabricante', default='Não especificado', null=True, blank=True)
+    tipo_produto = models.CharField(max_length=3, choices=TIPO_PRODUTO_CHOICES, blank=True, null=True, verbose_name='Tipo de Produto')
+    lote = models.CharField(max_length=50, blank=True, null=True, verbose_name='Lote')
+    peneira = models.CharField(max_length=50, blank=True, null=True, verbose_name='Peneira')
+    variedade = models.CharField(max_length=100, blank=True, null=True, verbose_name='Variedade')
+    embalagem = models.CharField(max_length=3, choices=EMBALAGEM_CHOICES, blank=True, null=True, verbose_name='Embalagem')
+    data_validade = models.DateField(blank=True, null=True, verbose_name='Data de Validade')
+    observacoes = models.TextField(blank=True, null=True, verbose_name='Observações Adicionais')
+    data_solicitacao = models.DateTimeField(auto_now_add=True, verbose_name='Data da Solicitação')
+    status = models.CharField(max_length=20, default='pendente', choices=[
+        ('pendente', 'Pendente'),
+        ('aprovado', 'Aprovado'),
+        ('rejeitado', 'Rejeitado')
+    ], verbose_name='Status')
+    resposta_superadmin = models.TextField(blank=True, null=True, verbose_name='Resposta do Administrador')
 
     class Meta:
         verbose_name = 'Solicitação de Produto'
         verbose_name_plural = 'Solicitações de Produtos'
+        ordering = ['-data_solicitacao']
+
+    def __str__(self):
+        return f"Solicitação de {self.nome_produto} por {self.vendedor.username if self.vendedor else 'Usuário não especificado'}"
 
 class Usuario(AbstractUser):
     username = None
@@ -328,3 +331,72 @@ class Usuario(AbstractUser):
     
     def __str__(self):
         return f"{self.nome} {self.sobrenome}" if self.nome and self.sobrenome else self.email
+
+class Pedido(models.Model):
+    STATUS_CHOICES = [
+        ('PROCESSANDO', 'Processando'),
+        ('APROVADO', 'Aprovado'),
+        ('REJEITADO', 'Rejeitado'),
+        ('ENTREGUE', 'Entregue'),
+    ]
+
+    CULTIVO_CHOICES = [
+        ('soja', 'Soja'),
+        ('milho', 'Milho'),
+        ('cafe', 'Café'),
+        ('cana', 'Cana-de-açúcar'),
+        ('algodao', 'Algodão'),
+        ('outros', 'Outros'),
+    ]
+
+    comprador = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='pedidos')
+    nome_propriedade = models.CharField(max_length=100)
+    cnpj = models.CharField(max_length=18)
+    hectares = models.DecimalField(max_digits=10, decimal_places=2)
+    cultivo_principal = models.CharField(max_length=20, choices=CULTIVO_CHOICES)
+    estado = models.CharField(max_length=2)
+    cidade = models.CharField(max_length=100)
+    endereco = models.CharField(max_length=200)
+    cep = models.CharField(max_length=9)
+    referencia = models.CharField(max_length=200, blank=True, null=True)
+    observacoes = models.TextField(blank=True, null=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PROCESSANDO')
+    data_criacao = models.DateTimeField(auto_now_add=True)
+    data_atualizacao = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-data_criacao']
+
+    def __str__(self):
+        return f'Pedido #{self.id} - {self.nome_propriedade}'
+
+class Venda(models.Model):
+    STATUS_CHOICES = [
+        ('PENDENTE', 'Pendente'),
+        ('PROCESSANDO', 'Processando'),
+        ('APROVADO', 'Aprovado'),
+        ('REJEITADO', 'Rejeitado'),
+        ('ENTREGUE', 'Entregue'),
+    ]
+
+    vendedor = models.ForeignKey(Vendedor, on_delete=models.CASCADE, related_name='vendas')
+    comprador = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='compras')
+    produto = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='vendas')
+    quantidade = models.PositiveIntegerField(default=1)
+    preco_unitario = models.DecimalField(max_digits=10, decimal_places=2)
+    total = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PENDENTE')
+    pedido = models.ForeignKey(Pedido, on_delete=models.SET_NULL, null=True, blank=True, related_name='vendas')
+    data_criacao = models.DateTimeField(auto_now_add=True)
+    data_atualizacao = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-data_criacao']
+
+    def __str__(self):
+        return f'Venda #{self.id} - {self.produto.nome}'
+
+    def save(self, *args, **kwargs):
+        # Calcula o total antes de salvar
+        self.total = self.quantidade * self.preco_unitario
+        super().save(*args, **kwargs)

@@ -37,6 +37,7 @@ urlpatterns = [
     path('pedidos/detalhe/<int:order_id>/', views.order_detail, name='order_detail'),
     path('pedidos/aprovar/<int:order_id>/', views.order_approve, name='order_approve'),
     path('pedidos/cancelar/<int:order_id>/', views.order_cancel, name='order_cancel'),
+    path('pedidos/', views.pedidos, name='pedidos'),
 
     # URLs de produtos do superadmin
     path('superadmin/produtos/', views.superadmin_products, name='superadmin_products'),
@@ -67,7 +68,8 @@ urlpatterns = [
     # URLs do carrinho
     path('carrinho/', views.carrinho, name='carrinho'),
     path('carrinho/adicionar/<int:product_id>/', views.adicionar_ao_carrinho, name='adicionar_ao_carrinho'),
-    path('carrinho/remover/<int:product_id>/', views.remover_do_carrinho, name='remover_do_carrinho'),
+    path('carrinho/remover/<int:venda_id>/', views.remover_do_carrinho, name='remover_do_carrinho'),
+    path('carrinho/checkout/', views.checkout, name='checkout'),
 
     path('consult-ia/', views.consult_ia, name="consult_ia"),
     path('consultar/', views.consult_ia_page, name="consult_ia_page"),

@@ -2,6 +2,7 @@ from django.db import models
 from django.conf import settings
 from produtos.models import Produto
 from django.utils import timezone
+from django.contrib.auth import get_user_model
 
 class Venda(models.Model):
     STATUS_CHOICES = [
@@ -53,22 +54,59 @@ class Venda(models.Model):
 class Pedido(models.Model):
     STATUS_CHOICES = [
         ('PENDENTE', 'Pendente'),
-        ('ACEITO', 'Aceito'),
+        ('APROVADO', 'Aprovado'),
         ('REJEITADO', 'Rejeitado'),
-        ('CANCELADO', 'Cancelado'),
+        ('CANCELADO', 'Cancelado')
     ]
-
-    vendedor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='pedidos')
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PENDENTE')
+    
+    CULTIVO_CHOICES = [
+        ('soja', 'Soja'),
+        ('milho', 'Milho'),
+        ('cafe', 'Café'),
+        ('cana', 'Cana-de-açúcar'),
+        ('algodao', 'Algodão'),
+        ('outros', 'Outros'),
+    ]
+    
+    comprador = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='pedidos_como_comprador')
+    vendedor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='pedidos_como_vendedor')
+    produto = models.ForeignKey(Produto, on_delete=models.CASCADE)
+    quantidade = models.IntegerField()
+    preco_unitario = models.DecimalField(max_digits=10, decimal_places=2)
+    total = models.DecimalField(max_digits=10, decimal_places=2)
     data_pedido = models.DateTimeField(auto_now_add=True)
-    data_atualizacao = models.DateTimeField(auto_now=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PENDENTE')
     observacoes = models.TextField(blank=True, null=True)
-
+    
+    # Campos para informações da propriedade
+    nome_propriedade = models.CharField(max_length=200)
+    cnpj = models.CharField(max_length=18)
+    hectares = models.IntegerField()
+    cultivo_principal = models.CharField(max_length=20, choices=CULTIVO_CHOICES)
+    estado = models.CharField(max_length=2)
+    cidade = models.CharField(max_length=100)
+    endereco = models.CharField(max_length=200)
+    cep = models.CharField(max_length=9)
+    referencia = models.CharField(max_length=200, blank=True, null=True)
+    
+    # Campos para aprovação
+    aprovado_por = models.ForeignKey(
+        settings.AUTH_USER_MODEL, 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True,
+        related_name='pedidos_aprovados'
+    )
+    data_aprovacao = models.DateTimeField(null=True, blank=True)
+    motivo_rejeicao = models.TextField(null=True, blank=True)
+    
     def __str__(self):
-        return f"Pedido {self.id} - {self.vendedor.username}"
-
-    def get_total(self):
-        return sum(item.get_total() for item in self.itens.all())
+        return f'Pedido #{self.id} - {self.comprador.email}'
+    
+    def save(self, *args, **kwargs):
+        if not self.total:
+            self.total = self.quantidade * self.preco_unitario
+        super().save(*args, **kwargs)
 
 class ItemPedido(models.Model):
     pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE, related_name='itens')

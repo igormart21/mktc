@@ -2,7 +2,7 @@
 {% load static %}
 {% load crispy_forms_tags %}
 
-{% block title %}Novo Produto - AgroMais{% endblock %}
+{% block title %}{{ title }} - AgroMais{% endblock %}
 
 {% block content %}
 <div class="container">
@@ -18,117 +18,200 @@
                 <div class="card-body p-4">
                     <div class="d-flex align-items-center mb-4">
                         <i class="fas fa-box text-primary me-2"></i>
-                        <h4 class="mb-0">Novo Produto</h4>
+                        <h4 class="mb-0">{{ title }}</h4>
                     </div>
+
+                    {% if messages %}
+                    <div class="messages mb-4">
+                        {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
 
                     <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
                         {% csrf_token %}
 
                         <div class="row g-3 mb-3">
                             <div class="col-md-6">
-                                <label for="nome" class="form-label">Nome do Produto*</label>
-                                <input type="text" class="form-control" id="nome" name="nome" required>
+                                <label for="id_nome" class="form-label">Nome do Produto*</label>
+                                {{ form.nome }}
+                                {% if form.nome.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.nome.errors }}
+                                </div>
+                                {% endif %}
                             </div>
                             <div class="col-md-6">
-                                <label for="categoria" class="form-label">Categoria*</label>
-                                <input type="text" class="form-control" id="categoria" name="categoria" required>
+                                <label for="id_categoria" class="form-label">Categoria*</label>
+                                {{ form.categoria }}
+                                {% if form.categoria.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.categoria.errors }}
+                                </div>
+                                {% endif %}
                             </div>
                         </div>
 
                         <div class="row g-3 mb-3">
                             <div class="col-md-3">
-                                <label for="preco" class="form-label">Preço*</label>
-                                <input type="number" class="form-control" id="preco" name="preco" step="0.01" required>
+                                <label for="id_preco" class="form-label">Preço*</label>
+                                {{ form.preco }}
+                                {% if form.preco.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.preco.errors }}
+                                </div>
+                                {% endif %}
                             </div>
                             <div class="col-md-3">
-                                <label for="moeda" class="form-label">Moeda*</label>
-                                <select class="form-select" id="moeda" name="moeda" required>
-                                    <option value="Real (R$)" selected>Real (R$)</option>
-                                </select>
+                                <label for="id_moeda" class="form-label">Moeda*</label>
+                                {{ form.moeda }}
+                                {% if form.moeda.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.moeda.errors }}
+                                </div>
+                                {% endif %}
                             </div>
                             <div class="col-md-3">
-                                <label for="volume_disponivel" class="form-label">Volume Disponível*</label>
-                                <input type="number" class="form-control" id="volume_disponivel" name="volume_disponivel" required>
+                                <label for="id_volume_disponivel" class="form-label">Volume Disponível*</label>
+                                {{ form.volume_disponivel }}
+                                {% if form.volume_disponivel.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.volume_disponivel.errors }}
+                                </div>
+                                {% endif %}
                             </div>
                             <div class="col-md-3">
-                                <label for="unidade_medida" class="form-label">Unidade de Medida*</label>
-                                <select class="form-select" id="unidade_medida" name="unidade_medida" required>
-                                    <option value="">---------</option>
-                                </select>
+                                <label for="id_unidade_medida" class="form-label">Unidade de Medida*</label>
+                                {{ form.unidade_medida }}
+                                {% if form.unidade_medida.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.unidade_medida.errors }}
+                                </div>
+                                {% endif %}
                             </div>
                         </div>
 
                         <div class="row g-3 mb-3">
                             <div class="col-md-6">
-                                <label for="tipo_produto" class="form-label">Tipo do Produto*</label>
-                                <select class="form-select" id="tipo_produto" name="tipo_produto" required>
-                                    <option value="">---------</option>
-                                </select>
+                                <label for="id_tipo" class="form-label">Tipo do Produto*</label>
+                                {{ form.tipo }}
+                                {% if form.tipo.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.tipo.errors }}
+                                </div>
+                                {% endif %}
                             </div>
                             <div class="col-md-6">
-                                <label for="embalagem" class="form-label">Embalagem</label>
-                                <select class="form-select" id="embalagem" name="embalagem">
-                                    <option value="Selecione uma embalagem">Selecione uma embalagem</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="row g-3 mb-3">
-                            <div class="col-md-6">
-                                <label for="fabricante" class="form-label">Fabricante</label>
-                                <input type="text" class="form-control" id="fabricante" name="fabricante">
-                            </div>
-                            <div class="col-md-6">
-                                <label for="lote" class="form-label">Lote</label>
-                                <input type="text" class="form-control" id="lote" name="lote">
+                                <label for="id_embalagem" class="form-label">Embalagem</label>
+                                {{ form.embalagem }}
+                                {% if form.embalagem.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.embalagem.errors }}
+                                </div>
+                                {% endif %}
                             </div>
                         </div>
 
                         <div class="row g-3 mb-3">
                             <div class="col-md-6">
-                                <label for="data_validade" class="form-label">Data de Validade</label>
-                                <input type="date" class="form-control" id="data_validade" name="data_validade">
+                                <label for="id_fabricante" class="form-label">Fabricante</label>
+                                {{ form.fabricante }}
+                                {% if form.fabricante.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.fabricante.errors }}
+                                </div>
+                                {% endif %}
                             </div>
                             <div class="col-md-6">
-                                <label for="quantidade_minima" class="form-label">Quantidade Mínima</label>
-                                <input type="number" class="form-control" id="quantidade_minima" name="quantidade_minima">
+                                <label for="id_lote" class="form-label">Lote</label>
+                                {{ form.lote }}
+                                {% if form.lote.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.lote.errors }}
+                                </div>
+                                {% endif %}
                             </div>
                         </div>
 
                         <div class="row g-3 mb-3">
                             <div class="col-md-6">
-                                <label for="peneira" class="form-label">Peneira da Semente</label>
-                                <input type="text" class="form-control" id="peneira" name="peneira">
+                                <label for="id_data_validade" class="form-label">Data de Validade</label>
+                                {{ form.data_validade }}
+                                {% if form.data_validade.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.data_validade.errors }}
+                                </div>
+                                {% endif %}
                             </div>
                             <div class="col-md-6">
-                                <label for="variedade" class="form-label">Variedade da Semente</label>
-                                <input type="text" class="form-control" id="variedade" name="variedade">
+                                <label for="id_quantidade_minima" class="form-label">Quantidade Mínima</label>
+                                {{ form.quantidade_minima }}
+                                {% if form.quantidade_minima.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.quantidade_minima.errors }}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label for="id_peneira" class="form-label">Peneira da Semente</label>
+                                {{ form.peneira }}
+                                {% if form.peneira.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.peneira.errors }}
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="id_variedade" class="form-label">Variedade da Semente</label>
+                                {{ form.variedade }}
+                                {% if form.variedade.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.variedade.errors }}
+                                </div>
+                                {% endif %}
                             </div>
                         </div>
 
                         <div class="mb-3">
-                            <label for="imagem" class="form-label">Imagem do Produto</label>
-                            <input type="file" class="form-control" id="imagem" name="imagem">
+                            <label for="id_imagem" class="form-label">Imagem do Produto</label>
+                            {{ form.imagem }}
+                            {% if form.imagem.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.imagem.errors }}
+                            </div>
+                            {% endif %}
                         </div>
 
                         <div class="mb-3">
-                            <label for="descricao" class="form-label">Descrição do Produto</label>
-                            <textarea class="form-control" id="descricao" name="descricao" rows="3"></textarea>
+                            <label for="id_descricao" class="form-label">Descrição do Produto</label>
+                            {{ form.descricao }}
+                            {% if form.descricao.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.descricao.errors }}
+                            </div>
+                            {% endif %}
                         </div>
 
                         <div class="row g-3 mb-4">
                             <div class="col-md-6">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="permite_troca" name="permite_troca">
-                                    <label class="form-check-label" for="permite_troca">
+                                    {{ form.permite_troca }}
+                                    <label class="form-check-label" for="id_permite_troca">
                                         Permitir Troca
                                     </label>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="produto_ativo" name="produto_ativo" checked>
-                                    <label class="form-check-label" for="produto_ativo">
+                                    {{ form.ativo }}
+                                    <label class="form-check-label" for="id_ativo">
                                         Produto Ativo
                                     </label>
                                 </div>
@@ -150,47 +233,17 @@
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Opções para Unidade de Medida
-    const unidadeMedidaSelect = document.getElementById('unidade_medida');
-    const unidadeMedidaOptions = [
-        { value: 'kg', label: 'Quilograma (kg)' },
-        { value: 'g', label: 'Grama (g)' },
-        { value: 'l', label: 'Litro (L)' },
-        { value: 'ml', label: 'Mililitro (mL)' },
-        { value: 'un', label: 'Unidade (un)' }
-    ];
-    unidadeMedidaOptions.forEach(option => {
-        const optionElement = new Option(option.label, option.value);
-        unidadeMedidaSelect.add(optionElement);
+    // Adiciona classes Bootstrap aos campos do formulário
+    const formFields = document.querySelectorAll('input, select, textarea');
+    formFields.forEach(field => {
+        field.classList.add('form-control');
     });
 
-    // Opções para Tipo do Produto
-    const tipoProdutoSelect = document.getElementById('tipo_produto');
-    const tipoProdutoOptions = [
-        { value: 'feijao', label: 'Feijão' },
-        { value: 'algodao', label: 'Algodão' },
-        { value: 'gergelim', label: 'Gergelim' },
-        { value: 'pastagem', label: 'Pastagem' },
-        { value: 'milho', label: 'Milho' },
-        { value: 'soja', label: 'Soja' }
-    ];
-    tipoProdutoOptions.forEach(option => {
-        const optionElement = new Option(option.label, option.value);
-        tipoProdutoSelect.add(optionElement);
-    });
-
-    // Opções para Embalagem
-    const embalagemSelect = document.getElementById('embalagem');
-    const embalagemOptions = [
-        { value: 'bag', label: 'Saco' },
-        { value: 'box', label: 'Caixa' },
-        { value: 'bottle', label: 'Garrafa' },
-        { value: 'can', label: 'Lata' },
-        { value: 'other', label: 'Outro' }
-    ];
-    embalagemOptions.forEach(option => {
-        const optionElement = new Option(option.label, option.value);
-        embalagemSelect.add(optionElement);
+    // Adiciona classe específica para checkboxes
+    const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+    checkboxes.forEach(checkbox => {
+        checkbox.classList.remove('form-control');
+        checkbox.classList.add('form-check-input');
     });
 });
 </script>

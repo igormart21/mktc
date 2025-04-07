@@ -1,0 +1,180 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Solicitar Produto{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Solicitar Novo Produto</h2>
+    
+    <form method="post" class="needs-validation" novalidate>
+        {% csrf_token %}
+        
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label for="{{ form.nome_produto.id_for_label }}" class="form-label">{{ form.nome_produto.label }}</label>
+                {{ form.nome_produto }}
+                {% if form.nome_produto.errors %}
+                    <div class="invalid-feedback d-block">
+                        {{ form.nome_produto.errors }}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <label for="{{ form.categoria_sugerida.id_for_label }}" class="form-label">{{ form.categoria_sugerida.label }}</label>
+                {{ form.categoria_sugerida }}
+                {% if form.categoria_sugerida.errors %}
+                    <div class="invalid-feedback d-block">
+                        {{ form.categoria_sugerida.errors }}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label for="{{ form.descricao.id_for_label }}" class="form-label">{{ form.descricao.label }}</label>
+            {{ form.descricao }}
+            {% if form.descricao.errors %}
+                <div class="invalid-feedback d-block">
+                    {{ form.descricao.errors }}
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label for="{{ form.quantidade.id_for_label }}" class="form-label">{{ form.quantidade.label }}</label>
+                {{ form.quantidade }}
+                {% if form.quantidade.errors %}
+                    <div class="invalid-feedback d-block">
+                        {{ form.quantidade.errors }}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <label for="{{ form.unidade_medida.id_for_label }}" class="form-label">{{ form.unidade_medida.label }}</label>
+                {{ form.unidade_medida }}
+                {% if form.unidade_medida.errors %}
+                    <div class="invalid-feedback d-block">
+                        {{ form.unidade_medida.errors }}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label for="{{ form.fabricante.id_for_label }}" class="form-label">{{ form.fabricante.label }}</label>
+                {{ form.fabricante }}
+                {% if form.fabricante.errors %}
+                    <div class="invalid-feedback d-block">
+                        {{ form.fabricante.errors }}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <label for="{{ form.tipo_produto.id_for_label }}" class="form-label">{{ form.tipo_produto.label }}</label>
+                {{ form.tipo_produto }}
+                {% if form.tipo_produto.errors %}
+                    <div class="invalid-feedback d-block">
+                        {{ form.tipo_produto.errors }}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <label for="{{ form.lote.id_for_label }}" class="form-label">{{ form.lote.label }}</label>
+                {{ form.lote }}
+                {% if form.lote.errors %}
+                    <div class="invalid-feedback d-block">
+                        {{ form.lote.errors }}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="col-md-4 mb-3">
+                <label for="{{ form.peneira.id_for_label }}" class="form-label">{{ form.peneira.label }}</label>
+                {{ form.peneira }}
+                {% if form.peneira.errors %}
+                    <div class="invalid-feedback d-block">
+                        {{ form.peneira.errors }}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="col-md-4 mb-3">
+                <label for="{{ form.variedade.id_for_label }}" class="form-label">{{ form.variedade.label }}</label>
+                {{ form.variedade }}
+                {% if form.variedade.errors %}
+                    <div class="invalid-feedback d-block">
+                        {{ form.variedade.errors }}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label for="{{ form.embalagem.id_for_label }}" class="form-label">{{ form.embalagem.label }}</label>
+                {{ form.embalagem }}
+                {% if form.embalagem.errors %}
+                    <div class="invalid-feedback d-block">
+                        {{ form.embalagem.errors }}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <label for="{{ form.data_validade.id_for_label }}" class="form-label">{{ form.data_validade.label }}</label>
+                {{ form.data_validade }}
+                {% if form.data_validade.errors %}
+                    <div class="invalid-feedback d-block">
+                        {{ form.data_validade.errors }}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label for="{{ form.observacoes.id_for_label }}" class="form-label">{{ form.observacoes.label }}</label>
+            {{ form.observacoes }}
+            {% if form.observacoes.errors %}
+                <div class="invalid-feedback d-block">
+                    {{ form.observacoes.errors }}
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+            <a href="{% url 'core:index' %}" class="btn btn-secondary me-md-2">Cancelar</a>
+            <button type="submit" class="btn btn-primary">Solicitar Produto</button>
+        </div>
+    </form>
+</div>
+
+{% block extra_js %}
+<script>
+    // Validação do formulário
+    (function () {
+        'use strict'
+        var forms = document.querySelectorAll('.needs-validation')
+        Array.prototype.slice.call(forms)
+            .forEach(function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                    }
+                    form.classList.add('was-validated')
+                }, false)
+            })
+    })()
+</script>
+{% endblock %}
+
+{% endblock %} 

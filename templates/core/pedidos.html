@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container py-5">
+    <h2 class="mb-4">Meus Pedidos</h2>
+
+    {% if pedidos %}
+        <div class="row">
+            {% for pedido in pedidos %}
+            <div class="col-md-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            Pedido #{{ pedido.id }} - {{ pedido.nome_propriedade }}
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <p class="mb-1"><strong>Status:</strong></p>
+                                <span class="badge {% if pedido.status == 'APROVADO' %}bg-success{% elif pedido.status == 'REJEITADO' %}bg-danger{% elif pedido.status == 'ENTREGUE' %}bg-info{% else %}bg-warning{% endif %}">
+                                    {{ pedido.get_status_display }}
+                                </span>
+                            </div>
+                            <div class="col-md-6">
+                                <p class="mb-1"><strong>Data:</strong></p>
+                                <p class="mb-0">{{ pedido.data_criacao|date:"d/m/Y H:i" }}</p>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <p class="mb-1"><strong>Propriedade:</strong></p>
+                            <p class="mb-0">{{ pedido.nome_propriedade }} - {{ pedido.cnpj }}</p>
+                        </div>
+
+                        <div class="mb-3">
+                            <p class="mb-1"><strong>Localização:</strong></p>
+                            <p class="mb-0">
+                                {{ pedido.endereco }}, {{ pedido.cidade }}/{{ pedido.estado }}<br>
+                                CEP: {{ pedido.cep }}
+                            </p>
+                        </div>
+
+                        <div class="mb-3">
+                            <p class="mb-1"><strong>Informações Agrícolas:</strong></p>
+                            <p class="mb-0">
+                                Área: {{ pedido.hectares }} hectares<br>
+                                Cultivo Principal: {{ pedido.get_cultivo_principal_display }}
+                            </p>
+                        </div>
+
+                        {% if pedido.observacoes %}
+                        <div class="mb-3">
+                            <p class="mb-1"><strong>Observações:</strong></p>
+                            <p class="mb-0">{{ pedido.observacoes }}</p>
+                        </div>
+                        {% endif %}
+
+                        <div class="mt-3">
+                            <h6>Produtos:</h6>
+                            <div class="table-responsive">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Produto</th>
+                                            <th>Quantidade</th>
+                                            <th>Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for venda in pedido.vendas.all %}
+                                        <tr>
+                                            <td>{{ venda.produto.nome }}</td>
+                                            <td>{{ venda.quantidade }}</td>
+                                            <td>R$ {{ venda.total }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-shopping-bag fa-3x text-muted mb-3"></i>
+            <h3>Nenhum pedido encontrado</h3>
+            <p class="text-muted">Você ainda não realizou nenhum pedido.</p>
+            <a href="{% url 'core:products' %}" class="btn btn-primary">
+                Ver Produtos Disponíveis
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %} 

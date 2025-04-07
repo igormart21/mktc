@@ -11,9 +11,51 @@
                 <div class="card-header pb-0">
                     <div class="d-flex justify-content-between align-items-center">
                         <h6>Produtos Disponíveis</h6>
+                        <a href="{% url 'core:product_create' %}" class="btn btn-primary btn-sm">
+                            <i class="fas fa-plus me-2"></i>Novo Produto
+                        </a>
                     </div>
                 </div>
-                <div class="card-body px-0 pt-0 pb-2">
+                <div class="card-body">
+                    <form method="get" class="mb-4">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label for="categoria" class="form-label">Categoria</label>
+                                <select name="categoria" id="categoria" class="form-select">
+                                    <option value="">Todas as categorias</option>
+                                    {% for categoria_id, categoria_nome in categorias %}
+                                    <option value="{{ categoria_id }}" {% if categoria_selecionada == categoria_id %}selected{% endif %}>
+                                        {{ categoria_nome }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <label for="status" class="form-label">Status</label>
+                                <select name="status" id="status" class="form-select">
+                                    <option value="">Todos os status</option>
+                                    <option value="active" {% if status_selecionado == 'active' %}selected{% endif %}>Ativo</option>
+                                    <option value="inactive" {% if status_selecionado == 'inactive' %}selected{% endif %}>Inativo</option>
+                                </select>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <label for="busca" class="form-label">Buscar</label>
+                                <input type="text" name="busca" id="busca" class="form-control" placeholder="Nome ou descrição" value="{{ busca|default:'' }}">
+                            </div>
+                            
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-search me-2"></i>Filtrar
+                                </button>
+                                <a href="{% url 'core:seller_products' %}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-times me-2"></i>Limpar Filtros
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+
                     <div class="table-responsive p-0">
                         <table class="table align-items-center mb-0">
                             <thead>
@@ -32,68 +74,46 @@
                                     <td>
                                         <div class="d-flex px-2 py-1">
                                             <div>
-                                                {% if product.image %}
-                                                    <img src="{{ product.image.url }}" class="avatar avatar-sm me-3" alt="{{ product.name }}">
+                                                {% if product.imagem %}
+                                                    <img src="{{ product.imagem.url }}" class="avatar avatar-sm me-3" alt="{{ product.nome }}">
                                                 {% else %}
                                                     <img src="{% static 'img/no-image.png' %}" class="avatar avatar-sm me-3" alt="Sem imagem">
                                                 {% endif %}
                                             </div>
                                             <div class="d-flex flex-column justify-content-center">
-                                                <h6 class="mb-0 text-sm">{{ product.name }}</h6>
-                                                <p class="text-xs text-secondary mb-0">{{ product.description|truncatewords:20 }}</p>
+                                                <h6 class="mb-0 text-sm">{{ product.nome }}</h6>
+                                                <p class="text-xs text-secondary mb-0">{{ product.descricao|truncatewords:20 }}</p>
                                             </div>
                                         </div>
                                     </td>
                                     <td>
-                                        <p class="text-xs font-weight-bold mb-0">{{ product.category.name }}</p>
+                                        <p class="text-xs font-weight-bold mb-0">{{ product.categoria }}</p>
                                     </td>
                                     <td class="align-middle text-center text-sm">
-                                        <span class="badge badge-sm bg-success">R$ {{ product.price }}</span>
+                                        <span class="badge badge-sm bg-success">{{ product.moeda }} {{ product.preco }}</span>
                                     </td>
                                     <td class="align-middle text-center">
-                                        <span class="text-secondary text-xs font-weight-bold">{{ product.available_volume }} {{ product.get_unit_display }}</span>
+                                        <span class="text-secondary text-xs font-weight-bold">{{ product.volume_disponivel }} {{ product.unidade_medida }}</span>
                                     </td>
                                     <td class="align-middle text-center">
-                                        {% if product.is_active %}
+                                        {% if product.ativo %}
                                             <span class="badge badge-sm bg-success">Ativo</span>
                                         {% else %}
                                             <span class="badge badge-sm bg-danger">Inativo</span>
                                         {% endif %}
                                     </td>
                                     <td class="align-middle text-center">
-                                        {% if product.is_active %}
-                                            <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addToCartModal{{ product.id }}">
-                                                <i class="fas fa-cart-plus"></i> Adicionar ao Carrinho
-                                            </button>
-                                        {% endif %}
+                                        <a href="{% url 'core:product_update' product.id %}" class="btn btn-sm btn-primary">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button class="btn btn-sm {% if product.ativo %}btn-warning{% else %}btn-success{% endif %} toggle-status" data-id="{{ product.id }}">
+                                            <i class="fas {% if product.ativo %}fa-ban{% else %}fa-check{% endif %}"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-danger delete-product" data-id="{{ product.id }}">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
                                     </td>
                                 </tr>
-
-                                <!-- Modal Adicionar ao Carrinho -->
-                                <div class="modal fade" id="addToCartModal{{ product.id }}" tabindex="-1" aria-labelledby="addToCartModalLabel{{ product.id }}" aria-hidden="true">
-                                    <div class="modal-dialog">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title" id="addToCartModalLabel{{ product.id }}">Adicionar ao Carrinho</h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                            </div>
-                                            <form method="post" action="{% url 'core:adicionar_ao_carrinho' product.id %}">
-                                                {% csrf_token %}
-                                                <div class="modal-body">
-                                                    <div class="mb-3">
-                                                        <label for="quantity" class="form-label">Quantidade</label>
-                                                        <input type="number" class="form-control" id="quantity" name="quantity" min="1" max="{{ product.available_volume }}" required>
-                                                        <div class="form-text">Volume disponível: {{ product.available_volume }} {{ product.get_unit_display }}</div>
-                                                    </div>
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                                                    <button type="submit" class="btn btn-primary">Adicionar ao Carrinho</button>
-                                                </div>
-                                            </form>
-                                        </div>
-                                    </div>
-                                </div>
                                 {% empty %}
                                 <tr>
                                     <td colspan="6" class="text-center">
@@ -109,4 +129,68 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Toggle status do produto
+    $('.toggle-status').click(function() {
+        const productId = $(this).data('id');
+        $.ajax({
+            url: `/produtos/produtos/${productId}/toggle_status/`,
+            type: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            success: function(response) {
+                if (response.success) {
+                    location.reload();
+                } else {
+                    alert('Erro ao alterar status do produto');
+                }
+            },
+            error: function() {
+                alert('Erro ao alterar status do produto');
+            }
+        });
+    });
+
+    // Deletar produto
+    $('.delete-product').click(function() {
+        if (confirm('Tem certeza que deseja excluir este produto?')) {
+            const productId = $(this).data('id');
+            $.ajax({
+                url: `/produtos/produtos/${productId}/`,
+                type: 'DELETE',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                success: function() {
+                    location.reload();
+                },
+                error: function() {
+                    alert('Erro ao excluir produto');
+                }
+            });
+        }
+    });
+
+    // Função para obter o CSRF token
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+});
+</script>
 {% endblock %} 

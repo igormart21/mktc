@@ -38,7 +38,9 @@
                             <td>{{ solicitacao.categoria_sugerida }}</td>
                             <td>{{ solicitacao.data_solicitacao|date:"d/m/Y" }}</td>
                             <td>
-                                <span class="badge {% if solicitacao.status == 'PENDENTE' %}bg-warning{% else %}bg-success{% endif %}">
+                                <span class="badge {% if solicitacao.status == 'pendente' %}bg-warning
+                                                 {% elif solicitacao.status == 'aprovado' %}bg-success
+                                                 {% else %}bg-danger{% endif %}">
                                     {{ solicitacao.get_status_display }}
                                 </span>
                             </td>

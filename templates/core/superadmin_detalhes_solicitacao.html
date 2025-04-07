@@ -14,7 +14,9 @@
                             <i class="fas fa-info-circle text-primary me-2"></i>
                             Detalhes da Solicitação #{{ solicitacao.id }}
                         </h5>
-                        <span class="badge {% if solicitacao.status == 'PENDENTE' %}bg-warning{% else %}bg-success{% endif %}">
+                        <span class="badge {% if solicitacao.status == 'pendente' %}bg-warning
+                                         {% elif solicitacao.status == 'aprovado' %}bg-success
+                                         {% else %}bg-danger{% endif %}">
                             {{ solicitacao.get_status_display }}
                         </span>
                     </div>
@@ -51,12 +53,7 @@
                             <div class="card-body">
                                 <p class="mb-1"><strong>Nome:</strong> {{ solicitacao.nome_produto }}</p>
                                 <p class="mb-1"><strong>Categoria:</strong> {{ solicitacao.categoria_sugerida }}</p>
-                                {% if solicitacao.volume %}
-                                    <p class="mb-1"><strong>Volume:</strong> {{ solicitacao.volume }}</p>
-                                {% endif %}
-                                {% if solicitacao.unidade %}
-                                    <p class="mb-1"><strong>Unidade:</strong> {{ solicitacao.unidade }}</p>
-                                {% endif %}
+                                <p class="mb-1"><strong>Volume:</strong> {{ solicitacao.quantidade }} {{ solicitacao.unidade_medida }}</p>
                                 {% if solicitacao.fabricante %}
                                     <p class="mb-1"><strong>Fabricante:</strong> {{ solicitacao.fabricante }}</p>
                                 {% endif %}
@@ -67,7 +64,7 @@
                         </div>
                     </div>
                     
-                    {% if solicitacao.status == 'PENDENTE' %}
+                    {% if solicitacao.status == 'pendente' %}
                     <form method="post" class="mb-4">
                         {% csrf_token %}
                         <div class="mb-3">
@@ -84,9 +81,13 @@
                                     <i class="fas fa-trash me-1"></i>
                                     Excluir
                                 </button>
-                                <button type="submit" name="acao" value="analisar" class="btn btn-success">
+                                <button type="submit" name="acao" value="rejeitar" class="btn btn-danger me-2">
+                                    <i class="fas fa-times me-1"></i>
+                                    Rejeitar
+                                </button>
+                                <button type="submit" name="acao" value="aprovar" class="btn btn-success">
                                     <i class="fas fa-check me-1"></i>
-                                    Marcar como Analisado
+                                    Aprovar
                                 </button>
                             </div>
                         </div>

@@ -1,0 +1,137 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h2 class="text-center mb-4">Finalizar Compra</h2>
+                    
+                    <div class="order-summary mb-4">
+                        <h5 class="mb-3">Resumo do Pedido</h5>
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Produto</th>
+                                        <th>Quantidade</th>
+                                        <th>Preço</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in carrinho.itens %}
+                                    <tr>
+                                        <td>{{ item.produto.nome }}</td>
+                                        <td>{{ item.quantidade }}</td>
+                                        <td>R$ {{ item.total }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="2" class="text-end"><strong>Total:</strong></td>
+                                        <td><strong>R$ {{ carrinho.total }}</strong></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+
+                    <form method="post" action="{% url 'core:checkout' %}">
+                        {% csrf_token %}
+                        
+                        <div class="mb-4">
+                            <h5 class="mb-3">Informações da Propriedade</h5>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="nome_propriedade" class="form-label">Nome da Propriedade/Fazenda</label>
+                                    <input type="text" class="form-control" id="nome_propriedade" name="nome_propriedade" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="cnpj" class="form-label">CNPJ da Propriedade</label>
+                                    <input type="text" class="form-control" id="cnpj" name="cnpj" required>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="hectares" class="form-label">Área Total (Hectares)</label>
+                                    <input type="number" class="form-control" id="hectares" name="hectares" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="cultivo_principal" class="form-label">Cultivo Principal</label>
+                                    <select class="form-select" id="cultivo_principal" name="cultivo_principal" required>
+                                        <option value="">Selecione...</option>
+                                        <option value="soja">Soja</option>
+                                        <option value="milho">Milho</option>
+                                        <option value="cafe">Café</option>
+                                        <option value="cana">Cana-de-açúcar</option>
+                                        <option value="algodao">Algodão</option>
+                                        <option value="outros">Outros</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h5 class="mb-3">Local de Entrega</h5>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="estado" class="form-label">Estado</label>
+                                    <select class="form-select" id="estado" name="estado" required>
+                                        <option value="">Selecione...</option>
+                                        <option value="SP">São Paulo</option>
+                                        <option value="MG">Minas Gerais</option>
+                                        <option value="PR">Paraná</option>
+                                        <option value="MS">Mato Grosso do Sul</option>
+                                        <option value="MT">Mato Grosso</option>
+                                        <option value="GO">Goiás</option>
+                                        <option value="BA">Bahia</option>
+                                        <option value="RS">Rio Grande do Sul</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="cidade" class="form-label">Cidade</label>
+                                    <input type="text" class="form-control" id="cidade" name="cidade" required>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="endereco" class="form-label">Endereço da Propriedade</label>
+                                <input type="text" class="form-control" id="endereco" name="endereco" required>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="cep" class="form-label">CEP</label>
+                                    <input type="text" class="form-control" id="cep" name="cep" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="referencia" class="form-label">Ponto de Referência</label>
+                                    <input type="text" class="form-control" id="referencia" name="referencia" placeholder="Ex: Próximo ao posto de combustível">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h5 class="mb-3">Informações Adicionais</h5>
+                            <div class="mb-3">
+                                <label for="observacoes" class="form-label">Observações para Entrega</label>
+                                <textarea class="form-control" id="observacoes" name="observacoes" rows="3" placeholder="Ex: Horário preferencial de entrega, restrições de acesso, etc."></textarea>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-lock"></i> Confirmar Pedido
+                            </button>
+                            <a href="{% url 'core:carrinho' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left"></i> Voltar ao Carrinho
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
