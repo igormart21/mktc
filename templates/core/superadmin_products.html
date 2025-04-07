@@ -21,7 +21,7 @@
                         <h1 class="h3 mb-0">
                             <i class="fas fa-box text-primary me-2"></i>Gerenciar Produtos
                         </h1>
-                        <a href="{% url 'core:superadmin_product_create' %}" class="btn btn-primary">
+                        <a href="{% url 'produtos:product_create' %}" class="btn btn-primary">
                             <i class="fas fa-plus me-2"></i>Novo Produto
                         </a>
                     </div>
@@ -59,7 +59,7 @@
                                 <button type="submit" class="btn btn-primary">
                                     <i class="fas fa-search me-2"></i>Filtrar
                                 </button>
-                                <a href="{% url 'core:superadmin_products' %}" class="btn btn-outline-secondary">
+                                <a href="{% url 'produtos:product_list' %}" class="btn btn-outline-secondary">
                                     <i class="fas fa-times me-2"></i>Limpar Filtros
                                 </a>
                             </div>
@@ -87,6 +87,13 @@
                             </tbody>
                         </table>
                     </div>
+                    
+                    <!-- Paginação -->
+                    <nav aria-label="Navegação de páginas" class="mt-4">
+                        <ul class="pagination justify-content-center" id="pagination">
+                            <!-- A paginação será carregada via JavaScript -->
+                        </ul>
+                    </nav>
                 </div>
             </div>
         </div>
@@ -95,6 +102,82 @@
 
 <script>
 $(document).ready(function() {
+    let currentPage = 1;
+    let totalPages = 1;
+    let isLoading = false;
+
+    // Cache de produtos
+    const productCache = new Map();
+    const cacheTimeout = 5 * 60 * 1000; // 5 minutos
+    
+    // Função para limpar o cache
+    function clearCache() {
+        const now = Date.now();
+        for (const [key, value] of productCache.entries()) {
+            if (now - value.timestamp > cacheTimeout) {
+                productCache.delete(key);
+            }
+        }
+    }
+    
+    // Função para obter produto do cache
+    function getCachedProduct(id) {
+        clearCache();
+        const cached = productCache.get(id);
+        if (cached && Date.now() - cached.timestamp < cacheTimeout) {
+            return cached.data;
+        }
+        return null;
+    }
+    
+    // Função para adicionar produto ao cache
+    function cacheProduct(id, data) {
+        productCache.set(id, {
+            data: data,
+            timestamp: Date.now()
+        });
+    }
+
+    // Função para exibir o modal de confirmação
+    function showConfirmationModal(title, message) {
+        return new Promise((resolve) => {
+            const modal = `
+                <div class="modal fade" id="confirmationModal" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">${title}</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p>${message}</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                <button type="button" class="btn btn-primary" id="confirmButton">Confirmar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            $('body').append(modal);
+            const modalElement = $('#confirmationModal');
+            
+            modalElement.on('hidden.bs.modal', function() {
+                modalElement.remove();
+                resolve(false);
+            });
+            
+            $('#confirmButton').click(function() {
+                modalElement.modal('hide');
+                resolve(true);
+            });
+            
+            modalElement.modal('show');
+        });
+    }
+
     // Função para exibir mensagens
     function showMessage(message, type) {
         const messagesDiv = $('#messages');
@@ -133,16 +216,66 @@ $(document).ready(function() {
         return `${symbol} ${parseFloat(price).toFixed(2)}`;
     }
 
+    // Função para exibir o loader
+    function showLoader() {
+        const tbody = $('#productsTable tbody');
+        tbody.html(`
+            <tr>
+                <td colspan="8" class="text-center py-4">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Carregando...</span>
+                    </div>
+                    <p class="mt-2 text-muted">Carregando produtos...</p>
+                </td>
+            </tr>
+        `);
+    }
+
+    // Função para atualizar a paginação
+    function updatePagination(page, total) {
+        const pagination = $('#pagination');
+        pagination.empty();
+        
+        // Botão anterior
+        pagination.append(`
+            <li class="page-item ${page === 1 ? 'disabled' : ''}">
+                <a class="page-link" href="#" data-page="${page - 1}">Anterior</a>
+            </li>
+        `);
+        
+        // Números das páginas
+        for (let i = 1; i <= total; i++) {
+            pagination.append(`
+                <li class="page-item ${i === page ? 'active' : ''}">
+                    <a class="page-link" href="#" data-page="${i}">${i}</a>
+                </li>
+            `);
+        }
+        
+        // Botão próximo
+        pagination.append(`
+            <li class="page-item ${page === total ? 'disabled' : ''}">
+                <a class="page-link" href="#" data-page="${page + 1}">Próximo</a>
+            </li>
+        `);
+    }
+
     // Função para carregar os produtos
-    function loadProducts() {
+    function loadProducts(page = 1) {
+        if (isLoading) return;
+        isLoading = true;
+        showLoader();
+        
         // Obter os parâmetros de filtro
         const category = $('#category').val();
         const status = $('#status').val();
         const search = $('#search').val();
         
         // Construir a URL com os parâmetros
-        let url = '/produtos/produtos/';
-        const params = new URLSearchParams();
+        let url = '/api/produtos/produtos/';
+        const params = new URLSearchParams({
+            page: page
+        });
         if (category) params.append('category', category);
         if (status) params.append('status', status);
         if (search) params.append('search', search);
@@ -156,11 +289,10 @@ $(document).ready(function() {
                 'X-Requested-With': 'XMLHttpRequest'
             },
             success: function(response) {
-                console.log('Resposta da API:', response);
                 const tbody = $('#productsTable tbody');
                 tbody.empty();
                 
-                if (response.length === 0) {
+                if (response.results.length === 0) {
                     tbody.append(`
                         <tr>
                             <td colspan="8" class="text-center py-4">
@@ -172,7 +304,7 @@ $(document).ready(function() {
                     return;
                 }
                 
-                response.forEach(function(product) {
+                response.results.forEach(function(product) {
                     const row = `
                         <tr>
                             <td>${product.id}</td>
@@ -189,7 +321,7 @@ $(document).ready(function() {
                                 </span>
                             </td>
                             <td>
-                                <a href="/superadmin/produtos/editar/${product.id}/" class="btn btn-sm btn-primary">
+                                <a href="{% url 'produtos:product_update' 0 %}".replace('0', product.id) class="btn btn-sm btn-primary">
                                     <i class="fas fa-edit"></i>
                                 </a>
                                 <button class="btn btn-sm ${product.ativo ? 'btn-warning' : 'btn-success'} toggle-status" data-id="${product.id}">
@@ -203,54 +335,34 @@ $(document).ready(function() {
                     `;
                     tbody.append(row);
                 });
+                
+                currentPage = page;
+                totalPages = Math.ceil(response.count / 10); // Assumindo 10 itens por página
+                updatePagination(currentPage, totalPages);
             },
             error: function(xhr, status, error) {
                 console.error('Erro ao carregar produtos:', error);
-                console.error('Status:', status);
-                console.error('Resposta:', xhr.responseText);
                 showMessage('Erro ao carregar produtos. Por favor, tente novamente.', 'danger');
+            },
+            complete: function() {
+                isLoading = false;
             }
         });
     }
 
-    // Carregar produtos ao carregar a página
-    loadProducts();
-
-    // Recarregar produtos quando os filtros mudarem
-    $('#category, #status').change(function() {
-        loadProducts();
+    // Evento de clique na paginação
+    $(document).on('click', '.page-link', function(e) {
+        e.preventDefault();
+        const page = $(this).data('page');
+        if (page && page !== currentPage) {
+            loadProducts(page);
+        }
     });
 
-    // Recarregar produtos quando o formulário de busca for enviado
+    // Evento de submit do formulário de filtro
     $('form').on('submit', function(e) {
         e.preventDefault();
-        loadProducts();
-    });
-
-    // Deletar produto
-    $(document).on('click', '.delete-product', function() {
-        const productId = $(this).data('id');
-        
-        if (confirm('Tem certeza que deseja excluir este produto?')) {
-            $.ajax({
-                url: `/produtos/api/produtos/${productId}/`,
-                type: 'DELETE',
-                headers: {
-                    'X-CSRFToken': getCookie('csrftoken'),
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-                success: function() {
-                    showMessage('Produto excluído com sucesso', 'success');
-                    loadProducts();
-                },
-                error: function(xhr, status, error) {
-                    console.error('Erro ao excluir produto:', error);
-                    console.error('Status:', status);
-                    console.error('Resposta:', xhr.responseText);
-                    showMessage('Erro ao excluir produto. Por favor, tente novamente.', 'danger');
-                }
-            });
-        }
+        loadProducts(1);
     });
 
     // Toggle status do produto
@@ -260,39 +372,143 @@ $(document).ready(function() {
         const row = button.closest('tr');
         const statusBadge = row.find('.badge');
         
-        $.ajax({
-            url: `/produtos/api/produtos/${productId}/toggle_status/`,
-            type: 'POST',
-            headers: {
-                'X-CSRFToken': getCookie('csrftoken'),
-                'X-Requested-With': 'XMLHttpRequest'
-            },
-            success: function(response) {
-                if (response.success) {
-                    const isActive = response.ativo;
-                    statusBadge
-                        .removeClass('bg-success bg-danger')
-                        .addClass(isActive ? 'bg-success' : 'bg-danger')
-                        .text(isActive ? 'Ativo' : 'Inativo');
-                    
-                    button
-                        .removeClass('btn-warning btn-success')
-                        .addClass(isActive ? 'btn-warning' : 'btn-success')
-                        .find('i')
-                        .removeClass('fa-ban fa-check')
-                        .addClass(isActive ? 'fa-ban' : 'fa-check');
-                    
-                    showMessage('Status do produto atualizado com sucesso!', 'success');
-                }
-            },
-            error: function(xhr, status, error) {
-                console.error('Erro ao atualizar status:', error);
-                console.error('Status:', status);
-                console.error('Resposta:', xhr.responseText);
-                showMessage('Erro ao atualizar status do produto. Por favor, tente novamente.', 'danger');
+        const currentStatus = statusBadge.hasClass('bg-success');
+        const action = currentStatus ? 'desativar' : 'ativar';
+        
+        showConfirmationModal(
+            'Confirmar Alteração',
+            `Deseja ${action} este produto?`
+        ).then(confirmed => {
+            if (confirmed) {
+                button.prop('disabled', true);
+                $.ajax({
+                    url: `/api/produtos/produtos/${productId}/toggle_status/`,
+                    type: 'POST',
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken'),
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    data: JSON.stringify({
+                        action: action
+                    }),
+                    contentType: 'application/json',
+                    success: function(response) {
+                        if (response.success) {
+                            const isActive = response.ativo;
+                            statusBadge
+                                .removeClass('bg-success bg-danger')
+                                .addClass(isActive ? 'bg-success' : 'bg-danger')
+                                .text(isActive ? 'Ativo' : 'Inativo');
+                            
+                            button
+                                .removeClass('btn-warning btn-success')
+                                .addClass(isActive ? 'btn-warning' : 'btn-success')
+                                .find('i')
+                                .removeClass('fa-ban fa-check')
+                                .addClass(isActive ? 'fa-ban' : 'fa-check');
+                            
+                            // Atualizar cache
+                            const cachedProduct = getCachedProduct(productId);
+                            if (cachedProduct) {
+                                cachedProduct.ativo = isActive;
+                                cacheProduct(productId, cachedProduct);
+                            }
+                            
+                            showMessage('Status do produto atualizado com sucesso!', 'success');
+                        } else {
+                            showMessage('Erro ao atualizar status do produto.', 'danger');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        handleError(xhr, status, error);
+                        // Reverter visualmente o estado do botão
+                        button
+                            .removeClass('btn-warning btn-success')
+                            .addClass(currentStatus ? 'btn-warning' : 'btn-success')
+                            .find('i')
+                            .removeClass('fa-ban fa-check')
+                            .addClass(currentStatus ? 'fa-ban' : 'fa-check');
+                    },
+                    complete: function() {
+                        button.prop('disabled', false);
+                    }
+                });
             }
         });
     });
+
+    // Deletar produto
+    $(document).on('click', '.delete-product', function() {
+        const productId = $(this).data('id');
+        const row = $(this).closest('tr');
+        const button = $(this);
+        
+        showConfirmationModal(
+            'Confirmar Exclusão',
+            'Tem certeza que deseja excluir este produto? Esta ação não pode ser desfeita.'
+        ).then(confirmed => {
+            if (confirmed) {
+                button.prop('disabled', true);
+                $.ajax({
+                    url: `/api/produtos/produtos/${productId}/`,
+                    type: 'DELETE',
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken'),
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            productCache.delete(productId);
+                            row.fadeOut(400, function() {
+                                $(this).remove();
+                                showMessage('Produto excluído com sucesso!', 'success');
+                            });
+                        } else {
+                            showMessage('Erro ao excluir produto.', 'danger');
+                            button.prop('disabled', false);
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        handleError(xhr, status, error);
+                        button.prop('disabled', false);
+                    }
+                });
+            }
+        });
+    });
+
+    // Função para tratar erros
+    function handleError(xhr, status, error) {
+        let message = 'Erro ao processar a requisição.';
+        
+        if (xhr.responseJSON) {
+            if (xhr.responseJSON.detail) {
+                message = xhr.responseJSON.detail;
+            } else if (xhr.responseJSON.error) {
+                message = xhr.responseJSON.error;
+            } else if (xhr.responseJSON.message) {
+                message = xhr.responseJSON.message;
+            } else if (xhr.responseJSON.non_field_errors) {
+                message = xhr.responseJSON.non_field_errors.join(', ');
+            }
+        } else if (xhr.status === 0) {
+            message = 'Erro de conexão. Verifique sua conexão com a internet.';
+        } else if (xhr.status === 403) {
+            message = 'Você não tem permissão para realizar esta ação.';
+        } else if (xhr.status === 404) {
+            message = 'Recurso não encontrado.';
+        } else if (xhr.status === 500) {
+            message = 'Erro interno do servidor. Por favor, tente novamente mais tarde.';
+        }
+        
+        showMessage(message, 'danger');
+        console.error('Erro:', {
+            status: status,
+            error: error,
+            response: xhr.responseJSON,
+            statusCode: xhr.status
+        });
+    }
 });
 </script>
 {% endblock %} 

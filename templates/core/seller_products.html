@@ -11,7 +11,7 @@
                 <div class="card-header pb-0">
                     <div class="d-flex justify-content-between align-items-center">
                         <h6>Produtos Disponíveis</h6>
-                        <a href="{% url 'core:product_create' %}" class="btn btn-primary btn-sm">
+                        <a href="{% url 'produtos:product_create' %}" class="btn btn-primary btn-sm">
                             <i class="fas fa-plus me-2"></i>Novo Produto
                         </a>
                     </div>
@@ -49,7 +49,7 @@
                                 <button type="submit" class="btn btn-primary">
                                     <i class="fas fa-search me-2"></i>Filtrar
                                 </button>
-                                <a href="{% url 'core:seller_products' %}" class="btn btn-outline-secondary">
+                                <a href="{% url 'produtos:product_list' %}" class="btn btn-outline-secondary">
                                     <i class="fas fa-times me-2"></i>Limpar Filtros
                                 </a>
                             </div>
@@ -103,7 +103,7 @@
                                         {% endif %}
                                     </td>
                                     <td class="align-middle text-center">
-                                        <a href="{% url 'core:product_update' product.id %}" class="btn btn-sm btn-primary">
+                                        <a href="{% url 'produtos:product_update' product.id %}" class="btn btn-sm btn-primary">
                                             <i class="fas fa-edit"></i>
                                         </a>
                                         <button class="btn btn-sm {% if product.ativo %}btn-warning{% else %}btn-success{% endif %} toggle-status" data-id="{{ product.id }}">
@@ -134,24 +134,52 @@
 {% block extra_js %}
 <script>
 $(document).ready(function() {
+    // Função para exibir mensagens
+    function showMessage(message, type) {
+        const messagesDiv = $('#messages');
+        messagesDiv.html(`
+            <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        `);
+    }
+
     // Toggle status do produto
     $('.toggle-status').click(function() {
         const productId = $(this).data('id');
+        const button = $(this);
+        const row = button.closest('tr');
+        const statusBadge = row.find('.badge');
+        
         $.ajax({
-            url: `/produtos/produtos/${productId}/toggle_status/`,
+            url: `/api/produtos/produtos/${productId}/toggle_status/`,
             type: 'POST',
             headers: {
-                'X-CSRFToken': getCookie('csrftoken')
+                'X-CSRFToken': getCookie('csrftoken'),
+                'X-Requested-With': 'XMLHttpRequest'
             },
             success: function(response) {
                 if (response.success) {
-                    location.reload();
-                } else {
-                    alert('Erro ao alterar status do produto');
+                    const isActive = response.ativo;
+                    statusBadge
+                        .removeClass('bg-success bg-danger')
+                        .addClass(isActive ? 'bg-success' : 'bg-danger')
+                        .text(isActive ? 'Ativo' : 'Inativo');
+                    
+                    button
+                        .removeClass('btn-warning btn-success')
+                        .addClass(isActive ? 'btn-warning' : 'btn-success')
+                        .find('i')
+                        .removeClass('fa-ban fa-check')
+                        .addClass(isActive ? 'fa-ban' : 'fa-check');
+                    
+                    showMessage('Status do produto atualizado com sucesso!', 'success');
                 }
             },
-            error: function() {
-                alert('Erro ao alterar status do produto');
+            error: function(xhr, status, error) {
+                console.error('Erro ao atualizar status:', error);
+                showMessage('Erro ao atualizar status do produto. Por favor, tente novamente.', 'danger');
             }
         });
     });
@@ -160,17 +188,24 @@ $(document).ready(function() {
     $('.delete-product').click(function() {
         if (confirm('Tem certeza que deseja excluir este produto?')) {
             const productId = $(this).data('id');
+            const row = $(this).closest('tr');
+            
             $.ajax({
-                url: `/produtos/produtos/${productId}/`,
+                url: `/api/produtos/produtos/${productId}/`,
                 type: 'DELETE',
                 headers: {
-                    'X-CSRFToken': getCookie('csrftoken')
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'X-Requested-With': 'XMLHttpRequest'
                 },
                 success: function() {
-                    location.reload();
+                    row.fadeOut(400, function() {
+                        $(this).remove();
+                        showMessage('Produto excluído com sucesso!', 'success');
+                    });
                 },
-                error: function() {
-                    alert('Erro ao excluir produto');
+                error: function(xhr, status, error) {
+                    console.error('Erro ao excluir produto:', error);
+                    showMessage('Erro ao excluir produto. Por favor, tente novamente.', 'danger');
                 }
             });
         }
