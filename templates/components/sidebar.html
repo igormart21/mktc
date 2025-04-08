@@ -38,6 +38,20 @@
             <span class="ml-3">Pedidos</span>
         </a>
 
+        <!-- Compras de Vendedores -->
+        <a href="{% url 'core:superadmin_compras_vendedores' %}" 
+           class="menu-item {% if request.path|starts_with:'/superadmin/compras-vendedores' %}active{% endif %}" id="compras-vendedores-link">
+            <i class="fas fa-cash-register w-6"></i>
+            <span class="ml-3">Compras de Vendedores</span>
+        </a>
+
+        <!-- Suporte -->
+        <a href="{% url 'core:superadmin_suporte' %}" 
+           class="menu-item {% if request.path|starts_with:'/superadmin/suporte' %}active{% endif %}">
+            <i class="fas fa-headset w-6"></i>
+            <span class="ml-3">Suporte</span>
+        </a>
+
         <div class="border-t border-gray-200 my-4"></div>
 
         <!-- Sair -->
@@ -47,6 +61,15 @@
         </a>
     </nav>
 </aside>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('Menu lateral carregado.');
+        console.log('Usuário é superadmin:', {{ user.is_superuser|yesno:"true,false" }});
+        console.log('Item Compras de Vendedores presente:', !!document.getElementById('compras-vendedores-link'));
+        console.log('URL atual:', window.location.pathname);
+    });
+</script>
 
 <style>
 .admin-sidebar {

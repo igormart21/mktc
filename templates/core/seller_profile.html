@@ -1,98 +1,173 @@
 {% extends "base_internal.html" %}
 {% load static %}
+{% load crispy_forms_tags %}
 
 {% block title %}Perfil do Vendedor - AgroMarketplace{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
+<div class="container-fluid px-4 py-4">
     <!-- Cabeçalho -->
-    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-4 border-bottom">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center mb-4">
         <div>
-            <h1 class="h2 mb-1">Perfil do Vendedor</h1>
-            <p class="text-muted">Gerencie suas informações pessoais e da empresa</p>
+            <h1 class="h3 mb-1">Perfil do Vendedor</h1>
+            <p class="text-muted mb-0">Gerencie suas informações pessoais e da empresa</p>
+        </div>
+        <div class="btn-toolbar mb-2 mb-md-0">
+            <a href="{% url 'core:seller_dashboard' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i>
+                Voltar
+            </a>
         </div>
     </div>
 
     <!-- Formulário de Perfil -->
-    <div class="row">
-        <div class="col-md-8 mx-auto">
-            <div class="card">
-                <div class="card-body">
-                    <form method="post" class="needs-validation" novalidate>
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-user-cog text-primary me-2"></i>
+                        Informações do Vendedor
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post" class="needs-validation" enctype="multipart/form-data" novalidate>
                         {% csrf_token %}
                         
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {% for error in form.non_field_errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+
                         <!-- Informações da Empresa -->
-                        <h5 class="mb-4">Informações da Empresa</h5>
-                        <div class="row mb-4">
-                            <div class="col-md-6 mb-3">
-                                <label for="razao_social" class="form-label">Razão Social</label>
-                                <input type="text" class="form-control" id="razao_social" name="razao_social" value="{{ vendedor.razao_social }}" required>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="nome_fantasia" class="form-label">Nome Fantasia</label>
-                                <input type="text" class="form-control" id="nome_fantasia" name="nome_fantasia" value="{{ vendedor.nome_fantasia }}" required>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="cnpj" class="form-label">CNPJ</label>
-                                <input type="text" class="form-control" id="cnpj" name="cnpj" value="{{ vendedor.cnpj }}" required>
+                        <div class="mb-4">
+                            <h5 class="mb-3">
+                                <i class="fas fa-store text-primary me-2"></i>
+                                Informações da Empresa
+                            </h5>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    {{ form.nome_fantasia|as_crispy_field }}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    {{ form.hectares_atendidos|as_crispy_field }}
+                                </div>
                             </div>
                         </div>
 
                         <!-- Informações de Contato -->
-                        <h5 class="mb-4">Informações de Contato</h5>
-                        <div class="row mb-4">
-                            <div class="col-md-6 mb-3">
-                                <label for="telefone" class="form-label">Telefone</label>
-                                <input type="tel" class="form-control" id="telefone" name="telefone" value="{{ vendedor.telefone }}" required>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="email" class="form-label">E-mail</label>
-                                <input type="email" class="form-control" id="email" value="{{ vendedor.usuario.email }}" disabled>
+                        <div class="mb-4">
+                            <h5 class="mb-3">
+                                <i class="fas fa-phone-alt text-primary me-2"></i>
+                                Informações de Contato
+                            </h5>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    {{ form.telefone|as_crispy_field }}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">E-mail</label>
+                                    <input type="email" class="form-control" value="{{ seller.usuario.email }}" disabled>
+                                </div>
                             </div>
                         </div>
 
                         <!-- Endereço -->
-                        <h5 class="mb-4">Endereço</h5>
-                        <div class="row mb-4">
-                            <div class="col-12 mb-3">
-                                <label for="endereco" class="form-label">Endereço</label>
-                                <input type="text" class="form-control" id="endereco" name="endereco" value="{{ vendedor.endereco }}" required>
+                        <div class="mb-4">
+                            <h5 class="mb-3">
+                                <i class="fas fa-map-marker-alt text-primary me-2"></i>
+                                Endereço
+                            </h5>
+                            
+                            <div class="mb-3">
+                                {{ form.endereco|as_crispy_field }}
                             </div>
-                            <div class="col-md-4 mb-3">
-                                <label for="cidade" class="form-label">Cidade</label>
-                                <input type="text" class="form-control" id="cidade" name="cidade" value="{{ vendedor.cidade }}" required>
+                            
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    {{ form.cidade|as_crispy_field }}
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    {{ form.estado|as_crispy_field }}
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    {{ form.cep|as_crispy_field }}
+                                </div>
                             </div>
-                            <div class="col-md-4 mb-3">
-                                <label for="estado" class="form-label">Estado</label>
-                                <input type="text" class="form-control" id="estado" name="estado" value="{{ vendedor.estado }}" required>
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label for="cep" class="form-label">CEP</label>
-                                <input type="text" class="form-control" id="cep" name="cep" value="{{ vendedor.cep }}" required>
+                        </div>
+                        
+                        <!-- Documentos -->
+                        <div class="mb-4">
+                            <h5 class="mb-3">
+                                <i class="fas fa-file-alt text-primary me-2"></i>
+                                Documentos
+                            </h5>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    {{ form.rg|as_crispy_field }}
+                                    {% if seller.rg %}
+                                    <div class="mt-2">
+                                        <a href="{{ seller.rg.url }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-eye me-1"></i>Visualizar RG atual
+                                        </a>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    {{ form.cnh|as_crispy_field }}
+                                    {% if seller.cnh %}
+                                    <div class="mt-2">
+                                        <a href="{{ seller.cnh.url }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-eye me-1"></i>Visualizar CNH atual
+                                        </a>
+                                    </div>
+                                    {% endif %}
+                                </div>
                             </div>
                         </div>
 
-                        <!-- Redefinição de Senha -->
-                        <h5 class="mb-4">Redefinir Senha</h5>
-                        <div class="row mb-4">
-                            <div class="col-md-6 mb-3">
-                                <label for="current_password" class="form-label">Senha Atual</label>
-                                <input type="password" class="form-control" id="current_password" name="current_password">
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="new_password" class="form-label">Nova Senha</label>
-                                <input type="password" class="form-control" id="new_password" name="new_password">
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="confirm_password" class="form-label">Confirmar Nova Senha</label>
-                                <input type="password" class="form-control" id="confirm_password" name="confirm_password">
+                        <!-- Alteração de Senha -->
+                        <div class="mb-4">
+                            <h5 class="mb-3">
+                                <i class="fas fa-key text-primary me-2"></i>
+                                Alterar Senha
+                            </h5>
+                            
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label for="current_password" class="form-label">Senha Atual</label>
+                                    <input type="password" class="form-control" id="current_password" name="current_password">
+                                    <div class="form-text text-muted">Informe sua senha atual</div>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="new_password" class="form-label">Nova Senha</label>
+                                    <input type="password" class="form-control" id="new_password" name="new_password">
+                                    <div class="form-text text-muted">Mínimo 8 caracteres</div>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="confirm_password" class="form-label">Confirmar Nova Senha</label>
+                                    <input type="password" class="form-control" id="confirm_password" name="confirm_password">
+                                    <div class="form-text text-muted">Repita a nova senha</div>
+                                </div>
                             </div>
                         </div>
 
-                        <!-- Botões -->
-                        <div class="d-flex justify-content-end gap-2">
-                            <a href="{% url 'core:seller_dashboard' %}" class="btn btn-secondary">Cancelar</a>
-                            <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+                        <!-- Botões de Ação -->
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="{% url 'core:seller_dashboard' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times me-1"></i>
+                                Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i>
+                                Salvar Alterações
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -100,4 +175,44 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Adiciona validação do formulário
+    document.addEventListener('DOMContentLoaded', function() {
+        const forms = document.querySelectorAll('.needs-validation');
+        Array.from(forms).forEach(form => {
+            form.addEventListener('submit', event => {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+
+        // Validação de senhas iguais
+        const newPasswordInput = document.getElementById('new_password');
+        const confirmPasswordInput = document.getElementById('confirm_password');
+        
+        if (newPasswordInput && confirmPasswordInput) {
+            confirmPasswordInput.addEventListener('input', function() {
+                if (newPasswordInput.value !== confirmPasswordInput.value) {
+                    confirmPasswordInput.setCustomValidity('As senhas não conferem');
+                } else {
+                    confirmPasswordInput.setCustomValidity('');
+                }
+            });
+            
+            newPasswordInput.addEventListener('input', function() {
+                if (confirmPasswordInput.value && newPasswordInput.value !== confirmPasswordInput.value) {
+                    confirmPasswordInput.setCustomValidity('As senhas não conferem');
+                } else {
+                    confirmPasswordInput.setCustomValidity('');
+                }
+            });
+        }
+    });
+</script>
 {% endblock %} 

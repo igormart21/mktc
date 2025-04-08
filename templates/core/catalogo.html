@@ -84,46 +84,72 @@
         {% for produto in produtos %}
         <div class="col">
             <div class="card h-100 border-0 shadow-sm">
-                <a href="{% url 'core:produto_detalhe' produto.id %}" class="text-decoration-none">
-                    {% if produto.imagem %}
-                    <img src="{{ produto.imagem.url }}" class="card-img-top" alt="{{ produto.nome }}" style="height: 200px; object-fit: cover;">
-                    {% else %}
-                    <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
-                        <i class="fas fa-image fa-3x text-muted"></i>
+                <div class="position-relative">
+                    <div class="image-container" style="height: 200px; overflow: hidden; position: relative;">
+                        {% if produto.imagem %}
+                        <a href="{% url 'core:produto_detalhe' produto.id %}" class="text-decoration-none">
+                            <img src="{{ produto.imagem.url }}" class="card-img-top" alt="{{ produto.nome }}" 
+                                 style="width: 100%; height: 100%; object-fit: contain; background-color: #f8f9fa;">
+                        </a>
+                        {% else %}
+                        <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                            <i class="fas fa-seedling fa-3x text-success"></i>
+                        </div>
+                        {% endif %}
+
+                        <!-- Badges e indicadores -->
+                        <div class="position-absolute top-0 start-0 p-2">
+                            {% if produto.preco and produto.preco > 0 %}
+                            <span class="badge bg-primary mb-1 d-block">
+                                <i class="fas fa-tag me-1"></i> R$ {{ produto.preco|floatformat:2 }}
+                            </span>
+                            {% endif %}
+                        </div>
+                        <div class="position-absolute top-0 end-0 p-2">
+                            {% if produto.permite_troca %}
+                            <span class="badge bg-success p-2" data-bs-toggle="tooltip" title="Permite troca">
+                                <i class="fas fa-exchange-alt"></i>
+                            </span>
+                            {% endif %}
+                            {% if produto.ativo %}
+                            <span class="badge bg-success p-2 ms-1" data-bs-toggle="tooltip" title="Disponível">
+                                <i class="fas fa-check-circle"></i>
+                            </span>
+                            {% else %}
+                            <span class="badge bg-danger p-2 ms-1" data-bs-toggle="tooltip" title="Indisponível">
+                                <i class="fas fa-times-circle"></i>
+                            </span>
+                            {% endif %}
+                        </div>
+                        <div class="position-absolute bottom-0 end-0 p-2">
+                            <a href="{% url 'core:produto_detalhe' produto.id %}" class="btn btn-sm btn-dark opacity-75">
+                                <i class="fas fa-eye me-1"></i> Ver detalhes
+                            </a>
+                        </div>
                     </div>
-                    {% endif %}
-                </a>
-                <div class="card-body">
+                </div>
+                <div class="card-body d-flex flex-column">
                     <h5 class="card-title">
                         <a href="{% url 'core:produto_detalhe' produto.id %}" class="text-decoration-none text-dark">{{ produto.nome }}</a>
                     </h5>
-                    <p class="card-text text-muted">{{ produto.descricao|truncatewords:20|default:"Sem descrição" }}</p>
-                    <div class="mb-2">
-                        <span class="badge bg-primary">{{ produto.get_categoria_display|default:"Sem categoria" }}</span>
+                    <div class="d-flex mb-2">
+                        <span class="badge bg-primary me-1">{{ produto.get_categoria_display|default:"Sem categoria" }}</span>
                         <span class="badge bg-secondary">{{ produto.get_tipo_display|default:"Sem tipo" }}</span>
                     </div>
-                    <h4 class="text-primary mb-3">R$ {{ produto.preco|default:"0.00" }}</h4>
-                    <div class="d-grid gap-2">
-                        <a href="{% url 'core:produto_detalhe' produto.id %}" class="btn btn-outline-primary">
-                            <i class="fas fa-eye me-2"></i>Ver Detalhes
-                        </a>
-                        {% if produto.vendedor %}
-                            {% if user.is_authenticated and user.vendedor == produto.vendedor %}
-                            <button type="button" class="btn btn-secondary" disabled>
-                                <i class="fas fa-shopping-cart me-2"></i>Seu Produto
-                            </button>
-                            {% elif not produto.ativo %}
-                            <button type="button" class="btn btn-secondary" disabled>
-                                <i class="fas fa-shopping-cart me-2"></i>Produto Indisponível
-                            </button>
-                            {% else %}
-                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#produtoModal{{ produto.id }}">
-                                <i class="fas fa-shopping-cart me-2"></i>Adicionar ao Carrinho
-                            </button>
-                            {% endif %}
+                    <p class="card-text text-muted flex-grow-1">{{ produto.descricao|truncatewords:15|default:"Sem descrição" }}</p>
+                    
+                    <div class="mt-auto">
+                        {% if user.is_authenticated and user.vendedor == produto.vendedor %}
+                        <button type="button" class="btn btn-secondary w-100" disabled>
+                            <i class="fas fa-shopping-cart me-2"></i>Seu Produto
+                        </button>
+                        {% elif not produto.ativo %}
+                        <button type="button" class="btn btn-secondary w-100" disabled>
+                            <i class="fas fa-shopping-cart me-2"></i>Produto Indisponível
+                        </button>
                         {% else %}
-                        <button type="button" class="btn btn-secondary" disabled>
-                            <i class="fas fa-shopping-cart me-2"></i>Sem vendedor
+                        <button type="button" class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#produtoModal{{ produto.id }}">
+                            <i class="fas fa-shopping-cart me-2"></i>Adicionar ao Carrinho
                         </button>
                         {% endif %}
                     </div>
@@ -132,7 +158,6 @@
         </div>
 
         <!-- Modal de Solicitação de Compra -->
-        {% if produto.vendedor %}
         <div class="modal fade" id="produtoModal{{ produto.id }}" tabindex="-1">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -192,7 +217,6 @@
                 </div>
             </div>
         </div>
-        {% endif %}
         {% empty %}
         <div class="col-12">
             <div class="text-center py-5">
@@ -237,13 +261,19 @@
 
 {% block extra_js %}
 <script>
+    // Inicializar tooltips
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    });
+
     // Atualizar valor total ao mudar a quantidade
     document.querySelectorAll('input[name="quantidade"]').forEach(input => {
-        input.addEventListener('change', function() {
+        input.addEventListener('input', function() {
             const modalBody = this.closest('.modal-body');
             const precoTexto = modalBody.querySelector('p.mb-0').textContent;
             const preco = parseFloat(precoTexto.replace(/[^0-9,]/g, '').replace(',', '.'));
-            const quantidade = parseInt(this.value);
+            const quantidade = parseInt(this.value) || 0;
             const valorTotal = preco * quantidade;
             const moeda = precoTexto.match(/[R$€$]/)[0];
             modalBody.querySelector('#valorTotal').textContent = `${moeda} ${valorTotal.toFixed(2)}`;

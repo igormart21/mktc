@@ -92,6 +92,28 @@ class Produto(models.Model):
     def __str__(self):
         return self.nome
 
+    def get_categoria_display(self):
+        """Retorna o valor de exibição para o campo categoria"""
+        return dict(self.CATEGORIA_CHOICES).get(self.categoria, self.categoria)
+
+    def get_tipo_display(self):
+        """Retorna o valor de exibição para o campo tipo"""
+        return dict(self.TIPO_CHOICES).get(self.tipo, self.tipo)
+
+    def get_unidade_medida_display(self):
+        """Retorna o valor de exibição para o campo unidade_medida"""
+        return dict(self.UNIDADE_CHOICES).get(self.unidade_medida, self.unidade_medida)
+
+    def get_embalagem_display(self):
+        """Retorna o valor de exibição para o campo embalagem"""
+        if not self.embalagem:
+            return None
+        return dict(self.EMBALAGEM_CHOICES).get(self.embalagem, self.embalagem)
+
+    def get_moeda_display(self):
+        """Retorna o valor de exibição para o campo moeda"""
+        return dict(self.MOEDA_CHOICES).get(self.moeda, self.moeda)
+
     def clean(self):
         from django.core.exceptions import ValidationError
         if self.quantidade_minima and self.quantidade_minima > self.volume_disponivel:

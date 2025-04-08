@@ -6,6 +6,8 @@ from .views import (
     ListaProdutosAPIView,
     toggle_product_status
 )
+from django.views.generic.base import RedirectView
+from django.urls import reverse_lazy
 
 app_name = 'produtos'
 
@@ -16,4 +18,7 @@ urlpatterns = [
     path('produtos/<int:pk>/', ProdutoRetrieveUpdateDestroyAPIView.as_view(), name='produto-detail'),
     path('produtos/<int:pk>/toggle_status/', toggle_product_status, name='toggle_product_status'),
     path('lista/', ListaProdutosAPIView.as_view(), name='lista_produtos'),
+    path('detalhe/<int:produto_id>/', 
+         RedirectView.as_view(pattern_name='core:produto_detalhe'), 
+         name='produto-detalhe-redirect'),
 ] 

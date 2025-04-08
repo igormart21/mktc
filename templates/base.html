@@ -60,19 +60,13 @@
                                     <span>Vendas</span>
                                 </a>
                             </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark fw-medium d-flex align-items-center gap-2" href="{% url 'core:profile' %}">
-                                    <i class="fas fa-user-circle text-secondary" style="font-size: 1rem; line-height: 1;"></i>
-                                    <span>Meu Perfil</span>
-                                </a>
-                            </li>
                             {% if user.is_authenticated and user.is_vendedor %}
                                 <li class="nav-item">
                                     <a class="nav-link" href="{% url 'core:historico_pedidos' %}">Histórico de Pedidos</a>
                                 </li>
                             {% endif %}
                             <li class="nav-item">
-                                <a class="nav-link" href="{% url 'core:pedidos' %}">
+                                <a class="nav-link" href="{% url 'vendas:meus_pedidos' %}">
                                     <i class="fas fa-shopping-bag"></i> Meus Pedidos
                                 </a>
                             </li>

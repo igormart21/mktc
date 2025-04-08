@@ -1,7 +1,7 @@
 {% extends "base_internal.html" %}
 {% load static %}
 
-{% block title %}{{ produto.name }} - AgroMarketplace{% endblock %}
+{% block title %}{{ produto.nome }} - AgroMarketplace{% endblock %}
 
 {% block content %}
 <div class="container-fluid py-4">
@@ -11,7 +11,7 @@
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{% url 'core:catalogo' %}">Catálogo</a></li>
-                    <li class="breadcrumb-item active">{{ produto.name }}</li>
+                    <li class="breadcrumb-item active">{{ produto.nome }}</li>
                 </ol>
             </nav>
         </div>
@@ -20,82 +20,321 @@
     <!-- Detalhes do Produto -->
     <div class="row">
         <!-- Imagem do Produto -->
-        <div class="col-md-6 mb-4">
-            <div class="card border-0 shadow-sm">
-                {% if produto.image %}
-                <img src="{{ produto.image.url }}" class="card-img-top" alt="{{ produto.name }}" style="height: 400px; object-fit: cover;">
+        <div class="col-md-5 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="position-relative">
+                    <div class="image-container" style="height: 400px; overflow: hidden; position: relative;">
+                        {% if produto.imagem %}
+                        <a href="{{ produto.imagem.url }}" data-bs-toggle="modal" data-bs-target="#imagemModal">
+                            <img src="{{ produto.imagem.url }}" class="card-img-top" alt="{{ produto.nome }}" 
+                                 style="width: 100%; height: 100%; object-fit: contain; background-color: #f8f9fa;">
+                            <div class="position-absolute bottom-0 end-0 p-3">
+                                <span class="badge bg-dark p-2 opacity-75">
+                                    <i class="fas fa-search-plus"></i> Ampliar
+                                </span>
+                            </div>
+                        </a>
                 {% else %}
                 <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 400px;">
-                    <i class="fas fa-image fa-4x text-muted"></i>
+                            <i class="fas fa-seedling fa-4x text-success"></i>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="position-absolute top-0 end-0 p-2">
+                        {% if produto.permite_troca %}
+                        <span class="badge bg-success p-2" data-bs-toggle="tooltip" title="Permite troca">
+                            <i class="fas fa-exchange-alt me-1"></i> Permite Troca
+                        </span>
+                        {% endif %}
+                    </div>
                 </div>
-                {% endif %}
+                <div class="card-body bg-light p-3">
+                    <h5 class="text-center mb-3">Compartilhar</h5>
+                    <div class="d-flex justify-content-center gap-3">
+                        <a href="https://wa.me/?text={{ request.build_absolute_uri }}" target="_blank" class="btn btn-success btn-sm">
+                            <i class="fab fa-whatsapp fa-lg"></i>
+                        </a>
+                        <a href="mailto:?subject=Veja este produto: {{ produto.nome }}&body={{ request.build_absolute_uri }}" class="btn btn-primary btn-sm">
+                            <i class="fas fa-envelope fa-lg"></i>
+                        </a>
+                        <button class="btn btn-secondary btn-sm" onclick="navigator.clipboard.writeText('{{ request.build_absolute_uri }}'); alert('Link copiado!')">
+                            <i class="fas fa-link fa-lg"></i>
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
 
+        <!-- Modal de ampliação da imagem -->
+        {% if produto.imagem %}
+        <div class="modal fade" id="imagemModal" tabindex="-1" aria-labelledby="imagemModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-xl modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="imagemModalLabel">{{ produto.nome }}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                    </div>
+                    <div class="modal-body text-center p-0">
+                        <img src="{{ produto.imagem.url }}" alt="{{ produto.nome }}" class="img-fluid" style="max-height: 80vh;">
+                    </div>
+                    <div class="modal-footer">
+                        <a href="{{ produto.imagem.url }}" class="btn btn-sm btn-primary" download>
+                            <i class="fas fa-download me-1"></i> Download
+                        </a>
+                        <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
         <!-- Informações do Produto -->
-        <div class="col-md-6">
-            <div class="card border-0 shadow-sm">
+        <div class="col-md-7">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white py-3">
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center">
+                        <div class="mb-3 mb-md-0">
+                            <h1 class="h2 mb-2">{{ produto.nome }}</h1>
+                            <div class="d-flex flex-wrap gap-2">
+                                <span class="badge bg-primary d-flex align-items-center p-2">
+                                    <i class="fas fa-tag me-2"></i> {{ produto.get_categoria_display }}
+                                </span>
+                                <span class="badge bg-secondary d-flex align-items-center p-2">
+                                    <i class="fas fa-leaf me-2"></i> {{ produto.get_tipo_display }}
+                                </span>
+                                {% if produto.ativo %}
+                                <span class="badge bg-success d-flex align-items-center p-2">
+                                    <i class="fas fa-check-circle me-2"></i> Disponível
+                                </span>
+                                {% else %}
+                                <span class="badge bg-danger d-flex align-items-center p-2">
+                                    <i class="fas fa-times-circle me-2"></i> Indisponível
+                                </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% if produto.created_at %}
+                        <div class="text-muted small">
+                            <i class="fas fa-calendar-plus me-1"></i> Cadastrado em: {{ produto.created_at|date:"d/m/Y" }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
                 <div class="card-body">
-                    <h1 class="h3 mb-3">{{ produto.name }}</h1>
-                    
-                    <div class="mb-4">
-                        <span class="badge bg-primary me-2">{{ produto.category.name }}</span>
-                        <span class="badge bg-secondary">{{ produto.get_product_type_display }}</span>
-                    </div>
-
-                    <h2 class="text-primary mb-4">{{ produto.get_price_display }}</h2>
-
-                    <div class="mb-4">
-                        <h5 class="mb-3">Descrição</h5>
-                        <p class="text-muted">{{ produto.description }}</p>
-                    </div>
-
-                    <div class="mb-4">
-                        <h5 class="mb-3">Detalhes do Produto</h5>
-                        <ul class="list-unstyled">
-                            <li class="mb-2">
-                                <strong>Volume:</strong> {{ produto.volume }} {{ produto.unit }}
-                            </li>
-                            <li class="mb-2">
-                                <strong>Fabricante:</strong> {{ produto.manufacturer }}
-                            </li>
-                            <li class="mb-2">
-                                <strong>Vendedor:</strong> {{ produto.seller.nome_fantasia }}
-                            </li>
-                        </ul>
-                    </div>
-
-                    <!-- Formulário de Solicitação -->
-                    <form method="post" action="{% url 'vendas:solicitar_compra' produto.id %}" class="mt-4">
-                        {% csrf_token %}
-                        <div class="mb-3">
-                            <label for="quantidade" class="form-label">Quantidade</label>
-                            <input type="number" class="form-control" id="quantidade" name="quantidade" min="1" value="1" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="observacoes" class="form-label">Observações</label>
-                            <textarea class="form-control" id="observacoes" name="observacoes" rows="3"></textarea>
-                        </div>
-                        <div class="alert alert-info mb-4">
-                            <div class="d-flex align-items-center">
-                                <div class="flex-shrink-0">
-                                    <i class="fas fa-info-circle fa-2x"></i>
-                                </div>
-                                <div class="flex-grow-1 ms-3">
-                                    <h6 class="alert-heading mb-1">Valor Total</h6>
-                                    <p class="mb-0" id="valorTotal">{{ produto.get_price_display }}</p>
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="card bg-light border-0 h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title mb-3">
+                                        <i class="fas fa-tags text-primary me-2"></i>Preço
+                                    </h5>
+                                    <div class="d-flex align-items-baseline">
+                                        <span class="h1 text-primary mb-0 me-2">R$ {{ produto.preco }}</span>
+                                        <span class="text-muted">/{{ produto.get_unidade_medida_display }}</span>
+                                    </div>
+                                    {% if produto.moeda != 'BRL' %}
+                                    <div class="small text-muted mt-1">
+                                        <i class="fas fa-money-bill-wave me-1"></i> {{ produto.get_moeda_display }}
+                                    </div>
+                                    {% endif %}
                                 </div>
                             </div>
                         </div>
-                        <div class="d-grid gap-2">
+                        <div class="col-md-6">
+                            <div class="card bg-light border-0 h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title mb-3">
+                                        <i class="fas fa-cube text-success me-2"></i>Disponibilidade
+                                    </h5>
+                                    <div class="mb-2">
+                                        <span class="h4 mb-0">{{ produto.volume_disponivel }}</span>
+                                        <span class="ms-1">{{ produto.get_unidade_medida_display }} disponíveis</span>
+                                    </div>
+                                    {% if produto.quantidade_minima %}
+                                    <div class="small mt-2">
+                                        <i class="fas fa-shopping-cart me-1"></i> Compra mínima: 
+                                        <span class="fw-bold">{{ produto.quantidade_minima }} {{ produto.get_unidade_medida_display }}</span>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Descrição -->
+                    <div class="mb-4">
+                        <h5 class="border-bottom pb-2">
+                            <i class="fas fa-align-left me-2"></i> Descrição
+                        </h5>
+                        <p class="text-muted">{{ produto.descricao|default:"Sem descrição disponível." }}</p>
+                    </div>
+
+                    <!-- Especificações -->
+                    <div class="mb-4">
+                        <h5 class="border-bottom pb-2">
+                            <i class="fas fa-clipboard-list me-2"></i> Especificações
+                        </h5>
+                        <div class="row row-cols-1 row-cols-md-2 g-3">
+                            {% if produto.fabricante %}
+                            <div class="col">
+                                <div class="d-flex align-items-center">
+                                    <div class="flex-shrink-0">
+                                        <i class="fas fa-industry fa-fw text-primary"></i>
+                                    </div>
+                                    <div class="flex-grow-1 ms-3">
+                                        <div class="text-muted small">Fabricante</div>
+                                        <div class="fw-bold">{{ produto.fabricante }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                            
+                            {% if produto.lote %}
+                            <div class="col">
+                                <div class="d-flex align-items-center">
+                                    <div class="flex-shrink-0">
+                                        <i class="fas fa-barcode fa-fw text-primary"></i>
+                                    </div>
+                                    <div class="flex-grow-1 ms-3">
+                                        <div class="text-muted small">Lote</div>
+                                        <div class="fw-bold">{{ produto.lote }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                            
+                            {% if produto.embalagem %}
+                            <div class="col">
+                                <div class="d-flex align-items-center">
+                                    <div class="flex-shrink-0">
+                                        <i class="fas fa-box fa-fw text-primary"></i>
+                                    </div>
+                                    <div class="flex-grow-1 ms-3">
+                                        <div class="text-muted small">Embalagem</div>
+                                        <div class="fw-bold">{{ produto.get_embalagem_display }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                            
+                            {% if produto.validade %}
+                            <div class="col">
+                                <div class="d-flex align-items-center">
+                                    <div class="flex-shrink-0">
+                                        <i class="fas fa-calendar-alt fa-fw text-primary"></i>
+                                    </div>
+                                    <div class="flex-grow-1 ms-3">
+                                        <div class="text-muted small">Validade</div>
+                                        <div class="fw-bold">{{ produto.validade|date:"d/m/Y" }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                            
+                            {% if produto.peneira %}
+                            <div class="col">
+                                <div class="d-flex align-items-center">
+                                    <div class="flex-shrink-0">
+                                        <i class="fas fa-filter fa-fw text-primary"></i>
+                                    </div>
+                                    <div class="flex-grow-1 ms-3">
+                                        <div class="text-muted small">Peneira</div>
+                                        <div class="fw-bold">{{ produto.peneira }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                            
+                            {% if produto.variedade %}
+                            <div class="col">
+                                <div class="d-flex align-items-center">
+                                    <div class="flex-shrink-0">
+                                        <i class="fas fa-dna fa-fw text-primary"></i>
+                                    </div>
+                                    <div class="flex-grow-1 ms-3">
+                                        <div class="text-muted small">Variedade</div>
+                                        <div class="fw-bold">{{ produto.variedade }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                            
+                            {% if produto.vendedor %}
+                            <div class="col">
+                                <div class="d-flex align-items-center">
+                                    <div class="flex-shrink-0">
+                                        <i class="fas fa-store fa-fw text-primary"></i>
+                                    </div>
+                                    <div class="flex-grow-1 ms-3">
+                                        <div class="text-muted small">Vendedor</div>
+                                        <div class="fw-bold">{{ produto.vendedor.nome_fantasia }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Formulário de Solicitação -->
+                    <div class="mt-4">
+                        <h5 class="border-bottom pb-2">
+                            <i class="fas fa-shopping-cart me-2"></i> Faça seu Pedido
+                        </h5>
+                    <form method="post" action="{% url 'vendas:solicitar_compra' produto.id %}" class="mt-4">
+                        {% csrf_token %}
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="quantidade" class="form-label">
+                                        <i class="fas fa-balance-scale me-1"></i> Quantidade
+                                    </label>
+                                    <div class="input-group">
+                            <input type="number" class="form-control" id="quantidade" name="quantidade" min="1" value="1" required>
+                                        <span class="input-group-text">{{ produto.get_unidade_medida_display }}</span>
+                        </div>
+                                    <div class="form-text">Informe a quantidade que deseja comprar</div>
+                        </div>
+                                
+                                <div class="col-md-6">
+                                    <label for="observacoes" class="form-label">
+                                        <i class="fas fa-comment-alt me-1"></i> Observações
+                                    </label>
+                                    <textarea class="form-control" id="observacoes" name="observacoes" rows="3" placeholder="Instruções especiais, comentários ou perguntas"></textarea>
+                                </div>
+                            </div>
+                            
+                            <div class="alert alert-info mt-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="flex-shrink-0">
+                                        <i class="fas fa-calculator fa-2x"></i>
+                                </div>
+                                <div class="flex-grow-1 ms-3">
+                                        <h6 class="alert-heading mb-1">Resumo do Pedido</h6>
+                                        <div class="row">
+                                            <div class="col-6">Quantidade:</div>
+                                            <div class="col-6 text-end fw-bold" id="resumoQuantidade">1 {{ produto.get_unidade_medida_display }}</div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-6">Preço Unitário:</div>
+                                            <div class="col-6 text-end">R$ {{ produto.preco }}</div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-6">Valor Total:</div>
+                                            <div class="col-6 text-end fw-bold fs-5 text-primary" id="valorTotal">R$ {{ produto.preco }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                                <a href="{% url 'core:catalogo' %}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-arrow-left me-2"></i>Voltar ao Catálogo
+                                </a>
                             <button type="submit" class="btn btn-primary btn-lg">
                                 <i class="fas fa-shopping-cart me-2"></i>Solicitar Compra
                             </button>
-                            <a href="{% url 'core:catalogo' %}" class="btn btn-outline-secondary">
-                                <i class="fas fa-arrow-left me-2"></i>Voltar ao Catálogo
-                            </a>
                         </div>
                     </form>
+                    </div>
                 </div>
             </div>
         </div>
@@ -105,12 +344,21 @@
 
 {% block extra_js %}
 <script>
+    // Inicializar tooltips
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    });
+
     // Atualizar valor total ao mudar a quantidade
-    document.getElementById('quantidade').addEventListener('change', function() {
-        const precoTexto = '{{ produto.price }}';
+    document.getElementById('quantidade').addEventListener('input', function() {
+        const precoTexto = '{{ produto.preco }}';
         const preco = parseFloat(precoTexto);
-        const quantidade = parseInt(this.value);
+        const quantidade = parseInt(this.value) || 0;
         const valorTotal = preco * quantidade;
+        
+        // Atualizar resumo
+        document.getElementById('resumoQuantidade').textContent = `${quantidade} {{ produto.get_unidade_medida_display }}`;
         document.getElementById('valorTotal').textContent = `R$ ${valorTotal.toFixed(2)}`;
     });
 </script>

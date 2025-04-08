@@ -1,26 +1,133 @@
 {% extends 'base.html' %}
-{% load crispy_forms_tags %}
+{% load static %}
 
 {% block title %}Login - AgroMarketplace{% endblock %}
 
 {% block content %}
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-body">
-                    <h2 class="card-title text-center mb-4">Login</h2>
-                    <form method="post">
-                        {% csrf_token %}
-                        {{ form|crispy }}
-                        <button type="submit" class="btn btn-primary w-100">Entrar</button>
-                    </form>
-                    <div class="mt-3 text-center">
-                        <a href="{% url 'password_reset' %}">Esqueceu sua senha?</a>
+<div class="container-fluid min-vh-100 d-flex align-items-center justify-content-center" style="background-color: #f8fdfc;">
+    <div class="card login-card" style="background-color: #f8fdfc; border: none; box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.15);">
+        <div class="card-body p-4">
+            <div class="text-center mb-3">
+                <img src="{% static 'img/user-lock.svg' %}" alt="Login Icon" class="mb-3" style="width: 56px; height: 56px;">
+                <h4 class="mb-2">Acessar Plataforma</h4>
+                <p class="text-muted small">Entre para gerenciar seu negócio agro</p>
+            </div>
+
+            <form method="post" action="{% url 'core:login' %}" class="compact-form">
+                {% csrf_token %}
+                
+                <div class="mb-3">
+                    <label for="username" class="form-label small">Email</label>
+                    <div class="input-group">
+                        <span class="input-group-text" style="background-color: #f8fdfc;">
+                            <i class="fas fa-envelope text-success"></i>
+                        </span>
+                        <input type="email" class="form-control" id="username" name="username" required 
+                               placeholder="Digite seu email" style="background-color: #f8fdfc;">
                     </div>
                 </div>
+
+                <div class="mb-3">
+                    <label for="password" class="form-label small">Senha</label>
+                    <div class="input-group">
+                        <span class="input-group-text" style="background-color: #f8fdfc;">
+                            <i class="fas fa-lock text-success"></i>
+                        </span>
+                        <input type="password" class="form-control" id="password" name="password" required
+                               placeholder="Digite sua senha" style="background-color: #f8fdfc;">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-success w-100 mb-3">
+                    <i class="fas fa-sign-in-alt me-2"></i>
+                    Entrar
+                </button>
+
+                <div class="text-center mb-3">
+                    <a href="{% url 'password_reset' %}" class="text-muted text-decoration-none d-inline-flex align-items-center hover-success">
+                        <i class="fas fa-key text-success me-2" style="font-size: 0.9rem;"></i>
+                        <small>Esqueci minha senha</small>
+                    </a>
+                </div>
+            </form>
+
+            <hr class="my-3" style="border-color: rgba(0,0,0,0.1);">
+
+            <div class="text-center">
+                <p class="small mb-3">Ainda não tem uma conta?</p>
+                <a href="{% url 'core:seller_registration' %}" class="btn btn-outline-success w-100">
+                    <i class="fas fa-user-plus me-2"></i>
+                    Cadastre-se como Vendedor
+                </a>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+.login-card {
+    width: 100%;
+    max-width: 420px;
+    margin: 0 2rem;
+    transition: box-shadow 0.3s ease-in-out;
+}
+
+.login-card:hover {
+    box-shadow: 0 0.75rem 2rem rgba(0, 0, 0, 0.2) !important;
+}
+
+.compact-form .form-control,
+.compact-form .input-group-text,
+.compact-form .btn {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.95rem;
+}
+
+.input-group-text {
+    border-right: none;
+    min-width: 46px;
+    justify-content: center;
+}
+
+.form-control {
+    border-left: none;
+    padding-left: 0.5rem;
+}
+
+.form-control::placeholder {
+    color: #adb5bd;
+    font-size: 0.9rem;
+}
+
+.form-control:focus {
+    border-color: #ced4da;
+    box-shadow: none;
+    background-color: #f8fdfc !important;
+}
+
+.input-group:focus-within {
+    box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+}
+
+.input-group:focus-within .input-group-text,
+.input-group:focus-within .form-control {
+    border-color: #28a745;
+    background-color: #f8fdfc;
+}
+
+.hover-success:hover {
+    color: #28a745 !important;
+}
+
+.hover-success:hover i {
+    transform: scale(1.1);
+    transition: transform 0.2s ease;
+}
+
+@media (max-width: 768px) {
+    .login-card {
+        margin: 1rem;
+    }
+}
+</style>
 {% endblock %} 

@@ -4,86 +4,139 @@
 {% block title %}Solicitar Produto - AgroMarketplace{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-4 border-bottom">
-        <h1 class="h2">Solicitar Produto</h1>
+<div class="container-fluid px-4 py-4">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-1">Solicitar Produto</h1>
+            <p class="text-muted mb-0">Preencha os dados do produto que deseja solicitar</p>
+        </div>
+        <div class="btn-toolbar mb-2 mb-md-0">
+            <a href="{% url 'core:seller_dashboard' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i>
+                Voltar
+            </a>
+        </div>
     </div>
 
-    <div class="row">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-body">
-                    <form method="post">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-box text-primary me-2"></i>
+                        Informações do Produto
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post" class="needs-validation" novalidate>
                         {% csrf_token %}
                         
-                        <div class="mb-3">
-                            <label for="{{ form.nome_produto.id_for_label }}" class="form-label">Nome do Produto</label>
-                            {{ form.nome_produto }}
-                            {% if form.nome_produto.errors %}
-                                <div class="invalid-feedback d-block">
-                                    {{ form.nome_produto.errors }}
-                                </div>
-                            {% endif %}
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {% for error in form.non_field_errors %}
+                                {{ error }}
+                            {% endfor %}
                         </div>
-
-                        <div class="mb-3">
-                            <label for="{{ form.categoria_sugerida.id_for_label }}" class="form-label">Categoria Sugerida</label>
-                            {{ form.categoria_sugerida }}
-                            {% if form.categoria_sugerida.errors %}
-                                <div class="invalid-feedback d-block">
-                                    {{ form.categoria_sugerida.errors }}
-                                </div>
-                            {% endif %}
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="{{ form.descricao.id_for_label }}" class="form-label">Descrição</label>
-                            {{ form.descricao }}
-                            {% if form.descricao.errors %}
-                                <div class="invalid-feedback d-block">
-                                    {{ form.descricao.errors }}
-                                </div>
-                            {% endif %}
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="{{ form.volume.id_for_label }}" class="form-label">Volume</label>
-                                    {{ form.volume }}
-                                    {% if form.volume.errors %}
+                        {% endif %}
+                        
+                        <!-- Informações Básicas -->
+                        <div class="mb-4">
+                            <h5 class="mb-3">
+                                <i class="fas fa-info-circle text-primary me-2"></i>
+                                Informações Básicas
+                            </h5>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.nome_produto.id_for_label }}" class="form-label">Nome do Produto</label>
+                                    {{ form.nome_produto }}
+                                    {% if form.nome_produto.errors %}
                                         <div class="invalid-feedback d-block">
-                                            {{ form.volume.errors }}
+                                            {{ form.nome_produto.errors }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.categoria_sugerida.id_for_label }}" class="form-label">Categoria Sugerida</label>
+                                    {{ form.categoria_sugerida }}
+                                    {% if form.categoria_sugerida.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.categoria_sugerida.errors }}
                                         </div>
                                     {% endif %}
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="{{ form.unidade.id_for_label }}" class="form-label">Unidade</label>
-                                    {{ form.unidade }}
-                                    {% if form.unidade.errors %}
+                            
+                            <div class="mb-3">
+                                <label for="{{ form.descricao.id_for_label }}" class="form-label">Descrição</label>
+                                {{ form.descricao }}
+                                {% if form.descricao.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.descricao.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- Volume e Unidade -->
+                        <div class="mb-4">
+                            <h5 class="mb-3">
+                                <i class="fas fa-balance-scale text-primary me-2"></i>
+                                Volume e Unidade
+                            </h5>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.quantidade.id_for_label }}" class="form-label">Volume <span class="text-danger">*</span></label>
+                                    {{ form.quantidade }}
+                                    <div class="form-text">Informe a quantidade desejada (mínimo 0.01)</div>
+                                    {% if form.quantidade.errors %}
                                         <div class="invalid-feedback d-block">
-                                            {{ form.unidade.errors }}
+                                            {{ form.quantidade.errors }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.unidade_medida.id_for_label }}" class="form-label">Unidade <span class="text-danger">*</span></label>
+                                    {{ form.unidade_medida }}
+                                    <div class="form-text">Selecione a unidade de medida</div>
+                                    {% if form.unidade_medida.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.unidade_medida.errors }}
                                         </div>
                                     {% endif %}
                                 </div>
                             </div>
                         </div>
-
-                        <div class="mb-3">
-                            <label for="{{ form.fabricante.id_for_label }}" class="form-label">Fabricante</label>
-                            {{ form.fabricante }}
-                            {% if form.fabricante.errors %}
-                                <div class="invalid-feedback d-block">
-                                    {{ form.fabricante.errors }}
-                                </div>
-                            {% endif %}
+                        
+                        <!-- Informações Adicionais -->
+                        <div class="mb-4">
+                            <h5 class="mb-3">
+                                <i class="fas fa-info-circle text-primary me-2"></i>
+                                Informações Adicionais
+                            </h5>
+                            
+                            <div class="mb-3">
+                                <label for="{{ form.fabricante.id_for_label }}" class="form-label">Fabricante</label>
+                                {{ form.fabricante }}
+                                {% if form.fabricante.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.fabricante.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
                         </div>
 
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary">Enviar Solicitação</button>
-                            <a href="{% url 'core:seller_dashboard' %}" class="btn btn-secondary">Cancelar</a>
+                        <!-- Botões de Ação -->
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="{% url 'core:seller_dashboard' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times me-1"></i>
+                                Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane me-1"></i>
+                                Enviar Solicitação
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -91,4 +144,22 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Adiciona validação do formulário
+    document.addEventListener('DOMContentLoaded', function() {
+        const forms = document.querySelectorAll('.needs-validation');
+        Array.from(forms).forEach(form => {
+            form.addEventListener('submit', event => {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+    });
+</script>
 {% endblock %} 

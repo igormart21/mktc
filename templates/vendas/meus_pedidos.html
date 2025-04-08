@@ -1,6 +1,5 @@
-{% extends 'base.html' %}
+{% extends 'base_internal.html' %}
 {% load static %}
-{% load vendas_tags %}
 
 {% block title %}Meus Pedidos{% endblock %}
 
@@ -8,16 +7,22 @@
 <div class="container mt-4">
     <h2 class="mb-4">Meus Pedidos</h2>
 
+    {% if message %}
+    <div class="alert alert-info" role="alert">
+        {{ message }}
+    </div>
+    {% endif %}
+
+    {% if pedidos %}
     <div class="table-responsive">
         <table class="table table-striped">
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th>Produto</th>
-                    <th>Quantidade</th>
+                    <th>Nome da Propriedade</th>
+                    <th>CNPJ</th>
                     <th>Data</th>
                     <th>Status</th>
-                    <th class="text-end">Total</th>
                     <th class="text-center">Ações</th>
                 </tr>
             </thead>
@@ -25,37 +30,63 @@
                 {% for pedido in pedidos %}
                 <tr>
                     <td>#{{ pedido.id }}</td>
-                    <td>{{ pedido.produto.nome }}</td>
-                    <td>{{ pedido.quantidade }} {{ pedido.produto.unidade_medida }}</td>
-                    <td>{{ pedido.data_criacao|date:"d/m/Y H:i" }}</td>
+                    <td>{{ pedido.nome_propriedade }}</td>
+                    <td>{{ pedido.cnpj }}</td>
                     <td>
-                        <span class="badge {% if pedido.status == 'PENDENTE' %}bg-warning{% elif pedido.status == 'ACEITO' %}bg-success{% else %}bg-danger{% endif %}">
-                            {{ pedido.get_status_display }}
+                        {% if pedido.data_criacao %}
+                            {{ pedido.data_criacao|date:"d/m/Y H:i" }}
+                        {% elif pedido.data_pedido %}
+                            {{ pedido.data_pedido|date:"d/m/Y H:i" }}
+                        {% else %}
+                            Data não disponível
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="badge 
+                            {% if pedido.status == 'PROCESSANDO' or pedido.status == 'PENDENTE' %}
+                                bg-warning
+                            {% elif pedido.status == 'APROVADO' %}
+                                bg-success
+                            {% elif pedido.status == 'ENTREGUE' %}
+                                bg-primary
+                            {% else %}
+                                bg-danger
+                            {% endif %}">
+                            {% if pedido.get_status_display %}
+                                {{ pedido.get_status_display }}
+                            {% else %}
+                                {{ pedido.status }}
+                            {% endif %}
                         </span>
                     </td>
-                    <td class="text-end">R$ {{ pedido.preco_total|floatformat:2 }}</td>
                     <td class="text-center">
                         <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#pedidoModal{{ pedido.id }}">
                             <i class="fas fa-eye"></i>
                         </button>
-                        {% if pedido.status == 'PENDENTE' %}
-                        <button type="button" class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#editarModal{{ pedido.id }}">
+                        
+                        {% if pedido.status == 'PROCESSANDO' or pedido.status == 'PENDENTE' %}
+                        <a href="{% url 'vendas:editar_pedido' pedido_id=pedido.id %}" class="btn btn-sm btn-outline-success">
                             <i class="fas fa-edit"></i>
-                        </button>
-                        <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#cancelarModal{{ pedido.id }}">
+                        </a>
+                        <a href="{% url 'vendas:cancelar_pedido' pedido_id=pedido.id %}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Tem certeza que deseja cancelar este pedido?');">
                             <i class="fas fa-times"></i>
-                        </button>
+                        </a>
                         {% endif %}
                     </td>
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="7" class="text-center">Nenhum pedido encontrado.</td>
+                    <td colspan="6" class="text-center">Nenhum pedido encontrado.</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
+    {% else %}
+    <div class="alert alert-info">
+        Você ainda não tem pedidos registrados.
+    </div>
+    {% endif %}
 </div>
 
 {% for pedido in pedidos %}
@@ -70,22 +101,40 @@
             <div class="modal-body">
                 <div class="mb-3">
                     <h6>Informações do Pedido</h6>
-                    <p><strong>Data:</strong> {{ pedido.data_criacao|date:"d/m/Y H:i" }}</p>
-                    <p><strong>Status:</strong> {{ pedido.get_status_display }}</p>
-                    <p><strong>Produto:</strong> {{ pedido.produto.nome }}</p>
-                    <p><strong>Quantidade:</strong> {{ pedido.quantidade }} {{ pedido.produto.unidade_medida }}</p>
-                    <p><strong>Preço Unitário:</strong> R$ {{ pedido.preco_unitario|floatformat:2 }}</p>
-                    <p><strong>Total:</strong> R$ {{ pedido.preco_total|floatformat:2 }}</p>
+                    <p><strong>Data:</strong> 
+                        {% if pedido.data_criacao %}
+                            {{ pedido.data_criacao|date:"d/m/Y H:i" }}
+                        {% elif pedido.data_pedido %}
+                            {{ pedido.data_pedido|date:"d/m/Y H:i" }}
+                        {% else %}
+                            Data não disponível
+                        {% endif %}
+                    </p>
+                    <p><strong>Status:</strong> 
+                        {% if pedido.get_status_display %}
+                            {{ pedido.get_status_display }}
+                        {% else %}
+                            {{ pedido.status }}
+                        {% endif %}
+                    </p>
                 </div>
                 <div class="mb-3">
                     <h6>Informações da Propriedade</h6>
                     <p><strong>Nome:</strong> {{ pedido.nome_propriedade }}</p>
                     <p><strong>CNPJ:</strong> {{ pedido.cnpj }}</p>
                     <p><strong>Hectares:</strong> {{ pedido.hectares }}</p>
-                    <p><strong>Cultivo Principal:</strong> {{ pedido.cultivo_principal }}</p>
+                    <p><strong>Cultivo Principal:</strong> 
+                        {% if pedido.get_cultivo_principal_display %}
+                            {{ pedido.get_cultivo_principal_display }}
+                        {% else %}
+                            {{ pedido.cultivo_principal }}
+                        {% endif %}
+                    </p>
                     <p><strong>Endereço:</strong> {{ pedido.endereco }}, {{ pedido.cidade }}/{{ pedido.estado }}</p>
                     <p><strong>CEP:</strong> {{ pedido.cep }}</p>
+                    {% if pedido.referencia %}
                     <p><strong>Referência:</strong> {{ pedido.referencia }}</p>
+                    {% endif %}
                 </div>
                 {% if pedido.observacoes %}
                 <div class="mb-3">
@@ -100,62 +149,6 @@
         </div>
     </div>
 </div>
-
-{% if pedido.status == 'PENDENTE' %}
-<!-- Modal de Edição -->
-<div class="modal fade" id="editarModal{{ pedido.id }}" tabindex="-1" aria-labelledby="editarModalLabel{{ pedido.id }}" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="editarModalLabel{{ pedido.id }}">Editar Pedido #{{ pedido.id }}</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
-            </div>
-            <form method="post" action="{% url 'vendas:editar_pedido' pedido.id %}">
-                {% csrf_token %}
-                <div class="modal-body">
-                    {% with form=pedidos_forms|get_item:pedido.id %}
-                    {{ form.as_p }}
-                    {% endwith %}
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save me-2"></i>Salvar Alterações
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<!-- Modal de Cancelamento -->
-<div class="modal fade" id="cancelarModal{{ pedido.id }}" tabindex="-1" aria-labelledby="cancelarModalLabel{{ pedido.id }}" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="cancelarModalLabel{{ pedido.id }}">Cancelar Pedido #{{ pedido.id }}</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
-            </div>
-            <form method="post" action="{% url 'vendas:cancelar_pedido' pedido.id %}">
-                {% csrf_token %}
-                <div class="modal-body">
-                    <p>Tem certeza que deseja cancelar este pedido?</p>
-                    <div class="mb-3">
-                        <label for="motivo_cancelamento" class="form-label">Motivo do Cancelamento</label>
-                        <textarea class="form-control" id="motivo_cancelamento" name="motivo_cancelamento" rows="3" required></textarea>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Voltar</button>
-                    <button type="submit" class="btn btn-danger">
-                        <i class="fas fa-times me-2"></i>Confirmar Cancelamento
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-{% endif %}
 {% endfor %}
 
 {% endblock %}

@@ -21,7 +21,7 @@
                         <h1 class="h3 mb-0">
                             <i class="fas fa-box text-primary me-2"></i>Gerenciar Produtos
                         </h1>
-                        <a href="{% url 'produtos:product_create' %}" class="btn btn-primary">
+                        <a href="{% url 'core:superadmin_product_create' %}" class="btn btn-primary">
                             <i class="fas fa-plus me-2"></i>Novo Produto
                         </a>
                     </div>
@@ -59,7 +59,7 @@
                                 <button type="submit" class="btn btn-primary">
                                     <i class="fas fa-search me-2"></i>Filtrar
                                 </button>
-                                <a href="{% url 'produtos:product_list' %}" class="btn btn-outline-secondary">
+                                <a href="{% url 'core:superadmin_products' %}" class="btn btn-outline-secondary">
                                     <i class="fas fa-times me-2"></i>Limpar Filtros
                                 </a>
                             </div>
@@ -83,7 +83,53 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <!-- Os produtos serão carregados via API -->
+                                {% for produto in products %}
+                                <tr>
+                                    <td>{{ produto.id }}</td>
+                                    <td>
+                                        {% if produto.imagem %}
+                                        <img src="{{ produto.imagem }}" alt="{{ produto.nome }}" class="img-thumbnail" style="max-width: 50px;">
+                                        {% else %}
+                                        <div class="bg-light d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                            <i class="fas fa-seedling text-success"></i>
+                                        </div>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ produto.nome }}</td>
+                                    <td>{{ produto.categoria }}</td>
+                                    <td>R$ {{ produto.preco }}</td>
+                                    <td>{{ produto.volume_disponivel }} {{ produto.unidade_medida }}</td>
+                                    <td>
+                                        <span class="badge {% if produto.ativo %}bg-success{% else %}bg-danger{% endif %}">
+                                            {% if produto.ativo %}Ativo{% else %}Inativo{% endif %}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {% if produto.id %}
+                                        <a href="/superadmin/produtos/editar/{{ produto.id }}/" class="btn btn-sm btn-primary">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        {% else %}
+                                        <a href="#" class="btn btn-sm btn-primary disabled">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        {% endif %}
+                                        <a href="#" class="btn btn-sm {% if produto.ativo %}btn-warning{% else %}btn-success{% endif %} toggle-status" data-id="{{ produto.id }}">
+                                            <i class="fas {% if produto.ativo %}fa-ban{% else %}fa-check{% endif %}"></i>
+                                        </a>
+                                        <a href="#" class="btn btn-sm btn-danger delete-product" data-id="{{ produto.id }}">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="8" class="text-center py-4">
+                                        <p class="mb-0 text-muted">Nenhum produto encontrado</p>
+                                        <small class="text-muted">Tente ajustar os filtros de busca.</small>
+                                    </td>
+                                </tr>
+                                {% endfor %}
                             </tbody>
                         </table>
                     </div>
@@ -305,6 +351,9 @@ $(document).ready(function() {
                 }
                 
                 response.results.forEach(function(product) {
+                    // Construir a URL para edição manualmente
+                    const editUrl = '/superadmin/produtos/editar/' + product.id + '/';
+                    
                     const row = `
                         <tr>
                             <td>${product.id}</td>
@@ -321,7 +370,7 @@ $(document).ready(function() {
                                 </span>
                             </td>
                             <td>
-                                <a href="{% url 'produtos:product_update' 0 %}".replace('0', product.id) class="btn btn-sm btn-primary">
+                                <a href="${editUrl}" class="btn btn-sm btn-primary">
                                     <i class="fas fa-edit"></i>
                                 </a>
                                 <button class="btn btn-sm ${product.ativo ? 'btn-warning' : 'btn-success'} toggle-status" data-id="${product.id}">
@@ -382,7 +431,7 @@ $(document).ready(function() {
             if (confirmed) {
                 button.prop('disabled', true);
                 $.ajax({
-                    url: `/api/produtos/produtos/${productId}/toggle_status/`,
+                    url: `/produtos/produtos/${productId}/toggle_status/`,
                     type: 'POST',
                     headers: {
                         'X-CSRFToken': getCookie('csrftoken'),

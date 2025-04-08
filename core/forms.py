@@ -243,25 +243,31 @@ class SolicitacaoProdutoForm(forms.ModelForm):
         widgets = {
             'nome_produto': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Ex: Semente de Soja, Fertilizante NPK'
+                'placeholder': 'Ex: Semente de Soja, Fertilizante NPK',
+                'required': 'required'
             }),
             'categoria_sugerida': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Ex: Sementes, Fertilizantes, Defensivos'
+                'placeholder': 'Ex: Sementes, Fertilizantes, Defensivos',
+                'required': 'required'
             }),
             'descricao': forms.Textarea(attrs={
                 'class': 'form-control',
                 'rows': 3,
-                'placeholder': 'Descreva as características específicas do produto que você precisa'
+                'placeholder': 'Descreva as características específicas do produto que você precisa',
+                'required': 'required'
             }),
             'quantidade': forms.NumberInput(attrs={
                 'class': 'form-control',
                 'min': '0.01',
                 'step': '0.01',
-                'placeholder': 'Digite o volume'
+                'placeholder': 'Digite o volume',
+                'required': 'required',
+                'value': '1.00'  # Valor padrão
             }),
             'unidade_medida': forms.Select(attrs={
-                'class': 'form-select'
+                'class': 'form-select',
+                'required': 'required'
             }),
             'fabricante': forms.TextInput(attrs={
                 'class': 'form-control',
@@ -291,6 +297,14 @@ class SolicitacaoProdutoForm(forms.ModelForm):
                 'rows': 2
             })
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Tornar campos obrigatórios
+        self.fields['nome_produto'].required = True
+        self.fields['categoria_sugerida'].required = True
+        self.fields['quantidade'].required = True
+        self.fields['unidade_medida'].required = True
 
 class SellerProfileForm(forms.ModelForm):
     class Meta:

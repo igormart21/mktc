@@ -238,6 +238,12 @@
                         Suporte
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'seller_profile' %}active{% endif %}" href="{% url 'core:seller_profile' %}">
+                        <i class="fas fa-user-cog"></i>
+                        Gerenciar Perfil
+                    </a>
+                </li>
                 {% endif %}
                 {% if user.is_superuser %}
                 <li class="nav-item">
@@ -273,6 +279,12 @@
                         Solicitações de Produtos
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'superadmin_compras_vendedores' %}active{% endif %}" href="{% url 'core:superadmin_compras_vendedores' %}">
+                        <i class="fas fa-cash-register me-2"></i>
+                        Compras de Vendedores
+                    </a>
+                </li>
                 {% endif %}
                 <li class="nav-item mt-4">
                     <a class="nav-link text-danger" href="{% url 'core:logout' %}">
@@ -301,5 +313,14 @@
     </main>
 
     {% block extra_js %}{% endblock %}
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Template base carregado');
+            console.log('Usuário é superadmin:', {{ user.is_superuser|yesno:"true,false" }});
+            console.log('URL atual:', window.location.pathname);
+            console.log('Menu de Compras de Vendedores presente:', !!document.querySelector('a[href*="superadmin/compras-vendedores"]'));
+        });
+    </script>
 </body>
 </html> 
