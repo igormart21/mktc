@@ -109,6 +109,7 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
         blank=True
     )
     nome = models.CharField(max_length=255, verbose_name='Nome', null=True, blank=True)
+    sobrenome = models.CharField(max_length=255, verbose_name='Sobrenome', null=True, blank=True)
     cpf = models.CharField(max_length=14, verbose_name='CPF', null=True, blank=True)
     telefone = models.CharField(max_length=15, verbose_name='Telefone', null=True, blank=True)
     cep = models.CharField(max_length=9, verbose_name='CEP', null=True, blank=True)
@@ -160,6 +161,15 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
 
     def has_module_perms(self, app_label):
         return True
+
+    def refresh_from_db(self, using=None, fields=None):
+        """Recarrega os dados do banco de dados"""
+        if fields is not None:
+            fields = set(fields)
+            deferred_fields = self.get_deferred_fields()
+            if fields.intersection(deferred_fields):
+                fields = fields.union(deferred_fields)
+        super().refresh_from_db(using, fields)
 
     class Meta:
         verbose_name = 'Usuário'
