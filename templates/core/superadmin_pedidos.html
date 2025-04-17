@@ -1,0 +1,38 @@
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-3">
+                <label for="status" class="form-label">Status</label>
+                <select name="status" id="status" class="form-select">
+                    <option value="">Todos</option>
+                    {% for value, label in status_choices %}
+                        <option value="{{ value }}" {% if request.GET.status == value %}selected{% endif %}>
+                            {{ label }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="tipo_venda" class="form-label">Tipo de Venda</label>
+                <select name="tipo_venda" id="tipo_venda" class="form-select">
+                    <option value="">Todos</option>
+                    <option value="avista" {% if request.GET.tipo_venda == 'avista' %}selected{% endif %}>À Vista</option>
+                    <option value="prazo" {% if request.GET.tipo_venda == 'prazo' %}selected{% endif %}>A Prazo</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="data_inicio" class="form-label">Data Início</label>
+                <input type="date" name="data_inicio" id="data_inicio" class="form-control" 
+                       value="{{ request.GET.data_inicio }}">
+            </div>
+            <div class="col-md-3">
+                <label for="data_fim" class="form-label">Data Fim</label>
+                <input type="date" name="data_fim" id="data_fim" class="form-control" 
+                       value="{{ request.GET.data_fim }}">
+            </div>
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary">Filtrar</button>
+            </div>
+        </form>
+    </div>
+</div> 

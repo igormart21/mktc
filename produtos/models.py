@@ -9,9 +9,7 @@ def product_image_path(instance, filename):
 class Produto(models.Model):
     UNIDADE_CHOICES = [
         ('kg', 'Quilograma (kg)'),
-        ('g', 'Grama (g)'),
         ('l', 'Litro (L)'),
-        ('ml', 'Mililitro (mL)'),
         ('un', 'Unidade (un)'),
     ]
 
@@ -23,14 +21,6 @@ class Produto(models.Model):
         ('milho', 'Milho'),
         ('soja', 'Soja'),
         ('outros', 'Outros'),
-    ]
-
-    EMBALAGEM_CHOICES = [
-        ('bag', 'Saco'),
-        ('box', 'Caixa'),
-        ('bottle', 'Garrafa'),
-        ('can', 'Lata'),
-        ('other', 'Outro'),
     ]
 
     MOEDA_CHOICES = [
@@ -60,7 +50,7 @@ class Produto(models.Model):
     
     # Classificação
     tipo = models.CharField(max_length=20, choices=TIPO_CHOICES, default='outros')
-    embalagem = models.CharField(max_length=20, choices=EMBALAGEM_CHOICES, blank=True, null=True)
+    embalagem = models.CharField(max_length=50, default='Saco')
     
     # Informações adicionais
     fabricante = models.CharField(max_length=100, blank=True, null=True)
@@ -76,7 +66,6 @@ class Produto(models.Model):
     imagem = models.ImageField(upload_to=product_image_path, null=True, blank=True)
     
     # Status
-    permite_troca = models.BooleanField(default=False)
     ativo = models.BooleanField(default=True)
     
     # Metadados
@@ -103,12 +92,6 @@ class Produto(models.Model):
     def get_unidade_medida_display(self):
         """Retorna o valor de exibição para o campo unidade_medida"""
         return dict(self.UNIDADE_CHOICES).get(self.unidade_medida, self.unidade_medida)
-
-    def get_embalagem_display(self):
-        """Retorna o valor de exibição para o campo embalagem"""
-        if not self.embalagem:
-            return None
-        return dict(self.EMBALAGEM_CHOICES).get(self.embalagem, self.embalagem)
 
     def get_moeda_display(self):
         """Retorna o valor de exibição para o campo moeda"""

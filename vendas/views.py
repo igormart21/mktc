@@ -18,6 +18,7 @@ from core.models import Pedido as CorePedido
 from usuarios.models import Usuario
 from django.db.utils import OperationalError
 from django.contrib.auth import get_user_model
+from core.carrinho import Carrinho
 
 # Create your views here.
 
@@ -78,50 +79,31 @@ def solicitar_compra(request, produto_id):
             messages.error(request, 'Este produto não está disponível para compra no momento.')
             return redirect('core:produto_detalhe', produto_id=produto_id)
         
-        # Verificar se o usuário autenticado é uma instância de Usuario
-        usuario = Usuario.objects.get(email=request.user.email)
-        
         if request.method == 'POST':
-            form = PedidoForm(request.POST)
-            if form.is_valid():
-                pedido = form.save(commit=False)
-                pedido.comprador = usuario  # Usar a instância de Usuario
+            quantidade = request.POST.get('quantidade', 1)
+            observacoes = request.POST.get('observacoes', '')
+            
+            try:
+                quantidade = int(quantidade)
+                if quantidade <= 0:
+                    raise ValueError('Quantidade inválida')
+                    
+                # Adicionar ao carrinho
+                carrinho = Carrinho(request)
+                carrinho.adicionar(produto, quantidade)
                 
-                # Obter o vendedor para o pedido
-                if produto.vendedor:
-                    # Se o produto tem um vendedor, use-o
-                    pedido.vendedor = produto.vendedor.usuario
-                else:
-                    # Se o produto não tem vendedor, use um superadmin/admin
-                    try:
-                        # Tenta encontrar um superusuário
-                        admin_user = get_user_model().objects.filter(is_superuser=True).first()
-                        if not admin_user:
-                            # Se não houver superusuário, use o primeiro staff
-                            admin_user = get_user_model().objects.filter(is_staff=True).first()
-                        
-                        pedido.vendedor = admin_user
-                    except:
-                        # Se não encontrar nenhum admin, use o próprio comprador 
-                        # (apenas como fallback para evitar erro)
-                        pedido.vendedor = usuario
+                messages.success(request, f'{produto.nome} adicionado ao carrinho!')
+                return redirect('core:carrinho')
                 
-                pedido.produto = produto
-                pedido.preco_unitario = produto.preco
-                pedido.save()
+            except ValueError as e:
+                messages.error(request, str(e))
+                return redirect('core:produto_detalhe', produto_id=produto_id)
                 
-                messages.success(request, 'Pedido realizado com sucesso!')
-                return redirect('vendas:meus_pedidos')
-        else:
-            form = PedidoForm()
+        return redirect('core:produto_detalhe', produto_id=produto_id)
         
-        return render(request, 'vendas/solicitar_compra.html', {
-            'produto': produto,
-            'form': form
-        })
-    except Usuario.DoesNotExist:
-        messages.error(request, 'Seu perfil de usuário não está configurado corretamente.')
-        return redirect('core:home')  # Redirecionar para a página inicial
+    except Exception as e:
+        messages.error(request, f'Erro ao processar a solicitação: {str(e)}')
+        return redirect('core:produto_detalhe', produto_id=produto_id)
 
 @login_required
 def meus_pedidos(request):

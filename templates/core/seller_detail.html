@@ -222,10 +222,7 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
-                            <p><strong>Razão Social:</strong> {{ seller.razao_social }}</p>
                             <p><strong>Nome Fantasia:</strong> {{ seller.nome_fantasia }}</p>
-                            <p><strong>CNPJ:</strong> {{ seller.cnpj }}</p>
-                            <p><strong>Inscrição Estadual:</strong> {{ seller.inscricao_estadual|default:"-" }}</p>
                         </div>
                         <div class="col-md-6">
                             <p><strong>Status de Aprovação:</strong> 
@@ -239,6 +236,34 @@
                             </p>
                             <p><strong>Hectares Atendidos:</strong> {{ seller.hectares_atendidos }} ha</p>
                         </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Culturas Atendidas -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-seedling text-primary me-2"></i>
+                        Culturas Atendidas
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% for cultura in seller.culturas_atendidas %}
+                            <div class="col-md-4 col-sm-6 mb-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" checked disabled>
+                                    <label class="form-check-label">
+                                        {{ cultura }}
+                                    </label>
+                                </div>
+                            </div>
+                        {% empty %}
+                            <div class="col-12">
+                                <p class="text-muted">Nenhuma cultura selecionada</p>
+                            </div>
+                        {% endfor %}
                     </div>
                 </div>
             </div>
@@ -259,5 +284,19 @@
     .document-preview img {
         max-width: 100%;
         height: auto;
+    }
+
+    .form-check-input:checked {
+        background-color: #198754;
+        border-color: #198754;
+    }
+
+    .form-check-input:focus {
+        border-color: #198754;
+        box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.25);
+    }
+
+    .form-check-input:disabled {
+        opacity: 1;
     }
 </style> 

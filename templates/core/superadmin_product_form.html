@@ -106,13 +106,16 @@
                                 {% endif %}
                             </div>
                             <div class="col-md-6">
-                                <label for="id_embalagem" class="form-label">Embalagem</label>
-                                {{ form.embalagem }}
-                                {% if form.embalagem.errors %}
-                                <div class="invalid-feedback d-block">
-                                    {{ form.embalagem.errors }}
+                                <div class="form-group">
+                                    <label for="id_embalagem" class="form-label">Embalagem</label>
+                                    <input type="text" name="embalagem" class="form-control" id="id_embalagem" 
+                                           value="{{ form.embalagem.value|default:'' }}" required>
+                                    {% if form.embalagem.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.embalagem.errors }}
+                                        </div>
+                                    {% endif %}
                                 </div>
-                                {% endif %}
                             </div>
                         </div>
 
@@ -140,7 +143,8 @@
                         <div class="row g-3 mb-3">
                             <div class="col-md-6">
                                 <label for="id_data_validade" class="form-label">Data de Validade</label>
-                                {{ form.data_validade }}
+                                <input type="date" name="data_validade" class="form-control" id="id_data_validade" 
+                                       value="{{ form.data_validade.value|default:'' }}">
                                 {% if form.data_validade.errors %}
                                 <div class="invalid-feedback d-block">
                                     {{ form.data_validade.errors }}
@@ -200,14 +204,6 @@
                         </div>
 
                         <div class="row g-3 mb-4">
-                            <div class="col-md-6">
-                                <div class="form-check">
-                                    {{ form.permite_troca }}
-                                    <label class="form-check-label" for="id_permite_troca">
-                                        Permitir Troca
-                                    </label>
-                                </div>
-                            </div>
                             <div class="col-md-6">
                                 <div class="form-check">
                                     {{ form.ativo }}

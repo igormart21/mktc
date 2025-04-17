@@ -67,8 +67,8 @@ urlpatterns = [
 
     # URLs do carrinho
     path('carrinho/', views.carrinho, name='carrinho'),
-    path('carrinho/adicionar/<int:product_id>/', views.adicionar_ao_carrinho, name='adicionar_ao_carrinho'),
-    path('carrinho/remover/<int:venda_id>/', views.remover_do_carrinho, name='remover_do_carrinho'),
+    path('adicionar-ao-carrinho/<int:product_id>/', views.adicionar_ao_carrinho, name='adicionar_ao_carrinho'),
+    path('remover-do-carrinho/<int:product_id>/', views.remover_do_carrinho, name='remover_do_carrinho'),
     path('carrinho/checkout/', views.checkout, name='checkout'),
 
     path('consult-ia/', views.consult_ia, name="consult_ia"),

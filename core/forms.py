@@ -6,6 +6,7 @@ from usuarios.models import Usuario
 from vendedor.models import Vendedor
 from produtos.models import Produto
 from django.utils.translation import gettext_lazy as _
+from django.conf import settings
 
 def validar_cpf(cpf):
     # Remove caracteres não numéricos
@@ -47,7 +48,7 @@ class ProductForm(forms.ModelForm):
         fields = [
             'nome', 'categoria', 'preco', 'moeda', 'volume_disponivel', 'unidade_medida',
             'tipo', 'embalagem', 'fabricante', 'lote', 'validade', 'quantidade_minima',
-            'peneira', 'variedade', 'imagem', 'descricao', 'permite_troca', 'ativo'
+            'peneira', 'variedade', 'imagem', 'descricao', 'ativo'
         ]
         widgets = {
             'nome': forms.TextInput(attrs={'class': 'form-control', 'required': True}),
@@ -66,7 +67,6 @@ class ProductForm(forms.ModelForm):
             'variedade': forms.TextInput(attrs={'class': 'form-control'}),
             'imagem': forms.FileInput(attrs={'class': 'form-control'}),
             'descricao': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
-            'permite_troca': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'ativo': forms.CheckboxInput(attrs={'class': 'form-check-input', 'checked': True})
         }
         labels = {
@@ -86,7 +86,6 @@ class ProductForm(forms.ModelForm):
             'variedade': 'Variedade da Semente',
             'imagem': 'Imagem do Produto',
             'descricao': 'Descrição do Produto',
-            'permite_troca': 'Permitir Troca',
             'ativo': 'Produto Ativo'
         }
 
@@ -108,7 +107,11 @@ OrderItemFormSet = forms.inlineformset_factory(
     can_delete=True
 )
 
-class SellerRegistrationForm(UserCreationForm):
+class SellerRegistrationForm(forms.ModelForm):
+    class Meta:
+        model = Usuario
+        fields = ['email', 'nome', 'sobrenome', 'cpf', 'telefone', 'endereco', 'cidade', 'estado', 'cep', 'tipo_documento', 'numero_documento', 'documento', 'hectares_atendidos']
+    
     nome = forms.CharField(
         max_length=100, 
         label='Nome', 
@@ -127,27 +130,20 @@ class SellerRegistrationForm(UserCreationForm):
         widget=forms.EmailInput(attrs={'class': 'form-control'})
     )
     cpf = forms.CharField(
-        max_length=11,
+        max_length=14,
         label='CPF',
         required=True,
-        widget=forms.TextInput(attrs={'class': 'form-control'})
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': '000.000.000-00',
+            'data-mask': '000.000.000-00'
+        })
     )
     telefone = forms.CharField(
         max_length=20, 
         label='Telefone', 
         required=True,
         widget=forms.TextInput(attrs={'class': 'form-control'})
-    )
-    tipo_documento = forms.ChoiceField(
-        choices=[('RG', 'RG'), ('CNH', 'CNH')],
-        label='Tipo de Documento',
-        required=True,
-        widget=forms.Select(attrs={'class': 'form-control'})
-    )
-    arquivo_documento = forms.FileField(
-        label='Arquivo do Documento', 
-        required=True,
-        widget=forms.FileInput(attrs={'class': 'form-control'})
     )
     endereco = forms.CharField(
         max_length=255, 
@@ -168,40 +164,78 @@ class SellerRegistrationForm(UserCreationForm):
         widget=forms.TextInput(attrs={'class': 'form-control'})
     )
     cep = forms.CharField(
-        max_length=9, 
-        label='CEP', 
+        max_length=9,
+        label='CEP',
+        required=True,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': '00000-000',
+            'pattern': '[0-9]{5}-[0-9]{3}',
+            'title': 'Digite o CEP no formato 00000-000'
+        })
+    )
+    tipo_documento = forms.ChoiceField(
+        choices=Usuario.TIPO_DOCUMENTO_CHOICES,
+        label='Tipo de Documento',
+        required=True,
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+    numero_documento = forms.CharField(
+        max_length=20,
+        label='Número do Documento',
         required=True,
         widget=forms.TextInput(attrs={'class': 'form-control'})
     )
-    hectares_atendidos = forms.IntegerField(
+    documento = forms.ImageField(
+        label='Documento',
+        required=True,
+        widget=forms.FileInput(attrs={'class': 'form-control'})
+    )
+    hectares_atendidos = forms.DecimalField(
         label='Hectares Atendidos',
         required=True,
-        widget=forms.NumberInput(attrs={'class': 'form-control'})
+        max_value=300,
+        widget=forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'})
     )
-
-    class Meta:
-        model = Usuario
-        fields = [
-            'nome', 'sobrenome', 'email', 'cpf', 'password1', 'password2',
-            'telefone', 'tipo_documento', 'arquivo_documento',
-            'endereco', 'cidade', 'estado', 'cep', 'hectares_atendidos'
-        ]
-
-    def clean_email(self):
-        email = self.cleaned_data.get('email')
-        if Usuario.objects.filter(email=email).exists():
-            raise forms.ValidationError('Este email já está em uso.')
-        return email
+    culturas_atendidas = forms.MultipleChoiceField(
+        choices=Vendedor.CULTURAS_CHOICES,
+        label='Culturas Atendidas',
+        required=True,
+        widget=forms.CheckboxSelectMultiple()
+    )
 
     def clean_cpf(self):
         cpf = self.cleaned_data.get('cpf')
-        if Usuario.objects.filter(cpf=cpf).exists():
-            raise forms.ValidationError('Este CPF já está cadastrado.')
+        if not validar_cpf(cpf):
+            raise forms.ValidationError('CPF inválido. Por favor, digite um CPF válido.')
         return cpf
 
-    def clean_estado(self):
-        estado = self.cleaned_data.get('estado')
-        return estado.upper() if estado else estado
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.is_active = False
+        user.is_vendedor = True
+        if commit:
+            user.save()
+            # Criar o vendedor associado
+            vendedor = Vendedor.objects.create(
+                usuario=user,
+                nome_fantasia=f"{self.cleaned_data['nome']} {self.cleaned_data['sobrenome']}",
+                telefone=self.cleaned_data['telefone'],
+                endereco=self.cleaned_data['endereco'],
+                cidade=self.cleaned_data['cidade'],
+                estado=self.cleaned_data['estado'],
+                cep=self.cleaned_data['cep'],
+                hectares_atendidos=self.cleaned_data['hectares_atendidos'],
+                culturas_atendidas=self.cleaned_data['culturas_atendidas']
+            )
+            
+            # Salvar os campos de documento
+            user.tipo_documento = self.cleaned_data['tipo_documento']
+            user.numero_documento = self.cleaned_data['numero_documento']
+            user.documento = self.cleaned_data['documento']
+            user.save()
+            
+        return user
 
 class LoginForm(forms.Form):
     username = forms.EmailField(label='Email')
@@ -332,4 +366,50 @@ class AdminProfileForm(forms.ModelForm):
         widgets = {
             'telefone': forms.TextInput(attrs={'placeholder': '(00) 00000-0000'}),
             'cep': forms.TextInput(attrs={'placeholder': '00000-000'}),
-        } 
+        }
+
+class VendaPrazoForm(forms.Form):
+    documento_ir = forms.FileField(
+        label='Imposto de Renda do Produtor',
+        required=False,
+        widget=forms.FileInput(attrs={'class': 'form-control'})
+    )
+    inscricao_estadual = forms.CharField(
+        label='Inscrição Estadual',
+        max_length=20,
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control'})
+    )
+    documento_matricula = forms.FileField(
+        label='Matrícula',
+        required=False,
+        widget=forms.FileInput(attrs={'class': 'form-control'})
+    )
+    is_arrendatario = forms.BooleanField(
+        label='Você é arrendatário?',
+        required=False,
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'})
+    )
+    documento_arrendamento = forms.FileField(
+        label='Documento de Arrendamento',
+        required=False,
+        widget=forms.FileInput(attrs={'class': 'form-control'})
+    )
+
+    def clean(self):
+        cleaned_data = super().clean()
+        is_arrendatario = cleaned_data.get('is_arrendatario')
+        documento_arrendamento = cleaned_data.get('documento_arrendamento')
+        inscricao_estadual = cleaned_data.get('inscricao_estadual')
+        documento_matricula = cleaned_data.get('documento_matricula')
+
+        if is_arrendatario and not documento_arrendamento:
+            self.add_error('documento_arrendamento', 'Este campo é obrigatório para arrendatários.')
+
+        if not inscricao_estadual:
+            self.add_error('inscricao_estadual', 'Este campo é obrigatório para vendas a prazo.')
+
+        if not documento_matricula:
+            self.add_error('documento_matricula', 'Este campo é obrigatório para vendas a prazo.')
+
+        return cleaned_data 

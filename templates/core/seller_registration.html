@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
+{% load crispy_forms_tags %}
 
 {% block title %}Cadastro de Vendedor - AgroMais{% endblock %}
 
@@ -26,130 +27,379 @@
                     {% endfor %}
                 {% endif %}
 
+                {% if form.errors %}
+                    <div class="alert alert-danger">
+                        <strong>Por favor, corrija os erros abaixo:</strong>
+                        <ul class="mb-0">
+                            {% for field, errors in form.errors.items %}
+                                {% for error in errors %}
+                                    {% if error not in form.non_field_errors %}
+                                        <li>{{ error }}</li>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+
                 <div class="row mb-3">
                     <div class="col-md-6">
-                        <label for="first_name" class="form-label">Nome</label>
+                        <label for="{{ form.nome.id_for_label }}" class="form-label">Nome</label>
                         <div class="input-group">
                             <span class="input-group-text bg-light"><i class="fas fa-user"></i></span>
-                            <input type="text" class="form-control" id="first_name" name="first_name" value="{{ form_data.first_name }}" required>
+                            {{ form.nome }}
                         </div>
+                        {% if form.nome.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.nome.errors }}
+                            </div>
+                        {% endif %}
                     </div>
                     <div class="col-md-6">
-                        <label for="last_name" class="form-label">Sobrenome</label>
+                        <label for="{{ form.sobrenome.id_for_label }}" class="form-label">Sobrenome</label>
                         <div class="input-group">
                             <span class="input-group-text bg-light"><i class="fas fa-user"></i></span>
-                            <input type="text" class="form-control" id="last_name" name="last_name" value="{{ form_data.last_name }}" required>
+                            {{ form.sobrenome }}
                         </div>
+                        {% if form.sobrenome.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.sobrenome.errors }}
+                            </div>
+                        {% endif %}
                     </div>
                 </div>
 
                 <div class="mb-3">
-                    <label for="email" class="form-label">E-mail</label>
+                    <label for="{{ form.email.id_for_label }}" class="form-label">E-mail</label>
                     <div class="input-group">
                         <span class="input-group-text bg-light"><i class="fas fa-envelope"></i></span>
-                        <input type="email" class="form-control" id="email" name="email" value="{{ form_data.email }}" required>
+                        {{ form.email }}
                     </div>
+                    {% if form.email.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.email.errors }}
+                        </div>
+                    {% endif %}
                 </div>
 
                 <div class="mb-3">
-                    <label for="cpf" class="form-label">CPF</label>
+                    <label for="{{ form.cpf.id_for_label }}" class="form-label">CPF</label>
                     <div class="input-group">
                         <span class="input-group-text bg-light"><i class="fas fa-id-card"></i></span>
-                        <input type="text" class="form-control" id="cpf" name="cpf" value="{{ form_data.cpf }}" required>
+                        {{ form.cpf }}
                     </div>
                     <div class="form-text">Digite apenas números</div>
+                    {% if form.cpf.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.cpf.errors }}
+                        </div>
+                    {% endif %}
                 </div>
 
                 <div class="mb-3">
-                    <label for="phone" class="form-label">Telefone</label>
+                    <label for="{{ form.telefone.id_for_label }}" class="form-label">Telefone</label>
                     <div class="input-group">
                         <span class="input-group-text bg-light"><i class="fas fa-phone"></i></span>
-                        <input type="tel" class="form-control" id="phone" name="phone" value="{{ form_data.phone }}" required>
+                        {{ form.telefone }}
                     </div>
+                    {% if form.telefone.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.telefone.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.tipo_documento.id_for_label }}">Tipo de Documento</label>
+                    {{ form.tipo_documento }}
+                    {% if form.tipo_documento.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.tipo_documento.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
                 </div>
 
                 <div class="mb-3">
-                    <label for="document_type" class="form-label">Tipo de Documento</label>
+                    <label for="{{ form.numero_documento.id_for_label }}" class="form-label">Número do Documento</label>
                     <div class="input-group">
-                        <span class="input-group-text bg-light"><i class="fas fa-id-card"></i></span>
-                        <select class="form-select" id="document_type" name="document_type" required>
-                            <option value="">Selecione...</option>
-                            <option value="RG" {% if form_data.document_type == 'RG' %}selected{% endif %}>RG</option>
-                            <option value="CNH" {% if form_data.document_type == 'CNH' %}selected{% endif %}>CNH</option>
-                        </select>
+                        <span class="input-group-text bg-light"><i class="fas fa-hashtag"></i></span>
+                        {{ form.numero_documento }}
                     </div>
+                    {% if form.numero_documento.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.numero_documento.errors }}
+                        </div>
+                    {% endif %}
                 </div>
 
                 <div class="mb-3">
-                    <label for="document_number" class="form-label">Número do Documento</label>
-                    <div class="input-group">
-                        <span class="input-group-text bg-light"><i class="fas fa-id-card"></i></span>
-                        <input type="text" class="form-control" id="document_number" name="document_number" value="{{ form_data.document_number }}" required>
-                    </div>
-                </div>
-
-                <div class="mb-4">
-                    <label for="document_file" class="form-label">Arquivo do Documento</label>
+                    <label for="{{ form.documento.id_for_label }}" class="form-label">Arquivo do Documento</label>
                     <div class="input-group">
                         <span class="input-group-text bg-light"><i class="fas fa-file-upload"></i></span>
-                        <input type="file" class="form-control" id="document_file" name="document_file" accept=".pdf,.jpg,.jpeg,.png" required>
+                        {{ form.documento }}
                     </div>
-                    <div class="form-text">Envie uma foto ou PDF do seu documento (RG ou CNH). Formatos aceitos: PDF, JPG, JPEG, PNG (máximo 5MB)</div>
-                </div>
-
-                <div class="mb-4">
-                    <label for="zip_code" class="form-label">CEP</label>
-                    <div class="input-group">
-                        <span class="input-group-text bg-light"><i class="fas fa-map-marker-alt"></i></span>
-                        <input type="text" class="form-control" id="zip_code" name="zip_code" value="{{ form_data.zip_code }}" required>
-                    </div>
+                    <div class="form-text">Aceita apenas arquivos PDF, JPG, JPEG ou PNG</div>
+                    {% if form.documento.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.documento.errors }}
+                        </div>
+                    {% endif %}
                 </div>
 
                 <div class="mb-3">
-                    <label for="address" class="form-label">Endereço</label>
+                    <label for="{{ form.cep.id_for_label }}" class="form-label">CEP</label>
                     <div class="input-group">
-                        <span class="input-group-text bg-light"><i class="fas fa-map"></i></span>
-                        <input type="text" class="form-control" id="address" name="address" value="{{ form_data.address }}" required>
+                        <span class="input-group-text bg-light"><i class="fas fa-map-pin"></i></span>
+                        {{ form.cep }}
+                        <button type="button" class="btn btn-outline-secondary" id="buscarCep">
+                            <i class="fas fa-search"></i> Buscar
+                        </button>
                     </div>
+                    <div class="form-text">Digite o CEP para preencher automaticamente o endereço</div>
+                    {% if form.cep.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.cep.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    <label for="{{ form.endereco.id_for_label }}" class="form-label">Endereço</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light"><i class="fas fa-map-marker-alt"></i></span>
+                        {{ form.endereco }}
+                    </div>
+                    {% if form.endereco.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.endereco.errors }}
+                        </div>
+                    {% endif %}
                 </div>
 
                 <div class="row mb-3">
                     <div class="col-md-6">
-                        <label for="city" class="form-label">Cidade</label>
+                        <label for="{{ form.cidade.id_for_label }}" class="form-label">Cidade</label>
                         <div class="input-group">
                             <span class="input-group-text bg-light"><i class="fas fa-city"></i></span>
-                            <input type="text" class="form-control" id="city" name="city" value="{{ form_data.city }}" required>
+                            {{ form.cidade }}
                         </div>
+                        {% if form.cidade.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.cidade.errors }}
+                            </div>
+                        {% endif %}
                     </div>
                     <div class="col-md-6">
-                        <label for="state" class="form-label">Estado</label>
+                        <label for="{{ form.estado.id_for_label }}" class="form-label">Estado</label>
                         <div class="input-group">
-                            <span class="input-group-text bg-light"><i class="fas fa-map-marked-alt"></i></span>
-                            <input type="text" class="form-control" id="state" name="state" value="{{ form_data.state }}" required>
+                            <span class="input-group-text bg-light"><i class="fas fa-map"></i></span>
+                            {{ form.estado }}
                         </div>
+                        {% if form.estado.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.estado.errors }}
+                            </div>
+                        {% endif %}
                     </div>
                 </div>
 
-                <div class="mb-3">
-                    <label for="hectares_atendidos" class="form-label">Quantidade de Hectares</label>
+                <div class="form-group mb-3">
+                    <label for="{{ form.hectares_atendidos.id_for_label }}" class="form-label">Quantidade de Hectares Atendidos</label>
                     <div class="input-group">
                         {{ form.hectares_atendidos }}
                         <span class="input-group-text">ha</span>
                     </div>
-                    <div class="form-text">Digite um número entre 10 e 300 hectares</div>
+                    {% if form.hectares_atendidos.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.hectares_atendidos.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    <label for="{{ form.culturas_atendidas.id_for_label }}" class="form-label">
+                        <i class="fas fa-seedling me-2"></i>Culturas Atendidas
+                    </label>
+                    <div class="row">
+                        {% for choice in form.culturas_atendidas %}
+                            <div class="col-md-4 col-sm-6 mb-2">
+                                <div class="form-check">
+                                    {{ choice.tag }}
+                                    <label class="form-check-label" for="{{ choice.id_for_label }}">
+                                        {{ choice.choice_label }}
+                                    </label>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <div class="form-text">Selecione as culturas que você atende</div>
+                    {% if form.culturas_atendidas.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.culturas_atendidas.errors }}
+                        </div>
+                    {% endif %}
                 </div>
 
                 <div class="d-grid gap-2">
-                    <button type="submit" class="btn btn-success btn-lg">
-                        <i class="fas fa-check-circle me-2"></i>Cadastrar
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-user-plus me-2"></i>Cadastrar
                     </button>
                 </div>
             </form>
         </div>
     </div>
 </div>
+
+<style>
+    .form-control:focus {
+        border-color: #198754;
+        box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.25);
+    }
+    
+    .input-group-text {
+        color: #198754;
+    }
+
+    /* Estilos para os checkboxes */
+    .form-check-input:checked {
+        background-color: #198754;
+        border-color: #198754;
+    }
+
+    .form-check-input:focus {
+        border-color: #198754;
+        box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.25);
+    }
+
+    /* Cor do ícone de planta */
+    .fa-seedling {
+        color: #198754;
+    }
+</style>
 {% endblock %}
 
 {% block extra_js %}
 <script src="{% static 'js/seller_registration.js' %}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Máscara para CPF
+    const cpfInput = document.getElementById('{{ form.cpf.id_for_label }}');
+    cpfInput.addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length <= 11) {
+            value = value.replace(/(\d{3})(\d)/, '$1.$2');
+            value = value.replace(/(\d{3})(\d)/, '$1.$2');
+            value = value.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+            e.target.value = value;
+        }
+    });
+
+    // Validação de CPF no frontend
+    function validarCPF(cpf) {
+        cpf = cpf.replace(/[^\d]/g, '');
+        if (cpf.length !== 11) return false;
+        
+        // Verifica se todos os dígitos são iguais
+        if (/^(\d)\1+$/.test(cpf)) return false;
+        
+        // Validação do primeiro dígito verificador
+        let soma = 0;
+        for (let i = 0; i < 9; i++) {
+            soma += parseInt(cpf.charAt(i)) * (10 - i);
+        }
+        let resto = 11 - (soma % 11);
+        if (resto > 9) resto = 0;
+        if (resto !== parseInt(cpf.charAt(9))) return false;
+        
+        // Validação do segundo dígito verificador
+        soma = 0;
+        for (let i = 0; i < 10; i++) {
+            soma += parseInt(cpf.charAt(i)) * (11 - i);
+        }
+        resto = 11 - (soma % 11);
+        if (resto > 9) resto = 0;
+        if (resto !== parseInt(cpf.charAt(10))) return false;
+        
+        return true;
+    }
+
+    // Adiciona validação ao formulário
+    const form = document.getElementById('sellerRegistrationForm');
+    form.addEventListener('submit', function(e) {
+        const cpf = cpfInput.value.replace(/[^\d]/g, '');
+        if (!validarCPF(cpf)) {
+            e.preventDefault();
+            alert('CPF inválido. Por favor, digite um CPF válido.');
+            cpfInput.focus();
+        }
+    });
+
+    // Código existente para busca de CEP
+    const cepInput = document.getElementById('{{ form.cep.id_for_label }}');
+    const enderecoInput = document.getElementById('{{ form.endereco.id_for_label }}');
+    const cidadeInput = document.getElementById('{{ form.cidade.id_for_label }}');
+    const estadoInput = document.getElementById('{{ form.estado.id_for_label }}');
+    const buscarCepBtn = document.getElementById('buscarCep');
+
+    function limparEndereco() {
+        enderecoInput.value = '';
+        cidadeInput.value = '';
+        estadoInput.value = '';
+    }
+
+    function preencherEndereco(dados) {
+        enderecoInput.value = dados.logradouro || '';
+        cidadeInput.value = dados.localidade || '';
+        estadoInput.value = dados.uf || '';
+    }
+
+    function buscarCep() {
+        const cep = cepInput.value.replace(/\D/g, '');
+        
+        if (cep.length !== 8) {
+            alert('CEP inválido! Digite um CEP com 8 dígitos.');
+            return;
+        }
+
+        // Mostrar loading
+        buscarCepBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Buscando...';
+        buscarCepBtn.disabled = true;
+
+        fetch(`https://viacep.com.br/ws/${cep}/json/`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.erro) {
+                    alert('CEP não encontrado!');
+                    limparEndereco();
+                } else {
+                    preencherEndereco(data);
+                }
+            })
+            .catch(error => {
+                console.error('Erro ao buscar CEP:', error);
+                alert('Erro ao buscar CEP. Tente novamente.');
+                limparEndereco();
+            })
+            .finally(() => {
+                // Restaurar botão
+                buscarCepBtn.innerHTML = '<i class="fas fa-search"></i> Buscar';
+                buscarCepBtn.disabled = false;
+            });
+    }
+
+    // Event listeners
+    buscarCepBtn.addEventListener('click', buscarCep);
+    
+    // Buscar automaticamente quando o CEP tiver 8 dígitos
+    cepInput.addEventListener('input', function(e) {
+        const cep = e.target.value.replace(/\D/g, '');
+        if (cep.length === 8) {
+            buscarCep();
+        }
+    });
+});
+</script>
 {% endblock %} 

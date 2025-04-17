@@ -17,9 +17,7 @@ def product_image_path(instance, filename):
 class Product(models.Model):
     UNIT_CHOICES = [
         ('kg', 'Quilograma (kg)'),
-        ('g', 'Grama (g)'),
         ('l', 'Litro (L)'),
-        ('ml', 'Mililitro (mL)'),
         ('un', 'Unidade (un)'),
     ]
 
@@ -32,14 +30,6 @@ class Product(models.Model):
         ('soja', 'Soja'),
     ]
 
-    PACKAGING_CHOICES = [
-        ('bag', 'Saco'),
-        ('box', 'Caixa'),
-        ('bottle', 'Garrafa'),
-        ('can', 'Lata'),
-        ('other', 'Outro'),
-    ]
-
     CURRENCY_CHOICES = [
         ('BRL', 'Real (R$)'),
         ('USD', 'Dólar ($)'),
@@ -50,19 +40,20 @@ class Product(models.Model):
     description = models.TextField(blank=True, verbose_name='Descrição')
     price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Preço')
     available_volume = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Volume Disponível')
-    unit = models.CharField(max_length=10, choices=UNIT_CHOICES, verbose_name='Unidade')
+    unit = models.CharField(max_length=2, choices=UNIT_CHOICES, verbose_name='Unidade')
+    product_type = models.CharField(max_length=20, choices=PRODUCT_TYPE_CHOICES, verbose_name='Tipo de Produto')
+    packaging = models.CharField(max_length=50, default='Saco', verbose_name='Embalagem')
+    currency = models.CharField(max_length=3, choices=CURRENCY_CHOICES, default='BRL', verbose_name='Moeda')
+    image = models.ImageField(upload_to=product_image_path, blank=True, null=True, verbose_name='Imagem')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=True, verbose_name='Ativo')
-    product_type = models.CharField(max_length=20, choices=PRODUCT_TYPE_CHOICES, verbose_name='Tipo')
     manufacturer = models.CharField(max_length=100, blank=True, null=True, verbose_name='Fabricante')
     lot = models.CharField(max_length=50, blank=True, null=True, verbose_name='Lote')
     expiration_date = models.DateField(null=True, blank=True, verbose_name='Data de Validade')
     minimum_quantity = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, verbose_name='Quantidade Mínima')
-    packaging = models.CharField(max_length=20, choices=PACKAGING_CHOICES, blank=True, null=True, verbose_name='Embalagem')
     sieve = models.CharField(max_length=50, blank=True, null=True, verbose_name='Peneira')
     variety = models.CharField(max_length=100, blank=True, null=True, verbose_name='Variedade')
-    currency = models.CharField(max_length=3, choices=CURRENCY_CHOICES, default='BRL', verbose_name='Moeda')
-    allow_exchange = models.BooleanField(default=False, verbose_name='Permite Troca')
-    image = models.ImageField(upload_to=product_image_path, null=True, blank=True, verbose_name='Imagem')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Criado em')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='Atualizado em')
     seller = models.ForeignKey(Vendedor, on_delete=models.CASCADE, related_name='products', null=True, blank=True, verbose_name='Vendedor')
@@ -80,9 +71,6 @@ class Product(models.Model):
 
     def get_product_type_display(self):
         return dict(self.PRODUCT_TYPE_CHOICES).get(self.product_type, self.product_type)
-
-    def get_packaging_display(self):
-        return dict(self.PACKAGING_CHOICES).get(self.packaging, self.packaging)
 
     def get_currency_display(self):
         return dict(self.CURRENCY_CHOICES).get(self.currency, self.currency)
@@ -238,9 +226,7 @@ class SolicitacaoProduto(models.Model):
     UNIDADE_MEDIDA_CHOICES = [
         ('ton', 'Tonelada'),
         ('kg', 'Quilograma'),
-        ('g', 'Grama'),
         ('l', 'Litro'),
-        ('ml', 'Mililitro'),
         ('un', 'Unidade'),
         ('cx', 'Caixa'),
         ('sc', 'Saco')
@@ -321,7 +307,7 @@ class Usuario(AbstractUser):
     hectares_atendidos = models.IntegerField(
         default=10,
         validators=[MinValueValidator(10), MaxValueValidator(300)],
-        verbose_name='Hectares Atendidos',
+        verbose_name='Quantidade de Hectares Atendidos',
         null=True,
         blank=True
     )
@@ -332,6 +318,15 @@ class Usuario(AbstractUser):
     def __str__(self):
         return f"{self.nome} {self.sobrenome}" if self.nome and self.sobrenome else self.email
 
+CULTIVO_CHOICES = [
+    ('feijao', 'Feijão'),
+    ('algodao', 'Algodão'),
+    ('gergelim', 'Gergelim'),
+    ('pastagem', 'Pastagem'),
+    ('milho', 'Milho'),
+    ('soja', 'Soja'),
+]
+
 class Pedido(models.Model):
     STATUS_CHOICES = [
         ('PROCESSANDO', 'Processando'),
@@ -340,16 +335,13 @@ class Pedido(models.Model):
         ('ENTREGUE', 'Entregue'),
     ]
 
-    CULTIVO_CHOICES = [
-        ('soja', 'Soja'),
-        ('milho', 'Milho'),
-        ('cafe', 'Café'),
-        ('cana', 'Cana-de-açúcar'),
-        ('algodao', 'Algodão'),
-        ('outros', 'Outros'),
+    TIPO_VENDA_CHOICES = [
+        ('avista', 'À Vista'),
+        ('prazo', 'A Prazo'),
     ]
 
     comprador = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='pedidos')
+    vendedor = models.ForeignKey(Usuario, on_delete=models.SET_NULL, related_name='pedidos_como_vendedor', null=True, blank=True)
     nome_propriedade = models.CharField(max_length=100)
     cnpj = models.CharField(max_length=18)
     hectares = models.DecimalField(max_digits=10, decimal_places=2)
@@ -363,6 +355,12 @@ class Pedido(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PROCESSANDO')
     data_criacao = models.DateTimeField(auto_now_add=True)
     data_atualizacao = models.DateTimeField(auto_now=True)
+    tipo_venda = models.CharField(max_length=10, choices=TIPO_VENDA_CHOICES, default='avista')
+    documento_ir = models.FileField(upload_to='documentos/ir/', null=True, blank=True)
+    inscricao_estadual = models.CharField(max_length=20, null=True, blank=True)
+    documento_matricula = models.FileField(upload_to='documentos/matricula/', null=True, blank=True)
+    is_arrendatario = models.BooleanField(default=False)
+    documento_arrendamento = models.FileField(upload_to='documentos/arrendamento/', null=True, blank=True)
 
     class Meta:
         ordering = ['-data_criacao']

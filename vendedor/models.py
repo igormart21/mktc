@@ -4,6 +4,19 @@ from django.utils import timezone
 from django.core.validators import MinValueValidator, MaxValueValidator
 
 class Vendedor(models.Model):
+    CULTURAS_CHOICES = [
+        ('SOJA', 'Soja'),
+        ('MILHO', 'Milho'),
+        ('ALGODAO', 'Algodão'),
+        ('FEIJAO', 'Feijão'),
+        ('GERGELIM', 'Gergelim'),
+        ('GIRASOL', 'Girasol'),
+        ('PASTAGEM', 'Pastagem'),
+        ('MILHO_PIPOCA', 'Milho Pipoca'),
+        ('ARROZ', 'Arroz'),
+        ('PECUARIA', 'Pecuária'),
+    ]
+
     usuario = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='vendedor')
     nome_fantasia = models.CharField(max_length=200, blank=True, null=True)
     telefone = models.CharField(max_length=20, blank=True, null=True)
@@ -11,13 +24,13 @@ class Vendedor(models.Model):
     cidade = models.CharField(max_length=100, blank=True, null=True)
     estado = models.CharField(max_length=2, blank=True, null=True)
     cep = models.CharField(max_length=9, blank=True, null=True)
+    culturas_atendidas = models.JSONField(default=list, blank=True, help_text='Lista de culturas atendidas pelo vendedor')
     hectares_atendidos = models.IntegerField(
         default=10,
         null=False,
         blank=False,
         help_text='Quantidade de hectares atendidos pelo vendedor (entre 10 e 300)',
         validators=[
-            MinValueValidator(10, message='O mínimo de hectares é 10'),
             MaxValueValidator(300, message='O máximo de hectares é 300')
         ]
     )

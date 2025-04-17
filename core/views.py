@@ -12,8 +12,8 @@ from django.template.loader import render_to_string
 from django.core.mail import send_mail
 from django.conf import settings
 from django.core.exceptions import ValidationError
-from .models import Product, Order, OrderItem, VendorApplication, SellerRegistration, MensagemSuporte, SolicitacaoProduto
-from .forms import ProductForm, OrderForm, OrderItemFormSet, SellerRegistrationForm, LoginForm, SolicitacaoProdutoForm, SellerProfileForm, AdminProfileForm
+from .models import Product, Order, OrderItem, VendorApplication, SellerRegistration, MensagemSuporte, SolicitacaoProduto, Pedido, Venda, Vendedor
+from .forms import ProductForm, OrderForm, OrderItemForm, SellerRegistrationForm, LoginForm, SolicitacaoProdutoForm, SellerProfileForm, AdminProfileForm, VendaPrazoForm
 from .utils import validate_file_upload, validate_cpf, is_superadmin, is_vendedor
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect, Http404
 import logging
@@ -23,13 +23,17 @@ from django.core.paginator import Paginator
 from vendedor.models import Vendedor
 from usuarios.models import Usuario
 from produtos.models import Produto
-from vendas.models import Venda, Pedido
+from vendas.models import Pedido, Venda, ItemPedido
 import os
 import json
 from django.views.decorators.csrf import csrf_exempt
 from .decorators import superuser_required, is_seller
 from django.db import models
 from django.contrib.auth.hashers import check_password
+from .carrinho import Carrinho
+from django.utils.html import strip_tags
+from django.contrib.auth import get_user_model
+from decimal import Decimal
 
 logger = logging.getLogger(__name__)
 
@@ -110,31 +114,14 @@ def seller_registration(request):
     if request.method == 'POST':
         form = SellerRegistrationForm(request.POST, request.FILES)
         if form.is_valid():
-            user = form.save(commit=False)
-            user.is_active = False
-            user.save()
-            
-            # Criar o vendedor associado
-            vendedor = Vendedor.objects.create(
-                usuario=user,
-                razao_social=form.cleaned_data['razao_social'],
-                nome_fantasia=form.cleaned_data['nome_fantasia'],
-                cnpj=form.cleaned_data['cnpj'],
-                inscricao_estadual=form.cleaned_data['inscricao_estadual'],
-                telefone=form.cleaned_data['telefone'],
-                rua=form.cleaned_data['rua'],
-                numero=form.cleaned_data['numero'],
-                cidade=form.cleaned_data['cidade'],
-                estado=form.cleaned_data['estado'],
-                cep=form.cleaned_data['cep'],
-                hectares_atendidos=form.cleaned_data['hectares_atendidos'],
-                rg=form.cleaned_data['rg'],
-                cnh=form.cleaned_data['cnh']
-            )
-            
-            send_confirmation_email(user, request)
-            messages.success(request, 'Por favor, confirme seu email para completar o registro.')
-            return redirect('core:login')
+            try:
+                user = form.save()
+                messages.success(request, 'Cadastro realizado com sucesso! Aguarde a aprovação do administrador.')
+                return redirect('core:login')
+            except Exception as e:
+                messages.error(request, f'Erro ao cadastrar vendedor: {str(e)}')
+        else:
+            messages.error(request, 'Por favor, corrija os erros abaixo.')
     else:
         form = SellerRegistrationForm()
     
@@ -440,8 +427,8 @@ def product_list(request):
 @login_required
 @user_passes_test(is_superadmin)
 def listar_vendedores(request):
-    """Lista todos os vendedores ativos"""
-    sellers = Vendedor.objects.filter(usuario__is_active=True)
+    """Lista todos os vendedores"""
+    sellers = Vendedor.objects.all().order_by('-created_at')
     return render(request, 'core/seller_list.html', {'sellers': sellers})
 
 @login_required
@@ -652,33 +639,113 @@ def seller_products(request):
 
 @login_required
 def carrinho(request):
-    vendas = Venda.objects.filter(comprador=request.user, status='PENDENTE')
-    total = sum(venda.quantidade * venda.preco_unitario for venda in vendas)
-    
-    context = {
-        'carrinho': {
-            'itens': vendas,
-            'total': total
-        }
-    }
-    return render(request, 'core/carrinho.html', context)
+    if request.method == 'POST':
+        tipo_venda = request.POST.get('tipo_venda')
+        carrinho = Carrinho(request)
+        
+        if not carrinho:
+            messages.error(request, 'Seu carrinho está vazio.')
+            return redirect('core:carrinho')
+            
+        # Obter o primeiro item do carrinho para referência
+        primeiro_item = next(iter(carrinho), None)
+        if not primeiro_item:
+            messages.error(request, 'Seu carrinho está vazio.')
+            return redirect('core:carrinho')
+            
+        if tipo_venda == 'avista':
+            # Criar pedido
+            pedido = Pedido.objects.create(
+                comprador=request.user,
+                vendedor=primeiro_item['produto'].vendedor.usuario,  # Definindo o vendedor
+                produto=primeiro_item['produto'],
+                quantidade=1,  # Será atualizado pelos itens
+                preco_unitario=0,  # Será atualizado pelos itens
+                total=0,  # Será atualizado pelos itens
+                status='PENDENTE',
+                nome_propriedade='A definir',
+                cnpj='A definir',
+                hectares=0,
+                cultivo_principal='outros',
+                estado='SP',
+                cidade='A definir',
+                endereco='A definir',
+                cep='00000000'
+            )
+            
+            # Criar itens do pedido
+            for item in carrinho:
+                ItemPedido.objects.create(
+                    pedido=pedido,
+                    produto=item['produto'],
+                    quantidade=item['quantidade'],
+                    preco_unitario=item['preco']
+                )
+            
+            carrinho.limpar()
+            messages.success(request, 'Pedido realizado com sucesso!')
+            return redirect('core:pedidos')
+            
+        elif tipo_venda == 'prazo':
+            venda_prazo_form = VendaPrazoForm(request.POST, request.FILES)
+            if venda_prazo_form.is_valid():
+                # Criar pedido
+                pedido = Pedido.objects.create(
+                    comprador=request.user,
+                    vendedor=primeiro_item['produto'].vendedor.usuario,  # Definindo o vendedor
+                    produto=primeiro_item['produto'],
+                    quantidade=1,  # Será atualizado pelos itens
+                    preco_unitario=0,  # Será atualizado pelos itens
+                    total=0,  # Será atualizado pelos itens
+                    status='PENDENTE',
+                    nome_propriedade='A definir',
+                    cnpj='A definir',
+                    hectares=0,
+                    cultivo_principal='outros',
+                    estado='SP',
+                    cidade='A definir',
+                    endereco='A definir',
+                    cep='00000000'
+                )
+                
+                # Criar itens do pedido
+                for item in carrinho:
+                    ItemPedido.objects.create(
+                        pedido=pedido,
+                        produto=item['produto'],
+                        quantidade=item['quantidade'],
+                        preco_unitario=item['preco']
+                    )
+                
+                carrinho.limpar()
+                messages.success(request, 'Pedido realizado com sucesso!')
+                return redirect('core:pedidos')
+            else:
+                messages.error(request, 'Por favor, corrija os erros no formulário.')
+                return render(request, 'core/carrinho.html', {
+                    'carrinho': carrinho,
+                    'venda_prazo_form': venda_prazo_form
+                })
+    else:
+        carrinho = Carrinho(request)
+        venda_prazo_form = VendaPrazoForm()
+        return render(request, 'core/carrinho.html', {
+            'carrinho': carrinho,
+            'venda_prazo_form': venda_prazo_form
+        })
 
 def adicionar_ao_carrinho(request, product_id):
-    """Adiciona um produto ao carrinho"""
-    product = get_object_or_404(Product, id=product_id)
-    cart = request.session.get('cart', {})
-    cart_item = cart.get(str(product_id), {'quantity': 0, 'price': str(product.price)})
-    cart_item['quantity'] += 1
-    cart[str(product_id)] = cart_item
-    request.session['cart'] = cart
-    messages.success(request, 'Produto adicionado ao carrinho!')
+    produto = get_object_or_404(Product, id=product_id)
+    carrinho = Carrinho(request)
+    carrinho.adicionar(produto)
+    messages.success(request, f'{produto.name} adicionado ao carrinho!')
     return redirect('core:carrinho')
 
-def remover_do_carrinho(request, venda_id):
-    """Remove um produto do carrinho"""
-    venda = get_object_or_404(Venda, id=venda_id, comprador=request.user, status='PENDENTE')
-    venda.delete()
-    messages.success(request, 'Produto removido do carrinho!')
+def remover_do_carrinho(request, product_id):
+    produto = get_object_or_404(Produto, id=product_id)
+    carrinho = Carrinho(request)
+    carrinho.remover(produto)
+    messages.success(request, f'{produto.nome} removido do carrinho!')
     return redirect('core:carrinho')
 
 @login_required
@@ -1187,12 +1254,8 @@ def checkout(request):
             venda.status = 'PROCESSANDO'
             venda.save()
 
-        # Temporariamente desativando a criação de pedido
-        # pedido = Pedido.objects.create(...)
-        # vendas.update(pedido=pedido)
-
-        messages.success(request, 'Pedido registrado com sucesso! Sistema em manutenção, alguns recursos podem estar limitados.')
-        return redirect('core:home')  # Redirecionar para home em vez de pedidos
+        messages.success(request, 'Pedido registrado com sucesso!')
+        return redirect('core:pedidos')
 
     # Se for GET, mostrar o formulário
     vendas = Venda.objects.filter(comprador=request.user, status='PENDENTE')
@@ -1207,20 +1270,16 @@ def checkout(request):
         'carrinho': {
             'itens': vendas,
             'total': total
-        },
-        'aviso_manutencao': 'Sistema em manutenção. Finalização de pedidos pode estar temporariamente limitada.'
+        }
     }
     return render(request, 'core/checkout.html', context)
 
 @login_required
 def pedidos(request):
-    # Temporariamente substituindo a consulta problemática
-    # pedidos = Pedido.objects.filter(comprador=request.user).order_by('-data_criacao')
-    pedidos = []
+    pedidos = Pedido.objects.filter(comprador=request.user).order_by('-data_criacao')
     
     context = {
-        'pedidos': pedidos,
-        'aviso_manutencao': 'Sistema em manutenção. Histórico de pedidos temporariamente indisponível.'
+        'pedidos': pedidos
     }
     return render(request, 'core/pedidos.html', context)
 
@@ -1286,3 +1345,56 @@ def superadmin_compras_vendedores(request):
         ],
     }
     return render(request, 'core/superadmin_compras_vendedores.html', context)
+
+@login_required
+@superuser_required
+def superadmin_pedidos(request):
+    pedidos = Pedido.objects.all().order_by('-data_criacao')
+    
+    # Filtros
+    status = request.GET.get('status')
+    tipo_venda = request.GET.get('tipo_venda')
+    data_inicio = request.GET.get('data_inicio')
+    data_fim = request.GET.get('data_fim')
+    
+    if status:
+        pedidos = pedidos.filter(status=status)
+    
+    if tipo_venda:
+        pedidos = pedidos.filter(tipo_venda=tipo_venda)
+    
+    if data_inicio:
+        pedidos = pedidos.filter(data_criacao__date__gte=data_inicio)
+    
+    if data_fim:
+        pedidos = pedidos.filter(data_criacao__date__lte=data_fim)
+    
+    context = {
+        'pedidos': pedidos,
+        'status_choices': Pedido.STATUS_CHOICES,
+    }
+    
+    return render(request, 'core/superadmin_pedidos.html', context)
+
+def solicitar_compra(request, product_id):
+    if request.method == 'POST':
+        produto = get_object_or_404(Product, id=product_id)
+        quantidade = request.POST.get('quantidade', 1)
+        observacoes = request.POST.get('observacoes', '')
+        
+        try:
+            quantidade = int(quantidade)
+            if quantidade <= 0:
+                raise ValueError('Quantidade inválida')
+                
+            carrinho = Carrinho(request)
+            carrinho.adicionar(produto, quantidade)
+            
+            messages.success(request, f'{produto.name} adicionado ao carrinho!')
+            return redirect('core:carrinho')
+            
+        except ValueError as e:
+            messages.error(request, str(e))
+            return redirect('core:produto_detalhe', produto_id=product_id)
+            
+    return redirect('core:produto_detalhe', produto_id=product_id)

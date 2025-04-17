@@ -29,8 +29,8 @@
                         <tr>
                             <th>Nome</th>
                             <th>Email</th>
-                            <th>CNPJ</th>
-                            <th>Razão Social</th>
+                            <th>Telefone</th>
+                            <th>Nome Fantasia</th>
                             <th>Status</th>
                             <th>Ações</th>
                         </tr>
@@ -40,8 +40,8 @@
                         <tr>
                             <td>{{ seller.usuario.nome }}</td>
                             <td>{{ seller.usuario.email }}</td>
-                            <td>{{ seller.cnpj }}</td>
-                            <td>{{ seller.razao_social }}</td>
+                            <td>{{ seller.telefone }}</td>
+                            <td>{{ seller.nome_fantasia }}</td>
                             <td>
                                 {% if seller.usuario.is_active %}
                                     <span class="badge bg-success">Ativo</span>
