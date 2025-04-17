@@ -652,12 +652,12 @@ def carrinho(request):
         if not primeiro_item:
             messages.error(request, 'Seu carrinho está vazio.')
             return redirect('core:carrinho')
-            
+        
         if tipo_venda == 'avista':
             # Criar pedido
             pedido = Pedido.objects.create(
                 comprador=request.user,
-                vendedor=primeiro_item['produto'].vendedor.usuario,  # Definindo o vendedor
+                vendedor=None,  # Não associar vendedor
                 produto=primeiro_item['produto'],
                 quantidade=1,  # Será atualizado pelos itens
                 preco_unitario=0,  # Será atualizado pelos itens
@@ -692,7 +692,7 @@ def carrinho(request):
                 # Criar pedido
                 pedido = Pedido.objects.create(
                     comprador=request.user,
-                    vendedor=primeiro_item['produto'].vendedor.usuario,  # Definindo o vendedor
+                    vendedor=None,  # Não associar vendedor
                     produto=primeiro_item['produto'],
                     quantidade=1,  # Será atualizado pelos itens
                     preco_unitario=0,  # Será atualizado pelos itens
@@ -1276,7 +1276,7 @@ def checkout(request):
 
 @login_required
 def pedidos(request):
-    pedidos = Pedido.objects.filter(comprador=request.user).order_by('-data_criacao')
+    pedidos = Pedido.objects.filter(comprador=request.user).order_by('-data_pedido')
     
     context = {
         'pedidos': pedidos
@@ -1349,9 +1349,10 @@ def superadmin_compras_vendedores(request):
 @login_required
 @superuser_required
 def superadmin_pedidos(request):
-    pedidos = Pedido.objects.all().order_by('-data_criacao')
+    from vendas.models import Pedido  # Importa o modelo correto
+    pedidos = Pedido.objects.all().order_by('-data_pedido')
     
-    # Filtros
+    # Filtros (opcional, pode ajustar conforme necessário)
     status = request.GET.get('status')
     tipo_venda = request.GET.get('tipo_venda')
     data_inicio = request.GET.get('data_inicio')
@@ -1364,10 +1365,10 @@ def superadmin_pedidos(request):
         pedidos = pedidos.filter(tipo_venda=tipo_venda)
     
     if data_inicio:
-        pedidos = pedidos.filter(data_criacao__date__gte=data_inicio)
+        pedidos = pedidos.filter(data_pedido__date__gte=data_inicio)
     
     if data_fim:
-        pedidos = pedidos.filter(data_criacao__date__lte=data_fim)
+        pedidos = pedidos.filter(data_pedido__date__lte=data_fim)
     
     context = {
         'pedidos': pedidos,

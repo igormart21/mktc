@@ -27,7 +27,7 @@ class ProdutoAdmin(admin.ModelAdmin):
             'fields': ('imagem',)
         }),
         ('Status', {
-            'fields': ('permite_troca', 'ativo')
+            'fields': ('ativo',)
         }),
         ('Metadados', {
             'fields': ('vendedor', 'created_at', 'updated_at'),

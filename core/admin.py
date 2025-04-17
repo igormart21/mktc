@@ -1,17 +1,10 @@
 from django.contrib import admin
-from .models import Order, OrderItem, SellerRegistration, Product
+from .models import Order, OrderItem, SellerRegistration
 
 class OrderItemInline(admin.TabularInline):
     model = OrderItem
     extra = 0
     readonly_fields = ['subtotal']
-
-@admin.register(Product)
-class ProductAdmin(admin.ModelAdmin):
-    list_display = ['name', 'price', 'available_volume', 'unit', 'is_active', 'product_type', 'created_at']
-    list_filter = ['is_active', 'product_type', 'unit']
-    search_fields = ['name', 'description', 'manufacturer']
-    readonly_fields = ['created_at', 'updated_at']
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
@@ -34,11 +27,15 @@ class OrderItemAdmin(admin.ModelAdmin):
 
 @admin.register(SellerRegistration)
 class SellerRegistrationAdmin(admin.ModelAdmin):
-    list_display = ('user', 'tipo_documento', 'numero_documento', 'status', 'data_criacao')
+    list_display = ('nome', 'sobrenome', 'email', 'status', 'get_culturas_descricao', 'data_criacao')
     list_filter = ('status', 'tipo_documento')
-    search_fields = ('user__username', 'user__email', 'numero_documento')
+    search_fields = ('nome', 'sobrenome', 'email', 'cpf', 'numero_documento')
     readonly_fields = ('data_criacao', 'data_atualizacao')
     
+    def get_culturas_descricao(self, obj):
+        return obj.get_culturas_descricao()
+    get_culturas_descricao.short_description = 'Culturas Atendidas'
+
     class Meta:
         verbose_name = 'Cadastro de Vendedor'
         verbose_name_plural = 'Cadastros de Vendedores'

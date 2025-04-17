@@ -10,6 +10,7 @@ from usuarios.models import Usuario
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 from django.contrib.auth.models import AbstractUser
+from produtos.models import Produto
 
 def product_image_path(instance, filename):
     return f'products/{filename}'
@@ -144,7 +145,7 @@ class Order(models.Model):
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, related_name='items', on_delete=models.CASCADE, verbose_name='Pedido')
-    product = models.ForeignKey(Product, on_delete=models.PROTECT, verbose_name='Produto')
+    product = models.ForeignKey(Produto, on_delete=models.PROTECT, verbose_name='Produto')
     quantity = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Quantidade')
     unit_price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Preço Unitário', default=0)
 
@@ -154,7 +155,9 @@ class OrderItem(models.Model):
 
     @property
     def subtotal(self):
-        return self.quantity * self.unit_price
+        if self.quantity is not None and self.unit_price is not None:
+            return self.quantity * self.unit_price
+        return 0
 
 class SellerRegistration(models.Model):
     STATUS_CHOICES = [
@@ -164,14 +167,24 @@ class SellerRegistration(models.Model):
     ]
 
     DOCUMENT_TYPES = [
-        ('rg', 'RG'),
-        ('cnh', 'CNH'),
+        ('RG', 'RG'),
+        ('CNH', 'CNH'),
     ]
 
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    tipo_documento = models.CharField(max_length=3, choices=DOCUMENT_TYPES)
-    numero_documento = models.CharField(max_length=20, unique=True)
-    documento = models.FileField(upload_to='documentos/')
+    nome = models.CharField(max_length=100, null=True, blank=True)
+    sobrenome = models.CharField(max_length=100, null=True, blank=True)
+    email = models.EmailField(null=True, blank=True)
+    cpf = models.CharField(max_length=14, null=True, blank=True)
+    telefone = models.CharField(max_length=20, null=True, blank=True)
+    endereco = models.CharField(max_length=255, null=True, blank=True)
+    cidade = models.CharField(max_length=100, null=True, blank=True)
+    estado = models.CharField(max_length=2, null=True, blank=True)
+    cep = models.CharField(max_length=9, null=True, blank=True)
+    tipo_documento = models.CharField(max_length=3, choices=DOCUMENT_TYPES, null=True, blank=True)
+    numero_documento = models.CharField(max_length=20, null=True, blank=True)
+    documento = models.FileField(upload_to='documentos/', null=True, blank=True)
+    hectares_atendidos = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True)
+    culturas_atendidas = models.CharField(max_length=255, null=True, blank=True)  # pode ser um campo de texto separado por vírgula
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pendente')
     data_criacao = models.DateTimeField(auto_now_add=True)
     data_atualizacao = models.DateTimeField(auto_now=True)
@@ -183,7 +196,14 @@ class SellerRegistration(models.Model):
         ordering = ['-data_criacao']
 
     def __str__(self):
-        return f"Cadastro de {self.user.get_full_name()}"
+        return f"Cadastro de {self.nome} {self.sobrenome} - {self.email}"
+
+    def get_culturas_descricao(self):
+        if not self.culturas_atendidas:
+            return ""
+        chaves = [c.strip() for c in self.culturas_atendidas.split(',') if c.strip()]
+        descricoes = [dict(CULTURAS_CHOICES).get(chave, chave) for chave in chaves]
+        return ', '.join(descricoes)
 
 class VendorApplication(models.Model):
     STATUS_CHOICES = [
