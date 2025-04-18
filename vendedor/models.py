@@ -21,6 +21,8 @@ class Vendedor(models.Model):
     nome_fantasia = models.CharField(max_length=200, blank=True, null=True)
     telefone = models.CharField(max_length=20, blank=True, null=True)
     endereco = models.CharField(max_length=200, blank=True, null=True)
+    numero = models.CharField(max_length=10, blank=True, null=True)
+    bairro = models.CharField(max_length=100, blank=True, null=True)
     cidade = models.CharField(max_length=100, blank=True, null=True)
     estado = models.CharField(max_length=2, blank=True, null=True)
     cep = models.CharField(max_length=9, blank=True, null=True)

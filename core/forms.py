@@ -347,6 +347,8 @@ class SellerProfileForm(forms.ModelForm):
             'nome_fantasia',
             'telefone',
             'endereco',
+            'numero',
+            'bairro',
             'cidade',
             'estado',
             'cep',

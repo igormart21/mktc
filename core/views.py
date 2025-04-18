@@ -289,28 +289,33 @@ def profile(request):
 @user_passes_test(is_superadmin)
 def seller_edit(request, seller_id):
     """Edita um vendedor"""
-    seller = get_object_or_404(Vendedor, id=seller_id)
+    seller = get_object_or_404(Vendedor.objects.select_related('usuario'), id=seller_id)
+    print('DEBUG - Bairro ao carregar vendedor:', seller.bairro)
+    
     if request.method == 'POST':
         # Atualizar dados do usuário
-        seller.usuario.first_name = request.POST.get('first_name', '')
-        seller.usuario.last_name = request.POST.get('last_name', '')
+        seller.usuario.nome = request.POST.get('nome', '')
+        seller.usuario.sobrenome = request.POST.get('sobrenome', '')
         seller.usuario.email = request.POST.get('email', '')
         seller.usuario.cpf = request.POST.get('cpf', '')
         seller.usuario.document_type = request.POST.get('document_type', 'RG')
-        seller.usuario.cep = request.POST.get('cep', '')
-        seller.usuario.rua = request.POST.get('rua', '')
-        seller.usuario.numero = request.POST.get('numero', '')
-        seller.usuario.bairro = request.POST.get('bairro', '')
-        seller.usuario.cidade = request.POST.get('cidade', '')
-        seller.usuario.estado = request.POST.get('estado', '')
         
         # Atualizar dados do vendedor
         seller.telefone = request.POST.get('phone', '')
-        seller.razao_social = request.POST.get('razao_social', '')
         seller.nome_fantasia = request.POST.get('nome_fantasia', '')
-        seller.cnpj = request.POST.get('cnpj', '')
-        seller.inscricao_estadual = request.POST.get('inscricao_estadual', '')
         seller.hectares_atendidos = request.POST.get('hectares_atendidos', 0)
+        seller.cep = request.POST.get('cep', '')
+        seller.endereco = request.POST.get('rua', '')
+        seller.numero = request.POST.get('numero', '')
+        seller.bairro = request.POST.get('bairro', '')
+        print('DEBUG - Bairro do POST:', request.POST.get('bairro', ''))
+        print('DEBUG - Bairro após atribuição:', seller.bairro)
+        seller.cidade = request.POST.get('cidade', '')
+        seller.estado = request.POST.get('estado', '')
+        
+        # Atualizar culturas atendidas
+        culturas = request.POST.getlist('culturas_atendidas')
+        seller.culturas_atendidas = culturas
         
         # Processar redefinição de senha
         new_password = request.POST.get('new_password')
@@ -323,16 +328,24 @@ def seller_edit(request, seller_id):
             return redirect('core:seller_edit', seller_id=seller.id)
         
         # Salvar alterações
-        try:
-            seller.usuario.save()
-            seller.save()
-            messages.success(request, 'Vendedor atualizado com sucesso!')
-            return redirect('core:seller_detail', seller_id=seller.id)
-        except Exception as e:
-            messages.error(request, f'Erro ao atualizar vendedor: {str(e)}')
-            return redirect('core:seller_edit', seller_id=seller.id)
+        seller.usuario.save()
+        seller.save()
+        print('DEBUG - Bairro após salvar:', seller.bairro)
         
-    return render(request, 'core/seller_edit.html', {'seller': seller})
+        messages.success(request, 'Vendedor atualizado com sucesso!')
+        return redirect('core:seller_detail', seller_id=seller.id)
+    
+    # Preparar o contexto com as culturas disponíveis e as culturas atuais do vendedor
+    culturas_disponiveis = Vendedor.CULTURAS_CHOICES
+    culturas_atuais = seller.culturas_atendidas or []
+
+    print('DEBUG - Bairro antes de renderizar:', seller.bairro)
+    
+    return render(request, 'core/seller_edit.html', {
+        'seller': seller,
+        'culturas_disponiveis': culturas_disponiveis,
+        'culturas_atuais': culturas_atuais
+    })
 
 @login_required
 @user_passes_test(is_superadmin)
