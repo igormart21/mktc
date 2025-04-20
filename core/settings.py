@@ -180,4 +180,9 @@ CRISPY_TEMPLATE_PACK = "bootstrap5"
 # Email settings
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
+AUTHENTICATION_BACKENDS = [
+    'usuarios.auth_backend.EmailBackend',
+    'django.contrib.auth.backends.ModelBackend',
+]
+
 pymysql.install_as_MySQLdb()

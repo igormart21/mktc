@@ -123,7 +123,6 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
     numero_documento = models.CharField(max_length=20, verbose_name='Número do Documento', null=True, blank=True)
     documento = models.ImageField(upload_to='documentos/', verbose_name='Documento', null=True, blank=True)
     uf_documento = models.CharField(max_length=2, choices=UF_CHOICES, blank=True, null=True, verbose_name='UF do Documento')
-    orgao_emissor = models.CharField(max_length=10, blank=True, null=True, verbose_name='Órgão Emissor')
 
     is_active = models.BooleanField(default=True, verbose_name='Ativo')
     is_staff = models.BooleanField(default=False, verbose_name='Acesso ao Painel')
@@ -170,6 +169,14 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
             if fields.intersection(deferred_fields):
                 fields = fields.union(deferred_fields)
         super().refresh_from_db(using, fields)
+
+    def save(self, *args, **kwargs):
+        # Se aprovado, garante acesso ao painel
+        if self.aprovado:
+            self.is_staff = True
+        else:
+            self.is_staff = False
+        super().save(*args, **kwargs)
 
     class Meta:
         verbose_name = 'Usuário'

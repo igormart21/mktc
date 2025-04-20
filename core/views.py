@@ -51,9 +51,9 @@ def login_view(request):
     if request.method == 'POST':
         form = LoginForm(request.POST)
         if form.is_valid():
-            email = form.cleaned_data['username']
+            username = form.cleaned_data['username']
             password = form.cleaned_data['password']
-            user = authenticate(request, username=email, password=password)
+            user = authenticate(request, username=username, password=password)
             if user is not None:
                 login(request, user)
                 return redirect('core:dashboard')
@@ -159,28 +159,34 @@ def seller_dashboard(request):
     """Dashboard do vendedor"""
     try:
         vendedor = request.user.vendedor
-    except Vendedor.DoesNotExist:
+    except Exception:
         messages.error(request, 'Você precisa ser um vendedor para acessar esta página.')
         return redirect('core:home')
-        
+    
+    # Produtos do vendedor
     total_products = Produto.objects.filter(vendedor=vendedor).count()
-    
-    # Temporariamente substituindo as consultas problemáticas com valores seguros
-    total_orders = 0  # Pedido.objects.filter(vendedor=request.user).count()
-    total_sales = 0  # sum(pedido.total for pedido in pedidos_aprovados)
-    recent_orders = []  # Pedido.objects.filter(vendedor=request.user).order_by('-data_pedido')[:5]
     recent_products = Produto.objects.filter(vendedor=vendedor).order_by('-created_at')[:5]
-    
+
+    # Pedidos do vendedor
+    pedidos = Pedido.objects.filter(vendedor=request.user)
+    total_pedidos = pedidos.count()
+    pedidos_pendentes = pedidos.filter(status='PENDENTE').count()
+    pedidos_aprovados = pedidos.filter(status='APROVADO').count()
+    pedidos_rejeitados = pedidos.filter(status='REJEITADO').count()
+    ultimos_pedidos = pedidos.order_by('-data_pedido')[:5]
+    total_vendas = pedidos.filter(status='APROVADO').aggregate(total=Sum('total'))['total'] or 0
+
+    # Garante que o contexto tenha o usuário correto para o template
     context = {
+        'user': request.user,
         'total_products': total_products,
-        'total_orders': total_orders,
-        'total_sales': total_sales,
-        'recent_orders': recent_orders,
+        'total_pedidos': total_pedidos,
+        'pedidos_pendentes': pedidos_pendentes,
+        'pedidos_aprovados': pedidos_aprovados,
+        'pedidos_rejeitados': pedidos_rejeitados,
+        'ultimos_pedidos': ultimos_pedidos,
+        'total_vendas': total_vendas,
         'recent_products': recent_products,
-        'pedidos_pendentes': 0,  # Pedido.objects.filter(vendedor=request.user, status='PENDENTE').count(),
-        'pedidos_aprovados': 0,  # Pedido.objects.filter(vendedor=request.user, status='APROVADO').count(),
-        'pedidos_rejeitados': 0,  # Pedido.objects.filter(vendedor=request.user, status='REJEITADO').count(),
-        'ultimos_pedidos': recent_orders,
     }
     return render(request, 'core/seller_dashboard.html', context)
 
@@ -667,10 +673,16 @@ def carrinho(request):
             return redirect('core:carrinho')
         
         if tipo_venda == 'avista':
+            # Obter o vendedor do produto
+            vendedor_produto = None
+            if hasattr(primeiro_item['produto'], 'vendedor_id'):
+                vendedor_produto = primeiro_item['produto'].vendedor_id
+            elif hasattr(primeiro_item['produto'], 'vendedor'):
+                vendedor_produto = primeiro_item['produto'].vendedor.id if primeiro_item['produto'].vendedor else None
             # Criar pedido
             pedido = Pedido.objects.create(
                 comprador=request.user,
-                vendedor=None,  # Não associar vendedor
+                vendedor_id=vendedor_produto,  # Associar vendedor corretamente
                 produto=primeiro_item['produto'],
                 quantidade=1,  # Será atualizado pelos itens
                 preco_unitario=0,  # Será atualizado pelos itens
@@ -702,10 +714,16 @@ def carrinho(request):
         elif tipo_venda == 'prazo':
             venda_prazo_form = VendaPrazoForm(request.POST, request.FILES)
             if venda_prazo_form.is_valid():
+                # Obter o vendedor do produto
+                vendedor_produto = None
+                if hasattr(primeiro_item['produto'], 'vendedor_id'):
+                    vendedor_produto = primeiro_item['produto'].vendedor_id
+                elif hasattr(primeiro_item['produto'], 'vendedor'):
+                    vendedor_produto = primeiro_item['produto'].vendedor.id if primeiro_item['produto'].vendedor else None
                 # Criar pedido
                 pedido = Pedido.objects.create(
                     comprador=request.user,
-                    vendedor=None,  # Não associar vendedor
+                    vendedor_id=vendedor_produto,  # Associar vendedor corretamente
                     produto=primeiro_item['produto'],
                     quantidade=1,  # Será atualizado pelos itens
                     preco_unitario=0,  # Será atualizado pelos itens

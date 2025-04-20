@@ -10,7 +10,6 @@ class UsuarioAdminForm(forms.ModelForm):
         fields = '__all__'
         widgets = {
             'uf_documento': forms.Select(attrs={'class': 'uf-documento-field'}),
-            'orgao_emissor': forms.TextInput(attrs={'class': 'orgao-emissor-field'}),
         }
 
     class Media:
@@ -20,7 +19,6 @@ class UsuarioAdminForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         if self.instance.pk:
             self.fields['uf_documento'].required = self.instance.tipo_documento == 'RG'
-            self.fields['orgao_emissor'].required = self.instance.tipo_documento == 'RG'
 
 @admin.register(Usuario)
 class UsuarioAdmin(UserAdmin):
@@ -34,7 +32,7 @@ class UsuarioAdmin(UserAdmin):
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
         ('Informações Pessoais', {'fields': ('nome', 'cpf', 'telefone', 'cep', 'rua', 'numero', 'complemento', 'hectares_atendidos')}),
-        ('Documentos', {'fields': ('tipo_documento', 'numero_documento', 'documento', 'uf_documento', 'orgao_emissor')}),
+        ('Documentos', {'fields': ('tipo_documento', 'numero_documento', 'documento', 'uf_documento')}),
         ('Permissões', {'fields': ('is_active', 'is_staff', 'is_superuser', 'aprovado', 'groups', 'user_permissions')}),
         ('Datas Importantes', {'fields': ('last_login', 'date_joined')}),
     )
@@ -43,7 +41,7 @@ class UsuarioAdmin(UserAdmin):
         (None, {
             'classes': ('wide',),
             'fields': ('email', 'nome', 'cpf', 'telefone', 'cep', 'rua', 'numero', 'complemento', 'hectares_atendidos', 
-                      'tipo_documento', 'numero_documento', 'documento', 'uf_documento', 'orgao_emissor',
+                      'tipo_documento', 'numero_documento', 'documento', 'uf_documento',
                       'password1', 'password2', 'is_active', 'is_staff', 'is_superuser', 'aprovado'),
         }),
     )
