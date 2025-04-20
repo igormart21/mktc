@@ -11,7 +11,7 @@ class IsVendedorAprovado(permissions.BasePermission):
             
         try:
             vendedor = Vendedor.objects.get(usuario=request.user)
-            return vendedor.usuario.aprovado
+            return vendedor.status_aprovacao == 'APROVADO'
         except Vendedor.DoesNotExist:
             return False
 

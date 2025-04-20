@@ -12,8 +12,8 @@ from django.template.loader import render_to_string
 from django.core.mail import send_mail
 from django.conf import settings
 from django.core.exceptions import ValidationError
-from .models import Product, Order, OrderItem, VendorApplication, SellerRegistration, MensagemSuporte, SolicitacaoProduto, Pedido, Venda, Vendedor
-from .forms import ProductForm, OrderForm, OrderItemForm, SellerRegistrationForm, LoginForm, SolicitacaoProdutoForm, SellerProfileForm, AdminProfileForm, VendaPrazoForm
+from .models import Product, VendorApplication, SellerRegistration, MensagemSuporte, SolicitacaoProduto, Pedido, Venda, Vendedor
+from .forms import ProductForm, SellerRegistrationForm, LoginForm, SolicitacaoProdutoForm, SellerProfileForm, AdminProfileForm, VendaPrazoForm
 from .utils import validate_file_upload, validate_cpf, is_superadmin, is_vendedor
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect, Http404
 import logging
@@ -23,14 +23,11 @@ from django.core.paginator import Paginator
 from vendedor.models import Vendedor
 from usuarios.models import Usuario
 from produtos.models import Produto
-from vendas.models import Pedido, Venda, ItemPedido
-import os
-import json
+from .carrinho import Carrinho
 from django.views.decorators.csrf import csrf_exempt
 from .decorators import superuser_required, is_seller
 from django.db import models
 from django.contrib.auth.hashers import check_password
-from .carrinho import Carrinho
 from django.utils.html import strip_tags
 from django.contrib.auth import get_user_model
 from decimal import Decimal
@@ -132,14 +129,14 @@ def seller_registration(request):
 def superadmin_dashboard(request):
     """Dashboard do superadmin"""
     total_products = Product.objects.count()
-    total_orders = Order.objects.count()
+    total_orders = Pedido.objects.count()
     total_sellers = Vendedor.objects.count()
     total_users = Usuario.objects.count()
     
-    recent_orders = Order.objects.order_by('-created_at')[:5]
+    recent_orders = Pedido.objects.order_by('-data_criacao')[:5]
     recent_products = Product.objects.order_by('-created_at')[:5]
     recent_sellers = Vendedor.objects.order_by('-created_at')[:5]
-    vendas_pendentes = Venda.objects.filter(status='PENDENTE').order_by('-data_venda')[:5]
+    vendas_pendentes = Venda.objects.filter(status='PENDENTE').order_by('-data_criacao')[:5]
 
     context = {
         'total_products': total_products,
@@ -168,7 +165,7 @@ def seller_dashboard(request):
     recent_products = Produto.objects.filter(vendedor=vendedor).order_by('-created_at')[:5]
 
     # Pedidos do vendedor
-    pedidos = Pedido.objects.filter(vendedor=vendedor)
+    pedidos = Pedido.objects.filter(vendedor=request.user)
     total_pedidos = pedidos.count()
     pedidos_pendentes = pedidos.filter(status='PENDENTE').count()
     pedidos_aprovados = pedidos.filter(status='APROVADO').count()
@@ -179,6 +176,7 @@ def seller_dashboard(request):
     # Garante que o contexto tenha o usuário correto para o template
     context = {
         'user': request.user,
+        'vendedor': vendedor,
         'total_products': total_products,
         'total_pedidos': total_pedidos,
         'pedidos_pendentes': pedidos_pendentes,
@@ -395,48 +393,48 @@ def order_create(request):
             order.customer_email = request.user.email
             order.save()
             messages.success(request, 'Pedido criado com sucesso!')
-            return redirect('core:order_detail', order_id=order.id)
+            return redirect('core:pedido_detail', pedido_id=order.id)
     else:
         form = OrderForm()
     return render(request, 'core/order_form.html', {'form': form})
 
 @login_required
-def order_detail(request, order_id):
+def pedido_detail(request, pedido_id):
     """Mostra os detalhes de um pedido"""
-    order = get_object_or_404(Order, id=order_id)
-    return render(request, 'core/order_detail.html', {'order': order})
+    pedido = get_object_or_404(Pedido, id=pedido_id)
+    return render(request, 'core/pedido_detail.html', {'pedido': pedido})
 
 @login_required
-def order_edit(request, order_id):
+def pedido_edit(request, pedido_id):
     """Edita um pedido"""
-    order = get_object_or_404(Order, id=order_id)
+    pedido = get_object_or_404(Pedido, id=pedido_id)
     if request.method == 'POST':
-        form = OrderForm(request.POST, instance=order)
+        form = OrderForm(request.POST, instance=pedido)
         if form.is_valid():
             form.save()
             messages.success(request, 'Pedido atualizado com sucesso!')
-            return redirect('core:order_detail', order_id=order.id)
+            return redirect('core:pedido_detail', pedido_id=pedido.id)
     else:
-        form = OrderForm(instance=order)
+        form = OrderForm(instance=pedido)
     return render(request, 'core/order_form.html', {'form': form})
 
 @login_required
-def order_approve(request, order_id):
+def pedido_approve(request, pedido_id):
     """Aprova um pedido"""
-    order = get_object_or_404(Order, id=order_id)
-    order.status = 'processing'
-    order.save()
+    pedido = get_object_or_404(Pedido, id=pedido_id)
+    pedido.status = 'APROVADO'
+    pedido.save()
     messages.success(request, 'Pedido aprovado com sucesso!')
-    return redirect('core:order_detail', order_id=order.id)
+    return redirect('core:pedido_detail', pedido_id=pedido.id)
 
 @login_required
-def order_cancel(request, order_id):
+def pedido_cancel(request, pedido_id):
     """Cancela um pedido"""
-    order = get_object_or_404(Order, id=order_id)
-    order.status = 'cancelled'
-    order.save()
+    pedido = get_object_or_404(Pedido, id=pedido_id)
+    pedido.status = 'REJEITADO'
+    pedido.save()
     messages.success(request, 'Pedido cancelado com sucesso!')
-    return redirect('core:order_detail', order_id=order.id)
+    return redirect('core:pedido_detail', pedido_id=pedido.id)
 
 def product_list(request):
     """Lista todos os produtos"""
@@ -458,6 +456,7 @@ def aprovar_vendedor(request, vendedor_id):
     seller.usuario.is_active = True
     seller.usuario.save()
     seller.data_aprovacao = timezone.now()
+    seller.status_aprovacao = 'APROVADO'
     seller.save()
     messages.success(request, 'Vendedor aprovado com sucesso!')
     return redirect('core:listar_vendedores')
@@ -798,7 +797,7 @@ def superadmin_orders(request):
     data_fim = request.GET.get('data_fim')
     
     # Obter todos os pedidos
-    orders = Order.objects.all().order_by('-created_at')
+    orders = Pedido.objects.all().order_by('-created_at')
     
     # Aplicar filtros
     if status:
@@ -815,7 +814,7 @@ def superadmin_orders(request):
     
     context = {
         'orders': orders,
-        'status_choices': Order.STATUS_CHOICES,
+        'status_choices': Pedido.STATUS_CHOICES,
         'current_status': status,
     }
     return render(request, 'core/superadmin_orders.html', context)
@@ -824,14 +823,14 @@ def superadmin_orders(request):
 @user_passes_test(is_superadmin)
 def superadmin_order_detail(request, order_id):
     """Mostra os detalhes de um pedido para o superadmin"""
-    order = get_object_or_404(Order, id=order_id)
+    order = get_object_or_404(Pedido, id=order_id)
     return render(request, 'core/superadmin_order_detail.html', {'order': order})
 
 @login_required
 @user_passes_test(is_superadmin)
 def superadmin_order_delete(request, order_id):
     """Deleta um pedido como superadmin"""
-    order = get_object_or_404(Order, id=order_id)
+    order = get_object_or_404(Pedido, id=order_id)
     if request.method == 'POST':
         order.delete()
         messages.success(request, 'Pedido deletado com sucesso!')
@@ -1227,7 +1226,7 @@ def admin_profile(request):
 @user_passes_test(is_superadmin)
 def listar_vendas_pendentes(request):
     """Lista todas as vendas pendentes"""
-    vendas_pendentes = Venda.objects.filter(status='PENDENTE').order_by('-data_venda')
+    vendas_pendentes = Venda.objects.filter(status='PENDENTE').order_by('-data_criacao')
     return render(request, 'core/listar_vendas_pendentes.html', {'vendas': vendas_pendentes})
 
 @login_required
@@ -1357,13 +1356,13 @@ def superadmin_compras_vendedores(request):
     vendedores = Vendedor.objects.all().order_by('nome_fantasia')
     
     # Obter todas as vendas
-    vendas = Venda.objects.filter(status__in=['ACEITO', 'PROCESSANDO']).order_by('-data_venda')
+    vendas = Venda.objects.filter(status__in=['ACEITO', 'PROCESSANDO']).order_by('-data_criacao')
     
     # Aplicar filtros
     if vendedor_id:
         try:
             vendedor = Vendedor.objects.get(id=vendedor_id)
-            vendas = vendas.filter(vendedor=vendedor)
+            vendas = vendas.filter(comprador=vendedor.usuario)
         except Vendedor.DoesNotExist:
             pass
     
@@ -1373,7 +1372,7 @@ def superadmin_compras_vendedores(request):
     if data_inicio:
         try:
             data_inicio = timezone.datetime.strptime(data_inicio, '%Y-%m-%d')
-            vendas = vendas.filter(data_venda__gte=data_inicio)
+            vendas = vendas.filter(data_criacao__gte=data_inicio)
         except ValueError:
             pass
             
@@ -1381,7 +1380,7 @@ def superadmin_compras_vendedores(request):
         try:
             data_fim = timezone.datetime.strptime(data_fim, '%Y-%m-%d')
             data_fim = data_fim.replace(hour=23, minute=59, second=59)
-            vendas = vendas.filter(data_venda__lte=data_fim)
+            vendas = vendas.filter(data_criacao__lte=data_fim)
         except ValueError:
             pass
     

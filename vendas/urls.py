@@ -16,7 +16,5 @@ urlpatterns = [
     path('solicitar-compra/<int:produto_id>/', views.solicitar_compra, name='solicitar_compra'),
     path('cancelar-pedido/<int:pedido_id>/', views.cancelar_pedido, name='cancelar_pedido'),
     path('editar-pedido/<int:pedido_id>/', views.editar_pedido, name='editar_pedido'),
-    path('admin/pedidos/', views.lista_pedidos_admin, name='lista_pedidos_admin'),
-    path('admin/pedidos/<int:pedido_id>/aprovar/', views.aprovar_pedido, name='aprovar_pedido'),
     path('', include(router.urls)),
 ] 

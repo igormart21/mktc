@@ -39,6 +39,12 @@ class Vendedor(models.Model):
     rg = models.FileField(upload_to='documentos/rg/', blank=True, null=True)
     cnh = models.FileField(upload_to='documentos/cnh/', blank=True, null=True)
     data_aprovacao = models.DateTimeField(null=True, blank=True)
+    status_aprovacao = models.CharField(
+        max_length=10,
+        choices=[('PENDENTE', 'Pendente'), ('APROVADO', 'Aprovado'), ('RECUSADO', 'Recusado')],
+        default='PENDENTE',
+        verbose_name='Status de Aprovação'
+    )
     
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)

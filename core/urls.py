@@ -32,12 +32,11 @@ urlpatterns = [
     path('superadmin/aplicacoes/revisar/<int:application_id>/', views.review_application, name='review_application'),
     
     # URLs de pedidos
-    path('pedidos/criar/', views.order_create, name='order_create'),
-    path('pedidos/editar/<int:order_id>/', views.order_edit, name='order_edit'),
-    path('pedidos/detalhe/<int:order_id>/', views.order_detail, name='order_detail'),
-    path('pedidos/aprovar/<int:order_id>/', views.order_approve, name='order_approve'),
-    path('pedidos/cancelar/<int:order_id>/', views.order_cancel, name='order_cancel'),
     path('pedidos/', views.pedidos, name='pedidos'),
+    path('pedido/<int:pedido_id>/', views.pedido_detail, name='pedido_detail'),
+    path('pedido/<int:pedido_id>/editar/', views.pedido_edit, name='pedido_edit'),
+    path('pedido/<int:pedido_id>/aprovar/', views.pedido_approve, name='pedido_approve'),
+    path('pedido/<int:pedido_id>/cancelar/', views.pedido_cancel, name='pedido_cancel'),
 
     # URLs de produtos do superadmin
     path('superadmin/produtos/', views.superadmin_products, name='superadmin_products'),

@@ -9,12 +9,12 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.utils import timezone
-from .models import Venda, Pedido, ItemPedido
+from core.models import Venda
 from .serializers import VendaSerializer
 from .permissions import IsVendedorAprovado
 from produtos.models import Produto
 from .forms import PedidoForm
-from core.models import Pedido as CorePedido
+from core.models import Pedido
 from usuarios.models import Usuario
 from django.db.utils import OperationalError
 from django.contrib.auth import get_user_model
@@ -60,10 +60,10 @@ class VendaListView(ListView):
     template_name = 'vendas/historico_vendas.html'
     context_object_name = 'vendas'
     paginate_by = 10
-    ordering = ['-data_pedido']
+    ordering = ['-data_criacao']
 
     def get_queryset(self):
-        return Venda.objects.filter(vendedor=self.request.user).order_by('-data_pedido')
+        return Venda.objects.filter(vendedor=self.request.user).order_by('-data_criacao')
 
 @login_required
 def solicitar_compra(request, produto_id):
@@ -107,14 +107,6 @@ def solicitar_compra(request, produto_id):
 
 @login_required
 def meus_pedidos(request):
-<<<<<<< HEAD
-    vendedor = getattr(request.user, 'vendedor', None)
-    if vendedor:
-        pedidos = Pedido.objects.filter(vendedor=vendedor).order_by('-data_pedido')
-    else:
-        pedidos = []
-    return render(request, 'vendas/meus_pedidos.html', {'pedidos': pedidos})
-=======
     try:
         # Tenta obter a instância do modelo Usuario correspondente ao usuário autenticado
         usuario = Usuario.objects.get(email=request.user.email)
@@ -139,7 +131,6 @@ def meus_pedidos(request):
     except Usuario.DoesNotExist:
         messages.error(request, 'Seu perfil de usuário não está configurado corretamente.')
         return redirect('core:home')
->>>>>>> fde08519d84a5fa5a718dec41d10f5357d309d6d
 
 @login_required
 def cancelar_pedido(request, pedido_id):
@@ -149,11 +140,10 @@ def cancelar_pedido(request, pedido_id):
         
         try:
             # Primeiro tenta buscar o pedido do app vendas
-            from vendas.models import Pedido as VendasPedido
-            pedido = get_object_or_404(VendasPedido, id=pedido_id, comprador=usuario)
+            pedido = get_object_or_404(Pedido, id=pedido_id, comprador=usuario)
         except (ImportError, OperationalError):
             # Se não encontrar, busca do core
-            pedido = get_object_or_404(CorePedido, id=pedido_id, comprador=usuario)
+            pedido = get_object_or_404(Pedido, id=pedido_id, comprador=usuario)
         
         # Verifica se o pedido pode ser cancelado
         if pedido.status not in ['PROCESSANDO', 'PENDENTE']:
@@ -178,12 +168,11 @@ def editar_pedido(request, pedido_id):
         
         try:
             # Primeiro tenta buscar o pedido do app vendas
-            from vendas.models import Pedido as VendasPedido
-            pedido = get_object_or_404(VendasPedido, id=pedido_id, comprador=usuario)
+            pedido = get_object_or_404(Pedido, id=pedido_id, comprador=usuario)
             is_vendas_pedido = True
         except (ImportError, OperationalError):
             # Se não encontrar, busca do core
-            pedido = get_object_or_404(CorePedido, id=pedido_id, comprador=usuario)
+            pedido = get_object_or_404(Pedido, id=pedido_id, comprador=usuario)
             is_vendas_pedido = False
         
         # Verifica se o pedido pode ser editado
@@ -230,26 +219,22 @@ def editar_pedido(request, pedido_id):
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
 def lista_pedidos_admin(request):
-    pedidos = CorePedido.objects.all().order_by('-data_pedido')
+    pedidos = Pedido.objects.all().order_by('-data_pedido')
     return render(request, 'vendas/admin/lista_pedidos.html', {'pedidos': pedidos})
 
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
 def aprovar_pedido(request, pedido_id):
-    pedido = get_object_or_404(CorePedido, id=pedido_id)
+    pedido = get_object_or_404(Pedido, id=pedido_id)
     
     if request.method == 'POST':
         acao = request.POST.get('acao')
         
         if acao == 'aprovar':
             pedido.status = 'APROVADO'
-            # CorePedido pode não ter esses campos, então ajuste conforme necessário
-            # pedido.aprovado_por = request.user
-            # pedido.data_aprovacao = timezone.now()
             messages.success(request, 'Pedido aprovado com sucesso!')
         elif acao == 'rejeitar':
             pedido.status = 'REJEITADO'
-            # CorePedido pode não ter o campo motivo_rejeicao, então salve nas observações se necessário
             pedido.observacoes = request.POST.get('motivo_rejeicao', '')
             messages.success(request, 'Pedido rejeitado com sucesso!')
         

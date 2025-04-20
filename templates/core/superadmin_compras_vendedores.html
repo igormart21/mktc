@@ -85,7 +85,7 @@
                                     <td>{{ venda.quantidade }} {{ venda.produto.unidade_medida }}</td>
                                     <td>R$ {{ venda.preco_unitario|floatformat:2 }}</td>
                                     <td>R$ {{ venda.valor_total|floatformat:2 }}</td>
-                                    <td>{{ venda.data_venda|date:"d/m/Y H:i" }}</td>
+                                    <td>{{ venda.data_criacao|date:"d/m/Y H:i" }}</td>
                                     <td>
                                         <span class="badge {% if venda.status == 'ACEITO' %}bg-success{% elif venda.status == 'PENDENTE' %}bg-warning{% elif venda.status == 'PROCESSANDO' %}bg-info{% else %}bg-danger{% endif %}">
                                             {{ venda.get_status_display }}
@@ -93,53 +93,26 @@
                                     </td>
                                     <td>
                                         <div class="btn-group" role="group">
-                                            <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#modalDetalhes{{ venda.id }}">
+                                            <button type="button" class="btn btn-sm btn-primary" 
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#modalDetalhesUnico"
+                                                data-venda-id="{{ venda.id }}"
+                                                data-vendedor-nome="{{ venda.vendedor.nome_fantasia|default:'Não disponível' }}"
+                                                data-vendedor-cnpj="{{ venda.vendedor.cnpj|default:'Não disponível' }}"
+                                                data-vendedor-telefone="{{ venda.vendedor.telefone|default:'Não disponível' }}"
+                                                data-produto-nome="{{ venda.produto.nome }}"
+                                                data-produto-categoria="{{ venda.produto.get_categoria_display }}"
+                                                data-produto-quantidade="{{ venda.quantidade }} {{ venda.produto.unidade_medida }}"
+                                                data-data-venda="{{ venda.data_criacao|date:'d/m/Y H:i' }}"
+                                                data-status="{{ venda.get_status_display }}"
+                                                data-preco-unitario="R$ {{ venda.preco_unitario|floatformat:2 }}"
+                                                data-valor-total="R$ {{ venda.valor_total|floatformat:2 }}"
+                                            >
                                                 <i class="fas fa-eye"></i>
                                             </button>
                                         </div>
                                     </td>
                                 </tr>
-                                
-                                <!-- Modal de Detalhes -->
-                                <div class="modal fade" id="modalDetalhes{{ venda.id }}" tabindex="-1" aria-hidden="true">
-                                    <div class="modal-dialog modal-lg">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title">Detalhes da Compra #{{ venda.id }}</h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                            </div>
-                                            <div class="modal-body">
-                                                <div class="row">
-                                                    <div class="col-md-6">
-                                                        <h6>Informações do Vendedor</h6>
-                                                        <p><strong>Nome:</strong> {{ venda.vendedor.nome_fantasia|default:"Não disponível" }}</p>
-                                                        <p><strong>CNPJ:</strong> {{ venda.vendedor.cnpj|default:"Não disponível" }}</p>
-                                                        <p><strong>Telefone:</strong> {{ venda.vendedor.telefone|default:"Não disponível" }}</p>
-                                                    </div>
-                                                    <div class="col-md-6">
-                                                        <h6>Informações do Produto</h6>
-                                                        <p><strong>Nome:</strong> {{ venda.produto.nome }}</p>
-                                                        <p><strong>Categoria:</strong> {{ venda.produto.get_categoria_display }}</p>
-                                                        <p><strong>Quantidade:</strong> {{ venda.quantidade }} {{ venda.produto.unidade_medida }}</p>
-                                                    </div>
-                                                </div>
-                                                <hr>
-                                                <div class="row">
-                                                    <div class="col-md-6">
-                                                        <h6>Informações da Compra</h6>
-                                                        <p><strong>Data:</strong> {{ venda.data_venda|date:"d/m/Y H:i" }}</p>
-                                                        <p><strong>Status:</strong> {{ venda.get_status_display }}</p>
-                                                        <p><strong>Valor Unitário:</strong> R$ {{ venda.preco_unitario|floatformat:2 }}</p>
-                                                        <p><strong>Valor Total:</strong> R$ {{ venda.valor_total|floatformat:2 }}</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
                                 {% empty %}
                                 <tr>
                                     <td colspan="9" class="text-center py-4">
@@ -193,4 +166,64 @@
         </div>
     </div>
 </div>
+
+<!-- Modal Único Dinâmico -->
+<div class="modal fade" id="modalDetalhesUnico" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Detalhes da Compra</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Informações do Vendedor</h6>
+                        <p><strong>Nome:</strong> <span id="modal-vendedor-nome"></span></p>
+                        <p><strong>CNPJ:</strong> <span id="modal-vendedor-cnpj"></span></p>
+                        <p><strong>Telefone:</strong> <span id="modal-vendedor-telefone"></span></p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Informações do Produto</h6>
+                        <p><strong>Nome:</strong> <span id="modal-produto-nome"></span></p>
+                        <p><strong>Categoria:</strong> <span id="modal-produto-categoria"></span></p>
+                        <p><strong>Quantidade:</strong> <span id="modal-produto-quantidade"></span></p>
+                    </div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Informações da Compra</h6>
+                        <p><strong>Data:</strong> <span id="modal-data-venda"></span></p>
+                        <p><strong>Status:</strong> <span id="modal-status"></span></p>
+                        <p><strong>Valor Unitário:</strong> <span id="modal-preco-unitario"></span></p>
+                        <p><strong>Valor Total:</strong> <span id="modal-valor-total"></span></p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var modal = document.getElementById('modalDetalhesUnico');
+        modal.addEventListener('show.bs.modal', function (event) {
+            var button = event.relatedTarget;
+            document.getElementById('modal-vendedor-nome').textContent = button.getAttribute('data-vendedor-nome');
+            document.getElementById('modal-vendedor-cnpj').textContent = button.getAttribute('data-vendedor-cnpj');
+            document.getElementById('modal-vendedor-telefone').textContent = button.getAttribute('data-vendedor-telefone');
+            document.getElementById('modal-produto-nome').textContent = button.getAttribute('data-produto-nome');
+            document.getElementById('modal-produto-categoria').textContent = button.getAttribute('data-produto-categoria');
+            document.getElementById('modal-produto-quantidade').textContent = button.getAttribute('data-produto-quantidade');
+            document.getElementById('modal-data-venda').textContent = button.getAttribute('data-data-venda');
+            document.getElementById('modal-status').textContent = button.getAttribute('data-status');
+            document.getElementById('modal-preco-unitario').textContent = button.getAttribute('data-preco-unitario');
+            document.getElementById('modal-valor-total').textContent = button.getAttribute('data-valor-total');
+        });
+    });
+</script>
 {% endblock %} 

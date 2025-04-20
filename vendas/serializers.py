@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Venda
+from core.models import Venda
 from produtos.serializers import ProdutoSerializer
 from usuarios.serializers import UsuarioSerializer
 
@@ -13,18 +13,16 @@ class VendaSerializer(serializers.ModelSerializer):
         fields = [
             'id',
             'produto',
-            'vendedor',
             'comprador',
+            'vendedor',
             'quantidade',
             'preco_unitario',
-            'preco_total',
+            'total',
             'status',
-            'observacoes',
             'data_criacao',
-            'data_venda',
-            'estoque_atualizado'
+            'data_atualizacao'
         ]
-        read_only_fields = ['id', 'data_criacao', 'data_venda', 'estoque_atualizado']
+        read_only_fields = ['id', 'data_criacao', 'data_atualizacao']
 
     def validate(self, data):
         request = self.context.get('request')
@@ -49,8 +47,8 @@ class VendaSerializer(serializers.ModelSerializer):
         if not validated_data.get('preco_unitario'):
             validated_data['preco_unitario'] = produto.preco
         
-        if not validated_data.get('preco_total'):
-            validated_data['preco_total'] = validated_data['quantidade'] * validated_data['preco_unitario']
+        if not validated_data.get('total'):
+            validated_data['total'] = validated_data['quantidade'] * validated_data['preco_unitario']
         
         # Cria a venda com o vendedor atual
         venda = Venda.objects.create(

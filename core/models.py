@@ -98,67 +98,6 @@ class Product(models.Model):
     def get_stock_display(self):
         return f"{self.available_volume} {self.get_unit_display()}"
 
-class Order(models.Model):
-    STATUS_CHOICES = [
-        ('pending', 'Pendente'),
-        ('processing', 'Em Processamento'),
-        ('shipped', 'Enviado'),
-        ('delivered', 'Entregue'),
-        ('cancelled', 'Cancelado'),
-    ]
-
-    customer_name = models.CharField(max_length=255, default='Cliente', verbose_name='Nome do Cliente')
-    customer_email = models.EmailField(default='cliente@example.com', max_length=254, verbose_name='Email do Cliente')
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Data do Pedido')
-    updated_at = models.DateTimeField(auto_now=True, verbose_name='Última Atualização')
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending', verbose_name='Status')
-    total_value = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name='Valor Total')
-    notes = models.TextField(blank=True, null=True, verbose_name='Observações')
-    seller = models.ForeignKey(Vendedor, on_delete=models.CASCADE, related_name='orders', verbose_name='Vendedor', null=True, blank=True)
-
-    @property
-    def status_color(self):
-        """Retorna a cor do badge baseada no status do pedido"""
-        colors = {
-            'pending': 'warning',
-            'processing': 'info',
-            'shipped': 'primary',
-            'delivered': 'success',
-            'cancelled': 'danger',
-        }
-        return colors.get(self.status, 'secondary')
-
-    class Meta:
-        verbose_name = 'Pedido'
-        verbose_name_plural = 'Pedidos'
-        ordering = ['-created_at']
-
-    def __str__(self):
-        return f'Pedido #{self.id} - {self.customer_name}'
-
-    def calculate_total(self):
-        return sum(item.subtotal for item in self.items.all())
-
-    def update_total(self):
-        self.total_value = self.calculate_total()
-        self.save()
-
-class OrderItem(models.Model):
-    order = models.ForeignKey(Order, related_name='items', on_delete=models.CASCADE, verbose_name='Pedido')
-    product = models.ForeignKey(Produto, on_delete=models.PROTECT, verbose_name='Produto')
-    quantity = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Quantidade')
-    unit_price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Preço Unitário', default=0)
-
-    class Meta:
-        verbose_name = 'Item do Pedido'
-        verbose_name_plural = 'Itens do Pedido'
-
-    @property
-    def subtotal(self):
-        if self.quantity is not None and self.unit_price is not None:
-            return self.quantity * self.unit_price
-        return 0
-
 class SellerRegistration(models.Model):
     STATUS_CHOICES = [
         ('pendente', 'Pendente'),

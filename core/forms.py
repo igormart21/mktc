@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.core.exceptions import ValidationError
-from .models import Product, Order, OrderItem, SellerRegistration, SolicitacaoProduto
+from .models import Product, SellerRegistration, SolicitacaoProduto, Pedido, Venda
 from usuarios.models import Usuario
 from vendedor.models import Vendedor
 from produtos.models import Produto
@@ -91,21 +91,8 @@ class ProductForm(forms.ModelForm):
 
 class OrderForm(forms.ModelForm):
     class Meta:
-        model = Order
-        fields = ['status', 'notes']
-
-class OrderItemForm(forms.ModelForm):
-    class Meta:
-        model = OrderItem
-        fields = ['product', 'quantity']
-
-OrderItemFormSet = forms.inlineformset_factory(
-    Order,
-    OrderItem,
-    form=OrderItemForm,
-    extra=1,
-    can_delete=True
-)
+        model = Pedido
+        fields = ['status', 'observacoes']
 
 class SellerRegistrationForm(forms.ModelForm):
     class Meta:

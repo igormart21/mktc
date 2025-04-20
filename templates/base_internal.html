@@ -315,12 +315,19 @@
     {% block extra_js %}{% endblock %}
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('Template base carregado');
-            console.log('Usuário é superadmin:', {{ user.is_superuser|yesno:"true,false" }});
-            console.log('URL atual:', window.location.pathname);
-            console.log('Menu de Compras de Vendedores presente:', !!document.querySelector('a[href*="superadmin/compras-vendedores"]'));
-        });
+    document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(function() {
+            document.querySelectorAll('.messages-container .alert').forEach(function(alert) {
+                if (window.bootstrap && window.bootstrap.Alert) {
+                    var bsAlert = window.bootstrap.Alert.getOrCreateInstance(alert);
+                    bsAlert.close();
+                } else {
+                    // fallback: apenas remove o elemento
+                    alert.classList.remove('show');
+                }
+            });
+        }, 4000);
+    });
     </script>
 </body>
 </html> 

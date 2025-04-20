@@ -1,11 +1,10 @@
 from django import forms
-from .models import Pedido
+from core.models import Venda, Pedido
 
 class PedidoForm(forms.ModelForm):
     class Meta:
         model = Pedido
         fields = [
-            'quantidade',
             'nome_propriedade',
             'cnpj',
             'hectares',
@@ -18,10 +17,6 @@ class PedidoForm(forms.ModelForm):
             'observacoes'
         ]
         widgets = {
-            'quantidade': forms.NumberInput(attrs={
-                'class': 'form-control',
-                'min': '1'
-            }),
             'nome_propriedade': forms.TextInput(attrs={
                 'class': 'form-control'
             }),
