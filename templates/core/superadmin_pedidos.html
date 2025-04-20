@@ -1,38 +1,165 @@
-<div class="card mb-4">
-    <div class="card-body">
-        <form method="get" class="row g-3">
-            <div class="col-md-3">
-                <label for="status" class="form-label">Status</label>
-                <select name="status" id="status" class="form-select">
-                    <option value="">Todos</option>
-                    {% for value, label in status_choices %}
-                        <option value="{{ value }}" {% if request.GET.status == value %}selected{% endif %}>
-                            {{ label }}
-                        </option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="col-md-3">
-                <label for="tipo_venda" class="form-label">Tipo de Venda</label>
-                <select name="tipo_venda" id="tipo_venda" class="form-select">
-                    <option value="">Todos</option>
-                    <option value="avista" {% if request.GET.tipo_venda == 'avista' %}selected{% endif %}>À Vista</option>
-                    <option value="prazo" {% if request.GET.tipo_venda == 'prazo' %}selected{% endif %}>A Prazo</option>
-                </select>
-            </div>
-            <div class="col-md-3">
-                <label for="data_inicio" class="form-label">Data Início</label>
-                <input type="date" name="data_inicio" id="data_inicio" class="form-control" 
-                       value="{{ request.GET.data_inicio }}">
-            </div>
-            <div class="col-md-3">
-                <label for="data_fim" class="form-label">Data Fim</label>
-                <input type="date" name="data_fim" id="data_fim" class="form-control" 
-                       value="{{ request.GET.data_fim }}">
-            </div>
-            <div class="col-12">
-                <button type="submit" class="btn btn-primary">Filtrar</button>
-            </div>
-        </form>
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Pedidos - Superadmin{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Gerenciamento de Pedidos</h1>
+    
+    <!-- Filtros -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-3">
+                    <label for="status" class="form-label">Status</label>
+                    <select class="form-select" id="status" name="status">
+                        <option value="">Todos</option>
+                        {% for value, label in status_choices %}
+                            <option value="{{ value }}" {% if current_status == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="tipo_venda" class="form-label">Tipo de Venda</label>
+                    <select class="form-select" id="tipo_venda" name="tipo_venda">
+                        <option value="">Todos</option>
+                        {% for value, label in tipo_venda_choices %}
+                            <option value="{{ value }}" {% if current_tipo_venda == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="data_inicio" class="form-label">Data Início</label>
+                    <input type="date" class="form-control" id="data_inicio" name="data_inicio" value="{{ data_inicio|date:'Y-m-d' }}">
+                </div>
+                <div class="col-md-3">
+                    <label for="data_fim" class="form-label">Data Fim</label>
+                    <input type="date" class="form-control" id="data_fim" name="data_fim" value="{{ data_fim|date:'Y-m-d' }}">
+                </div>
+                <div class="col-12">
+                    <button type="submit" class="btn btn-primary">Filtrar</button>
+                    <a href="{% url 'superadmin_pedidos' %}" class="btn btn-secondary">Limpar Filtros</a>
+                </div>
+            </form>
+        </div>
     </div>
-</div> 
+
+    <!-- Tabela de Pedidos -->
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Comprador</th>
+                            <th>Vendedor</th>
+                            <th>Data</th>
+                            <th>Valor Total</th>
+                            <th>Status</th>
+                            <th>Tipo de Venda</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for pedido in pedidos %}
+                        <tr>
+                            <td>{{ pedido.id }}</td>
+                            <td>{{ pedido.comprador.get_full_name }}</td>
+                            <td>{{ pedido.vendedor.get_full_name }}</td>
+                            <td>{{ pedido.data_pedido|date:"d/m/Y H:i" }}</td>
+                            <td>R$ {{ pedido.total|floatformat:2 }}</td>
+                            <td>
+                                <span class="badge {% if pedido.status == 'APROVADO' %}bg-success{% elif pedido.status == 'PENDENTE' %}bg-warning{% elif pedido.status == 'REJEITADO' %}bg-danger{% else %}bg-secondary{% endif %}">
+                                    {{ pedido.get_status_display }}
+                                </span>
+                            </td>
+                            <td>{{ pedido.get_tipo_venda_display }}</td>
+                            <td>
+                                <a href="{% url 'pedido_detail' pedido.id %}" class="btn btn-sm btn-info" title="Detalhes">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#statusModal{{ pedido.id }}" title="Alterar Status">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                            </td>
+                        </tr>
+
+                        <!-- Modal de Alteração de Status -->
+                        <div class="modal fade" id="statusModal{{ pedido.id }}" tabindex="-1" aria-labelledby="statusModalLabel{{ pedido.id }}" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="statusModalLabel{{ pedido.id }}">Alterar Status do Pedido #{{ pedido.id }}</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <form method="post" action="{% url 'alterar_status_pedido' pedido.id %}">
+                                        {% csrf_token %}
+                                        <div class="modal-body">
+                                            <div class="mb-3">
+                                                <label for="novo_status" class="form-label">Novo Status</label>
+                                                <select class="form-select" id="novo_status" name="novo_status" required>
+                                                    {% for value, label in status_choices %}
+                                                        <option value="{{ value }}" {% if pedido.status == value %}selected{% endif %}>{{ label }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                            <button type="submit" class="btn btn-primary">Salvar</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center">Nenhum pedido encontrado.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Paginação -->
+            {% if pedidos.has_other_pages %}
+            <nav aria-label="Navegação de páginas" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if pedidos.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1{% if current_status %}&status={{ current_status }}{% endif %}{% if current_tipo_venda %}&tipo_venda={{ current_tipo_venda }}{% endif %}{% if data_inicio %}&data_inicio={{ data_inicio|date:'Y-m-d' }}{% endif %}{% if data_fim %}&data_fim={{ data_fim|date:'Y-m-d' }}{% endif %}">Primeira</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ pedidos.previous_page_number }}{% if current_status %}&status={{ current_status }}{% endif %}{% if current_tipo_venda %}&tipo_venda={{ current_tipo_venda }}{% endif %}{% if data_inicio %}&data_inicio={{ data_inicio|date:'Y-m-d' }}{% endif %}{% if data_fim %}&data_fim={{ data_fim|date:'Y-m-d' }}{% endif %}">Anterior</a>
+                    </li>
+                    {% endif %}
+
+                    {% for num in pedidos.paginator.page_range %}
+                        {% if pedidos.number == num %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ num }}</span>
+                        </li>
+                        {% elif num > pedidos.number|add:'-3' and num < pedidos.number|add:'3' %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ num }}{% if current_status %}&status={{ current_status }}{% endif %}{% if current_tipo_venda %}&tipo_venda={{ current_tipo_venda }}{% endif %}{% if data_inicio %}&data_inicio={{ data_inicio|date:'Y-m-d' }}{% endif %}{% if data_fim %}&data_fim={{ data_fim|date:'Y-m-d' }}{% endif %}">{{ num }}</a>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if pedidos.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ pedidos.next_page_number }}{% if current_status %}&status={{ current_status }}{% endif %}{% if current_tipo_venda %}&tipo_venda={{ current_tipo_venda }}{% endif %}{% if data_inicio %}&data_inicio={{ data_inicio|date:'Y-m-d' }}{% endif %}{% if data_fim %}&data_fim={{ data_fim|date:'Y-m-d' }}{% endif %}">Próxima</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ pedidos.paginator.num_pages }}{% if current_status %}&status={{ current_status }}{% endif %}{% if current_tipo_venda %}&tipo_venda={{ current_tipo_venda }}{% endif %}{% if data_inicio %}&data_inicio={{ data_inicio|date:'Y-m-d' }}{% endif %}{% if data_fim %}&data_fim={{ data_fim|date:'Y-m-d' }}{% endif %}">Última</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

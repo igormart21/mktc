@@ -28,7 +28,7 @@
                         {% for pedido in pedidos %}
                         <tr>
                             <td>#{{ pedido.id }}</td>
-                            <td>{{ pedido.data_criacao|date:"d/m/Y H:i" }}</td>
+                            <td>{{ pedido.data_pedido|date:"d/m/Y H:i" }}</td>
                             <td>{{ pedido.comprador.email }}</td>
                             <td>{{ pedido.nome_propriedade }}</td>
                             <td>{{ pedido.produto.nome }}</td>
@@ -81,7 +81,7 @@
                 <div class="row">
                     <div class="col-md-6">
                         <h6 class="mb-3">Informações do Pedido</h6>
-                        <p><strong>Data:</strong> {{ pedido.data_criacao|date:"d/m/Y H:i" }}</p>
+                        <p><strong>Data:</strong> {{ pedido.data_pedido|date:"d/m/Y H:i" }}</p>
                         <p><strong>Status:</strong> {{ pedido.get_status_display }}</p>
                         <p><strong>Produto:</strong> {{ pedido.produto.nome }}</p>
                         <p><strong>Quantidade:</strong> {{ pedido.quantidade }} {{ pedido.produto.unidade_medida }}</p>

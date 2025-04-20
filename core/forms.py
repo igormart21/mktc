@@ -110,7 +110,7 @@ OrderItemFormSet = forms.inlineformset_factory(
 class SellerRegistrationForm(forms.ModelForm):
     class Meta:
         model = Usuario
-        fields = ['email', 'nome', 'sobrenome', 'cpf', 'telefone', 'endereco', 'cidade', 'estado', 'cep', 'tipo_documento', 'numero_documento', 'documento', 'hectares_atendidos']
+        fields = ['email', 'nome', 'sobrenome', 'cpf', 'telefone', 'endereco', 'bairro', 'cidade', 'estado', 'cep', 'tipo_documento', 'numero_documento', 'documento', 'hectares_atendidos']
     
     nome = forms.CharField(
         max_length=100, 
@@ -203,6 +203,12 @@ class SellerRegistrationForm(forms.ModelForm):
         required=True,
         widget=forms.CheckboxSelectMultiple()
     )
+    bairro = forms.CharField(
+        max_length=100,
+        label='Bairro',
+        required=True,
+        widget=forms.TextInput(attrs={'class': 'form-control'})
+    )
 
     def clean_cpf(self):
         cpf = self.cleaned_data.get('cpf')
@@ -214,6 +220,7 @@ class SellerRegistrationForm(forms.ModelForm):
         user = super().save(commit=False)
         user.is_active = False
         user.is_vendedor = True
+        user.sobrenome = self.cleaned_data['sobrenome']
         if commit:
             user.save()
             # Criar o vendedor associado
@@ -222,19 +229,25 @@ class SellerRegistrationForm(forms.ModelForm):
                 nome_fantasia=f"{self.cleaned_data['nome']} {self.cleaned_data['sobrenome']}",
                 telefone=self.cleaned_data['telefone'],
                 endereco=self.cleaned_data['endereco'],
+                bairro=self.cleaned_data['bairro'],
                 cidade=self.cleaned_data['cidade'],
                 estado=self.cleaned_data['estado'],
                 cep=self.cleaned_data['cep'],
                 hectares_atendidos=self.cleaned_data['hectares_atendidos'],
                 culturas_atendidas=self.cleaned_data['culturas_atendidas']
             )
-            
             # Salvar os campos de documento
             user.tipo_documento = self.cleaned_data['tipo_documento']
             user.numero_documento = self.cleaned_data['numero_documento']
             user.documento = self.cleaned_data['documento']
             user.save()
-            
+            # Salvar o documento também no campo rg ou cnh do vendedor, conforme o tipo
+            if self.cleaned_data['tipo_documento'] == 'RG':
+                vendedor.rg = self.cleaned_data['documento']
+                vendedor.save()
+            elif self.cleaned_data['tipo_documento'] == 'CNH':
+                vendedor.cnh = self.cleaned_data['documento']
+                vendedor.save()
         return user
 
 class LoginForm(forms.Form):

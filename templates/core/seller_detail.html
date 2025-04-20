@@ -96,14 +96,14 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
-                            <p><strong>CEP:</strong> {{ seller.usuario.cep }}</p>
-                            <p><strong>Endereço:</strong> {{ seller.usuario.rua }}</p>
-                            <p><strong>Número:</strong> {{ seller.usuario.numero }}</p>
+                            <p><strong>CEP:</strong> {{ seller.cep }}</p>
+                            <p><strong>Endereço:</strong> {{ seller.endereco }}</p>
+                            <p><strong>Número:</strong> {{ seller.numero }}</p>
                         </div>
                         <div class="col-md-6">
-                            <p><strong>Bairro:</strong> {{ seller.usuario.bairro|default:"-" }}</p>
-                            <p><strong>Cidade:</strong> {{ seller.usuario.cidade|default:"-" }}</p>
-                            <p><strong>Estado:</strong> {{ seller.usuario.estado|default:"-" }}</p>
+                            <p><strong>Bairro:</strong> {{ seller.bairro|default:"-" }}</p>
+                            <p><strong>Cidade:</strong> {{ seller.cidade|default:"-" }}</p>
+                            <p><strong>Estado:</strong> {{ seller.estado|default:"-" }}</p>
                         </div>
                     </div>
                 </div>
@@ -120,13 +120,19 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
-                            {% if seller.rg %}
+                            {% if seller.rg or seller.usuario.documento %}
                                 <div class="mb-3">
                                     <p class="mb-2"><strong>RG:</strong></p>
                                     <div class="d-flex align-items-center">
-                                        <a href="{{ seller.rg.url }}" target="_blank" class="btn btn-outline-primary me-2">
-                                            <i class="fas fa-file-alt me-2"></i>Visualizar RG
-                                        </a>
+                                        {% if seller.rg %}
+                                            <a href="{{ seller.rg.url }}" target="_blank" class="btn btn-outline-primary me-2">
+                                                <i class="fas fa-file-alt me-2"></i>Visualizar RG
+                                            </a>
+                                        {% elif seller.usuario.documento %}
+                                            <a href="{{ seller.usuario.documento.url }}" target="_blank" class="btn btn-outline-primary me-2">
+                                                <i class="fas fa-file-alt me-2"></i>Visualizar Documento
+                                            </a>
+                                        {% endif %}
                                         <span class="badge bg-success">Documento enviado</span>
                                     </div>
                                 </div>
@@ -138,13 +144,19 @@
                             {% endif %}
                         </div>
                         <div class="col-md-6">
-                            {% if seller.cnh %}
+                            {% if seller.cnh or seller.usuario.documento %}
                                 <div class="mb-3">
                                     <p class="mb-2"><strong>CNH:</strong></p>
                                     <div class="d-flex align-items-center">
-                                        <a href="{{ seller.cnh.url }}" target="_blank" class="btn btn-outline-primary me-2">
-                                            <i class="fas fa-file-alt me-2"></i>Visualizar CNH
-                                        </a>
+                                        {% if seller.cnh %}
+                                            <a href="{{ seller.cnh.url }}" target="_blank" class="btn btn-outline-primary me-2">
+                                                <i class="fas fa-file-alt me-2"></i>Visualizar CNH
+                                            </a>
+                                        {% elif seller.usuario.documento %}
+                                            <a href="{{ seller.usuario.documento.url }}" target="_blank" class="btn btn-outline-primary me-2">
+                                                <i class="fas fa-file-alt me-2"></i>Visualizar Documento
+                                            </a>
+                                        {% endif %}
                                         <span class="badge bg-success">Documento enviado</span>
                                     </div>
                                 </div>
@@ -196,6 +208,33 @@
                                                     <iframe src="{{ seller.cnh.url }}" width="100%" height="300" frameborder="0"></iframe>
                                                 {% else %}
                                                     <img src="{{ seller.cnh.url }}" alt="CNH" class="img-fluid">
+                                                {% endif %}
+                                            {% else %}
+                                                <div class="text-center p-3">
+                                                    <p class="text-muted">Documento não disponível</p>
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="row mt-4">
+                        <div class="col-md-12">
+                            {% if seller.usuario.documento %}
+                                <div class="card mb-4">
+                                    <div class="card-header bg-light">
+                                        <h6 class="mb-0">Visualização do Documento Principal</h6>
+                                    </div>
+                                    <div class="card-body p-0">
+                                        <div class="document-preview text-center p-3">
+                                            {% if seller.usuario.documento.url %}
+                                                {% if seller.usuario.documento.name|slice:"-4:" == '.pdf' %}
+                                                    <iframe src="{{ seller.usuario.documento.url }}" width="100%" height="400" frameborder="0"></iframe>
+                                                {% else %}
+                                                    <img src="{{ seller.usuario.documento.url }}" alt="Documento do Vendedor" class="img-fluid" style="max-width:300px; max-height:400px;">
                                                 {% endif %}
                                             {% else %}
                                                 <div class="text-center p-3">

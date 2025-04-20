@@ -55,15 +55,15 @@ class VendaRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Venda.objects.all()
     serializer_class = VendaSerializer
 
-class HistoricoVendasView(LoginRequiredMixin, ListView):
+class VendaListView(ListView):
     model = Venda
     template_name = 'vendas/historico_vendas.html'
     context_object_name = 'vendas'
-    ordering = ['-data_criacao']
-    login_url = '/login/'
+    paginate_by = 10
+    ordering = ['-data_pedido']
 
     def get_queryset(self):
-        return Venda.objects.filter(vendedor=self.request.user).order_by('-data_criacao')
+        return Venda.objects.filter(vendedor=self.request.user).order_by('-data_pedido')
 
 @login_required
 def solicitar_compra(request, produto_id):
@@ -111,47 +111,26 @@ def meus_pedidos(request):
         # Tenta obter a instância do modelo Usuario correspondente ao usuário autenticado
         usuario = Usuario.objects.get(email=request.user.email)
         
-        # Tenta obter os pedidos onde o usuário é o vendedor
-        pedidos = []
+        try:
+            # Primeiro tenta buscar os pedidos do app vendas
+            pedidos = list(Pedido.objects.filter(comprador=usuario).order_by('-data_pedido'))
+        except (ImportError, OperationalError):
+            # Se não encontrar, busca do core
+            pedidos = []
         
         try:
-            # Primeiro tenta carregar dos pedidos do modelo do app vendas (se disponível)
-            from vendas.models import Pedido as VendasPedido
-            pedidos = list(VendasPedido.objects.filter(vendedor=usuario).order_by('-data_pedido'))
+            # Busca as vendas usando o modelo Venda do app vendas
+            vendas = Venda.objects.filter(vendedor=request.user).order_by('-data_criacao')
         except (ImportError, OperationalError):
-            # Se não conseguir, tenta carregar dos pedidos do core
-            pedidos = list(CorePedido.objects.filter(comprador=usuario).order_by('-data_criacao'))
+            vendas = []
         
-        if not pedidos:
-            # Se ainda não tiver pedidos, tenta buscar vendas
-            try:
-                vendas = Venda.objects.filter(vendedor__usuario=usuario).order_by('-data_criacao')
-                # Converte vendas para um formato compatível com pedidos para exibição
-                pedidos = []
-                for venda in vendas:
-                    if hasattr(venda, 'pedido') and venda.pedido:
-                        pedidos.append(venda.pedido)
-            except Exception as e:
-                # Em caso de erro, apenas continua com a lista vazia
-                pass
-        
-        # Renderiza o template com os pedidos encontrados
         return render(request, 'vendas/meus_pedidos.html', {
-            'pedidos': pedidos
+            'pedidos': pedidos,
+            'vendas': vendas
         })
     except Usuario.DoesNotExist:
         messages.error(request, 'Seu perfil de usuário não está configurado corretamente.')
-        return render(request, 'vendas/meus_pedidos.html', {
-            'pedidos': [],
-            'message': 'Seu perfil de usuário não está configurado corretamente.'
-        })
-    except Exception as e:
-        # Trata qualquer outro erro que possa ocorrer
-        messages.error(request, f'Ocorreu um erro ao buscar seus pedidos. Estamos trabalhando para resolver isso.')
-        return render(request, 'vendas/meus_pedidos.html', {
-            'pedidos': [],
-            'message': 'Estamos passando por manutenção. Por favor, tente novamente mais tarde.'
-        })
+        return redirect('core:home')
 
 @login_required
 def cancelar_pedido(request, pedido_id):
@@ -242,7 +221,7 @@ def editar_pedido(request, pedido_id):
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
 def lista_pedidos_admin(request):
-    pedidos = CorePedido.objects.all().order_by('-data_criacao')
+    pedidos = CorePedido.objects.all().order_by('-data_pedido')
     return render(request, 'vendas/admin/lista_pedidos.html', {'pedidos': pedidos})
 
 @login_required

@@ -116,7 +116,7 @@
                                 </div>
                                 <div class="flex-grow-1 ms-3">
                                     <h6 class="mb-1">{{ pedido.produto.nome }}</h6>
-                                    <small class="text-muted">{{ pedido.data_criacao|date:"d/m/Y H:i" }}</small>
+                                    <small class="text-muted">{{ pedido.data_pedido|date:"d/m/Y H:i" }}</small>
                                 </div>
                                 <div class="flex-shrink-0">
                                     <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#pedidoModal{{ pedido.id }}">
@@ -141,7 +141,7 @@
                                         </div>
                                         <div class="mb-3">
                                             <h6 class="text-muted mb-2">Data do Pedido</h6>
-                                            <p class="mb-0">{{ pedido.data_criacao|date:"d/m/Y H:i" }}</p>
+                                            <p class="mb-0">{{ pedido.data_pedido|date:"d/m/Y H:i" }}</p>
                                         </div>
                                         <div class="mb-3">
                                             <h6 class="text-muted mb-2">Status</h6>

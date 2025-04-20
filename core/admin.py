@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Order, OrderItem, SellerRegistration, Product
+from .models import Order, OrderItem, SellerRegistration, Product, Pedido
 
 class OrderItemInline(admin.TabularInline):
     model = OrderItem
@@ -42,3 +42,10 @@ class SellerRegistrationAdmin(admin.ModelAdmin):
     class Meta:
         verbose_name = 'Cadastro de Vendedor'
         verbose_name_plural = 'Cadastros de Vendedores'
+
+@admin.register(Pedido)
+class PedidoAdmin(admin.ModelAdmin):
+    list_display = ['id', 'comprador', 'vendedor', 'nome_propriedade', 'status', 'tipo_venda', 'data_criacao']
+    list_filter = ['status', 'tipo_venda', 'data_criacao']
+    search_fields = ['nome_propriedade', 'cnpj', 'cidade']
+    readonly_fields = ['data_criacao', 'data_atualizacao']
