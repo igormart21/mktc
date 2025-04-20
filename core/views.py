@@ -1227,23 +1227,23 @@ def rejeitar_venda(request, venda_id):
 def historico_pedidos_vendedor(request):
     """Lista o histórico de pedidos do vendedor logado"""
     vendedor = request.user.vendedor
-    
-    # Temporariamente substituindo a consulta problemática
-    # pedidos = Pedido.objects.filter(vendedor=vendedor).order_by('-data_pedido')
-    pedidos = []
-    
+    pedidos = Pedido.objects.filter(vendedor=vendedor).order_by('-data_pedido')
     # Filtros
     status = request.GET.get('status')
     data_inicio = request.GET.get('data_inicio')
     data_fim = request.GET.get('data_fim')
-    
+    if status:
+        pedidos = pedidos.filter(status=status)
+    if data_inicio:
+        pedidos = pedidos.filter(data_pedido__date__gte=data_inicio)
+    if data_fim:
+        pedidos = pedidos.filter(data_pedido__date__lte=data_fim)
     context = {
         'pedidos': pedidos,
-        'status_choices': [('PENDENTE', 'Pendente'), ('APROVADO', 'Aprovado'), ('REJEITADO', 'Rejeitado')],  # Substituição temporária para Pedido.STATUS_CHOICES
+        'status_choices': [('PENDENTE', 'Pendente'), ('APROVADO', 'Aprovado'), ('REJEITADO', 'Rejeitado')],
         'status_selecionado': status,
         'data_inicio': data_inicio,
         'data_fim': data_fim,
-        'aviso_manutencao': 'Sistema em manutenção. Histórico de pedidos temporariamente indisponível.'
     }
     return render(request, 'core/historico_pedidos.html', context)
 

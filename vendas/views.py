@@ -107,51 +107,12 @@ def solicitar_compra(request, produto_id):
 
 @login_required
 def meus_pedidos(request):
-    try:
-        # Tenta obter a instância do modelo Usuario correspondente ao usuário autenticado
-        usuario = Usuario.objects.get(email=request.user.email)
-        
-        # Tenta obter os pedidos onde o usuário é o vendedor
+    vendedor = getattr(request.user, 'vendedor', None)
+    if vendedor:
+        pedidos = Pedido.objects.filter(vendedor=vendedor).order_by('-data_pedido')
+    else:
         pedidos = []
-        
-        try:
-            # Primeiro tenta carregar dos pedidos do modelo do app vendas (se disponível)
-            from vendas.models import Pedido as VendasPedido
-            pedidos = list(VendasPedido.objects.filter(vendedor=usuario).order_by('-data_pedido'))
-        except (ImportError, OperationalError):
-            # Se não conseguir, tenta carregar dos pedidos do core
-            pedidos = list(CorePedido.objects.filter(comprador=usuario).order_by('-data_criacao'))
-        
-        if not pedidos:
-            # Se ainda não tiver pedidos, tenta buscar vendas
-            try:
-                vendas = Venda.objects.filter(vendedor__usuario=usuario).order_by('-data_criacao')
-                # Converte vendas para um formato compatível com pedidos para exibição
-                pedidos = []
-                for venda in vendas:
-                    if hasattr(venda, 'pedido') and venda.pedido:
-                        pedidos.append(venda.pedido)
-            except Exception as e:
-                # Em caso de erro, apenas continua com a lista vazia
-                pass
-        
-        # Renderiza o template com os pedidos encontrados
-        return render(request, 'vendas/meus_pedidos.html', {
-            'pedidos': pedidos
-        })
-    except Usuario.DoesNotExist:
-        messages.error(request, 'Seu perfil de usuário não está configurado corretamente.')
-        return render(request, 'vendas/meus_pedidos.html', {
-            'pedidos': [],
-            'message': 'Seu perfil de usuário não está configurado corretamente.'
-        })
-    except Exception as e:
-        # Trata qualquer outro erro que possa ocorrer
-        messages.error(request, f'Ocorreu um erro ao buscar seus pedidos. Estamos trabalhando para resolver isso.')
-        return render(request, 'vendas/meus_pedidos.html', {
-            'pedidos': [],
-            'message': 'Estamos passando por manutenção. Por favor, tente novamente mais tarde.'
-        })
+    return render(request, 'vendas/meus_pedidos.html', {'pedidos': pedidos})
 
 @login_required
 def cancelar_pedido(request, pedido_id):
