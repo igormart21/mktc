@@ -33,9 +33,7 @@
                     <td>{{ pedido.nome_propriedade }}</td>
                     <td>{{ pedido.cnpj }}</td>
                     <td>
-                        {% if pedido.data_criacao %}
-                            {{ pedido.data_criacao|date:"d/m/Y H:i" }}
-                        {% elif pedido.data_pedido %}
+                        {% if pedido.data_pedido %}
                             {{ pedido.data_pedido|date:"d/m/Y H:i" }}
                         {% else %}
                             Data não disponível
@@ -102,9 +100,7 @@
                 <div class="mb-3">
                     <h6>Informações do Pedido</h6>
                     <p><strong>Data:</strong> 
-                        {% if pedido.data_criacao %}
-                            {{ pedido.data_criacao|date:"d/m/Y H:i" }}
-                        {% elif pedido.data_pedido %}
+                        {% if pedido.data_pedido %}
                             {{ pedido.data_pedido|date:"d/m/Y H:i" }}
                         {% else %}
                             Data não disponível

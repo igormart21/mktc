@@ -55,15 +55,15 @@ class VendaRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Venda.objects.all()
     serializer_class = VendaSerializer
 
-class HistoricoVendasView(LoginRequiredMixin, ListView):
+class VendaListView(ListView):
     model = Venda
     template_name = 'vendas/historico_vendas.html'
     context_object_name = 'vendas'
-    ordering = ['-data_criacao']
-    login_url = '/login/'
+    paginate_by = 10
+    ordering = ['-data_pedido']
 
     def get_queryset(self):
-        return Venda.objects.filter(vendedor=self.request.user).order_by('-data_criacao')
+        return Venda.objects.filter(vendedor=self.request.user).order_by('-data_pedido')
 
 @login_required
 def solicitar_compra(request, produto_id):
@@ -107,12 +107,39 @@ def solicitar_compra(request, produto_id):
 
 @login_required
 def meus_pedidos(request):
+<<<<<<< HEAD
     vendedor = getattr(request.user, 'vendedor', None)
     if vendedor:
         pedidos = Pedido.objects.filter(vendedor=vendedor).order_by('-data_pedido')
     else:
         pedidos = []
     return render(request, 'vendas/meus_pedidos.html', {'pedidos': pedidos})
+=======
+    try:
+        # Tenta obter a instância do modelo Usuario correspondente ao usuário autenticado
+        usuario = Usuario.objects.get(email=request.user.email)
+        
+        try:
+            # Primeiro tenta buscar os pedidos do app vendas
+            pedidos = list(Pedido.objects.filter(comprador=usuario).order_by('-data_pedido'))
+        except (ImportError, OperationalError):
+            # Se não encontrar, busca do core
+            pedidos = []
+        
+        try:
+            # Busca as vendas usando o modelo Venda do app vendas
+            vendas = Venda.objects.filter(vendedor=request.user).order_by('-data_criacao')
+        except (ImportError, OperationalError):
+            vendas = []
+        
+        return render(request, 'vendas/meus_pedidos.html', {
+            'pedidos': pedidos,
+            'vendas': vendas
+        })
+    except Usuario.DoesNotExist:
+        messages.error(request, 'Seu perfil de usuário não está configurado corretamente.')
+        return redirect('core:home')
+>>>>>>> fde08519d84a5fa5a718dec41d10f5357d309d6d
 
 @login_required
 def cancelar_pedido(request, pedido_id):
@@ -203,7 +230,7 @@ def editar_pedido(request, pedido_id):
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
 def lista_pedidos_admin(request):
-    pedidos = CorePedido.objects.all().order_by('-data_criacao')
+    pedidos = CorePedido.objects.all().order_by('-data_pedido')
     return render(request, 'vendas/admin/lista_pedidos.html', {'pedidos': pedidos})
 
 @login_required

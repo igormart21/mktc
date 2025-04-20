@@ -139,7 +139,7 @@ def superadmin_dashboard(request):
     recent_orders = Order.objects.order_by('-created_at')[:5]
     recent_products = Product.objects.order_by('-created_at')[:5]
     recent_sellers = Vendedor.objects.order_by('-created_at')[:5]
-    vendas_pendentes = Venda.objects.filter(status='PENDENTE').order_by('-data_criacao')[:5]
+    vendas_pendentes = Venda.objects.filter(status='PENDENTE').order_by('-data_venda')[:5]
 
     context = {
         'total_products': total_products,
@@ -168,7 +168,7 @@ def seller_dashboard(request):
     recent_products = Produto.objects.filter(vendedor=vendedor).order_by('-created_at')[:5]
 
     # Pedidos do vendedor
-    pedidos = Pedido.objects.filter(vendedor=request.user)
+    pedidos = Pedido.objects.filter(vendedor=vendedor)
     total_pedidos = pedidos.count()
     pedidos_pendentes = pedidos.filter(status='PENDENTE').count()
     pedidos_aprovados = pedidos.filter(status='APROVADO').count()
@@ -661,11 +661,9 @@ def carrinho(request):
     if request.method == 'POST':
         tipo_venda = request.POST.get('tipo_venda')
         carrinho = Carrinho(request)
-        
         if not carrinho:
             messages.error(request, 'Seu carrinho está vazio.')
             return redirect('core:carrinho')
-            
         # Obter o primeiro item do carrinho para referência
         primeiro_item = next(iter(carrinho), None)
         if not primeiro_item:
@@ -684,9 +682,9 @@ def carrinho(request):
                 comprador=request.user,
                 vendedor_id=vendedor_produto,  # Associar vendedor corretamente
                 produto=primeiro_item['produto'],
-                quantidade=1,  # Será atualizado pelos itens
-                preco_unitario=0,  # Será atualizado pelos itens
-                total=0,  # Será atualizado pelos itens
+                quantidade=1,
+                preco_unitario=0,
+                total=0,
                 status='PENDENTE',
                 nome_propriedade='A definir',
                 cnpj='A definir',
@@ -697,8 +695,6 @@ def carrinho(request):
                 endereco='A definir',
                 cep='00000000'
             )
-            
-            # Criar itens do pedido
             for item in carrinho:
                 ItemPedido.objects.create(
                     pedido=pedido,
@@ -706,11 +702,9 @@ def carrinho(request):
                     quantidade=item['quantidade'],
                     preco_unitario=item['preco']
                 )
-            
             carrinho.limpar()
             messages.success(request, 'Pedido realizado com sucesso!')
             return redirect('core:pedidos')
-            
         elif tipo_venda == 'prazo':
             venda_prazo_form = VendaPrazoForm(request.POST, request.FILES)
             if venda_prazo_form.is_valid():
@@ -725,9 +719,9 @@ def carrinho(request):
                     comprador=request.user,
                     vendedor_id=vendedor_produto,  # Associar vendedor corretamente
                     produto=primeiro_item['produto'],
-                    quantidade=1,  # Será atualizado pelos itens
-                    preco_unitario=0,  # Será atualizado pelos itens
-                    total=0,  # Será atualizado pelos itens
+                    quantidade=1,
+                    preco_unitario=0,
+                    total=0,
                     status='PENDENTE',
                     nome_propriedade='A definir',
                     cnpj='A definir',
@@ -738,8 +732,6 @@ def carrinho(request):
                     endereco='A definir',
                     cep='00000000'
                 )
-                
-                # Criar itens do pedido
                 for item in carrinho:
                     ItemPedido.objects.create(
                         pedido=pedido,
@@ -747,7 +739,6 @@ def carrinho(request):
                         quantidade=item['quantidade'],
                         preco_unitario=item['preco']
                     )
-                
                 carrinho.limpar()
                 messages.success(request, 'Pedido realizado com sucesso!')
                 return redirect('core:pedidos')
@@ -766,10 +757,28 @@ def carrinho(request):
         })
 
 def adicionar_ao_carrinho(request, product_id):
-    produto = get_object_or_404(Product, id=product_id)
+    from django.contrib import messages
+    from django.shortcuts import redirect
+    from core.models import Product
+    from produtos.models import Produto
+    from .carrinho import Carrinho
+    produto = None
+    produto_nome = None
+    # Tenta buscar no modelo Product (core)
+    try:
+        produto = Product.objects.get(id=product_id)
+        produto_nome = produto.name
+    except Product.DoesNotExist:
+        # Se não encontrar, tenta buscar no modelo Produto (produtos)
+        try:
+            produto = Produto.objects.get(id=product_id)
+            produto_nome = produto.nome
+        except Produto.DoesNotExist:
+            messages.error(request, 'Produto não encontrado ou não disponível.')
+            return redirect('core:carrinho')
     carrinho = Carrinho(request)
     carrinho.adicionar(produto)
-    messages.success(request, f'{produto.name} adicionado ao carrinho!')
+    messages.success(request, f'{produto_nome} adicionado ao carrinho!')
     return redirect('core:carrinho')
 
 def remover_do_carrinho(request, product_id):
@@ -783,8 +792,33 @@ def remover_do_carrinho(request, product_id):
 @user_passes_test(is_superadmin)
 def superadmin_orders(request):
     """Lista todos os pedidos para o superadmin"""
-    orders = Order.objects.all()
-    return render(request, 'core/superadmin_orders.html', {'orders': orders})
+    # Filtros
+    status = request.GET.get('status')
+    data_inicio = request.GET.get('data_inicio')
+    data_fim = request.GET.get('data_fim')
+    
+    # Obter todos os pedidos
+    orders = Order.objects.all().order_by('-created_at')
+    
+    # Aplicar filtros
+    if status:
+        orders = orders.filter(status=status)
+    if data_inicio:
+        orders = orders.filter(created_at__date__gte=data_inicio)
+    if data_fim:
+        orders = orders.filter(created_at__date__lte=data_fim)
+    
+    # Paginação
+    paginator = Paginator(orders, 20)  # 20 itens por página
+    page = request.GET.get('page')
+    orders = paginator.get_page(page)
+    
+    context = {
+        'orders': orders,
+        'status_choices': Order.STATUS_CHOICES,
+        'current_status': status,
+    }
+    return render(request, 'core/superadmin_orders.html', context)
 
 @login_required
 @user_passes_test(is_superadmin)
@@ -1192,8 +1226,8 @@ def admin_profile(request):
 @login_required
 @user_passes_test(is_superadmin)
 def listar_vendas_pendentes(request):
-    """Lista todas as vendas pendentes de aprovação"""
-    vendas_pendentes = Venda.objects.filter(status='PENDENTE').order_by('-data_criacao')
+    """Lista todas as vendas pendentes"""
+    vendas_pendentes = Venda.objects.filter(status='PENDENTE').order_by('-data_venda')
     return render(request, 'core/listar_vendas_pendentes.html', {'vendas': vendas_pendentes})
 
 @login_required
@@ -1251,21 +1285,16 @@ def historico_pedidos_vendedor(request):
 @user_passes_test(is_superadmin)
 def historico_pedidos_vendedor_admin(request, vendedor_id):
     vendedor = get_object_or_404(Vendedor, id=vendedor_id)
-    usuario = vendedor.usuario  # Obtém o objeto Usuario associado ao vendedor
-    
-    # Filtros
-    status = request.GET.get('status')
-    data_inicio = request.GET.get('data_inicio')
-    data_fim = request.GET.get('data_fim')
+    usuario = vendedor.usuario
     
     # Temporariamente substituindo a consulta problemática
-    # pedidos = Pedido.objects.filter(vendedor=usuario).order_by('-data_pedido')
+    # pedidos = Pedido.objects.filter(vendedor=usuario).order_by('-data_criacao')
     pedidos = []
     
     context = {
         'vendedor': vendedor,
         'pedidos': pedidos,
-        'status_choices': [('PENDENTE', 'Pendente'), ('APROVADO', 'Aprovado'), ('REJEITADO', 'Rejeitado')],  # Substituição temporária para Pedido.STATUS_CHOICES
+        'status_choices': [('PENDENTE', 'Pendente'), ('APROVADO', 'Aprovado'), ('REJEITADO', 'Rejeitado')],
         'aviso_manutencao': 'Sistema em manutenção. Histórico de pedidos temporariamente indisponível.'
     }
     return render(request, 'core/historico_pedidos.html', context)
@@ -1327,8 +1356,8 @@ def superadmin_compras_vendedores(request):
     # Lista de vendedores para o filtro
     vendedores = Vendedor.objects.all().order_by('nome_fantasia')
     
-    # Obter todas as vendas (temporariamente usaremos o modelo Venda)
-    vendas = Venda.objects.filter(status__in=['ACEITO', 'PROCESSANDO']).order_by('-data_criacao')
+    # Obter todas as vendas
+    vendas = Venda.objects.filter(status__in=['ACEITO', 'PROCESSANDO']).order_by('-data_venda')
     
     # Aplicar filtros
     if vendedor_id:
@@ -1344,7 +1373,7 @@ def superadmin_compras_vendedores(request):
     if data_inicio:
         try:
             data_inicio = timezone.datetime.strptime(data_inicio, '%Y-%m-%d')
-            vendas = vendas.filter(data_criacao__gte=data_inicio)
+            vendas = vendas.filter(data_venda__gte=data_inicio)
         except ValueError:
             pass
             
@@ -1352,7 +1381,7 @@ def superadmin_compras_vendedores(request):
         try:
             data_fim = timezone.datetime.strptime(data_fim, '%Y-%m-%d')
             data_fim = data_fim.replace(hour=23, minute=59, second=59)
-            vendas = vendas.filter(data_criacao__lte=data_fim)
+            vendas = vendas.filter(data_venda__lte=data_fim)
         except ValueError:
             pass
     
@@ -1378,34 +1407,51 @@ def superadmin_compras_vendedores(request):
     return render(request, 'core/superadmin_compras_vendedores.html', context)
 
 @login_required
-@superuser_required
+@user_passes_test(is_superadmin)
 def superadmin_pedidos(request):
-    from vendas.models import Pedido  # Importa o modelo correto
-    pedidos = Pedido.objects.all().order_by('-data_pedido')
-    
-    # Filtros (opcional, pode ajustar conforme necessário)
+    """Lista todos os pedidos para o superadmin"""
+    # Filtros
     status = request.GET.get('status')
     tipo_venda = request.GET.get('tipo_venda')
     data_inicio = request.GET.get('data_inicio')
     data_fim = request.GET.get('data_fim')
     
+    # Obter todos os pedidos
+    pedidos = Pedido.objects.all().order_by('-data_pedido')
+    
+    # Aplicar filtros
     if status:
         pedidos = pedidos.filter(status=status)
-    
     if tipo_venda:
         pedidos = pedidos.filter(tipo_venda=tipo_venda)
-    
     if data_inicio:
-        pedidos = pedidos.filter(data_pedido__date__gte=data_inicio)
-    
+        try:
+            data_inicio = timezone.datetime.strptime(data_inicio, '%Y-%m-%d')
+            pedidos = pedidos.filter(data_pedido__gte=data_inicio)
+        except ValueError:
+            pass
     if data_fim:
-        pedidos = pedidos.filter(data_pedido__date__lte=data_fim)
+        try:
+            data_fim = timezone.datetime.strptime(data_fim, '%Y-%m-%d')
+            data_fim = data_fim.replace(hour=23, minute=59, second=59)
+            pedidos = pedidos.filter(data_pedido__lte=data_fim)
+        except ValueError:
+            pass
+    
+    # Paginação
+    paginator = Paginator(pedidos, 20)  # 20 itens por página
+    page = request.GET.get('page')
+    pedidos = paginator.get_page(page)
     
     context = {
         'pedidos': pedidos,
         'status_choices': Pedido.STATUS_CHOICES,
+        'tipo_venda_choices': Pedido.TIPO_VENDA_CHOICES,
+        'current_status': status,
+        'current_tipo_venda': tipo_venda,
+        'data_inicio': data_inicio,
+        'data_fim': data_fim,
     }
-    
     return render(request, 'core/superadmin_pedidos.html', context)
 
 def solicitar_compra(request, product_id):

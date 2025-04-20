@@ -1,0 +1,1378 @@
+Watching for file changes with StatReloader
+[17/Apr/2025 23:20:23] "GET /login/?next=/superadmin/dashboard/ HTTP/1.1" 200 9686
+[17/Apr/2025 23:20:23] "GET /static/img/user-lock.svg HTTP/1.1" 304 0
+[17/Apr/2025 23:20:23] "GET /static/css/style.css?v=1744942823 HTTP/1.1" 200 12058
+Not Found: /favicon.ico
+[17/Apr/2025 23:20:23] "GET /favicon.ico HTTP/1.1" 404 25074
+[17/Apr/2025 23:20:39] "POST /login/ HTTP/1.1" 200 10407
+[17/Apr/2025 23:20:39] "GET /static/css/style.css?v=1744942839 HTTP/1.1" 200 12058
+[17/Apr/2025 23:23:01] "POST /login/ HTTP/1.1" 200 10407
+[17/Apr/2025 23:23:01] "GET /static/css/style.css?v=1744942981 HTTP/1.1" 200 12058
+[17/Apr/2025 23:23:18] "POST /login/ HTTP/1.1" 302 0
+[17/Apr/2025 23:23:18] "GET /dashboard/ HTTP/1.1" 302 0
+[17/Apr/2025 23:23:18] "GET /superadmin/dashboard/ HTTP/1.1" 200 19175
+[17/Apr/2025 23:23:22] "GET /superadmin/produtos/ HTTP/1.1" 200 31394
+[17/Apr/2025 23:23:24] "GET /vendas/meus-pedidos/ HTTP/1.1" 200 9573
+[17/Apr/2025 23:23:25] "GET /catalogo/ HTTP/1.1" 200 15687
+[17/Apr/2025 23:23:26] "GET /vendas/meus-pedidos/ HTTP/1.1" 200 9573
+[17/Apr/2025 23:23:27] "GET /catalogo/ HTTP/1.1" 200 15687
+[17/Apr/2025 23:23:27] "GET /admin/ HTTP/1.1" 200 11853
+[17/Apr/2025 23:23:27] "GET /static/admin/js/nav_sidebar.js HTTP/1.1" 200 3063
+[17/Apr/2025 23:23:27] "GET /static/admin/css/dashboard.css HTTP/1.1" 200 441
+[17/Apr/2025 23:23:27] "GET /static/admin/css/responsive.css HTTP/1.1" 200 17972
+[17/Apr/2025 23:23:31] "GET /admin/usuarios/usuario/1/change/ HTTP/1.1" 200 36327
+[17/Apr/2025 23:23:31] "GET /static/js/cep.js HTTP/1.1" 200 1487
+[17/Apr/2025 23:23:31] "GET /static/css/admin.css HTTP/1.1" 404 1966
+[17/Apr/2025 23:23:31] "GET /static/admin/js/calendar.js HTTP/1.1" 200 9141
+[17/Apr/2025 23:23:31] "GET /static/admin/js/jquery.init.js HTTP/1.1" 200 347
+[17/Apr/2025 23:23:31] "GET /static/js/documento.js HTTP/1.1" 200 954
+[17/Apr/2025 23:23:31] "GET /static/admin/js/admin/DateTimeShortcuts.js HTTP/1.1" 200 19319
+[17/Apr/2025 23:23:31] "GET /static/admin/js/admin/RelatedObjectLookups.js HTTP/1.1" 200 9097
+[17/Apr/2025 23:23:31] "GET /static/admin/js/prepopulate.js HTTP/1.1" 200 1531
+[17/Apr/2025 23:23:31] "GET /static/admin/js/core.js HTTP/1.1" 200 6208
+[17/Apr/2025 23:23:31] "GET /static/admin/js/actions.js HTTP/1.1" 200 8076
+[17/Apr/2025 23:23:31] "GET /admin/jsi18n/ HTTP/1.1" 200 8959
+[17/Apr/2025 23:23:31] "GET /static/admin/js/urlify.js HTTP/1.1" 200 7887
+[17/Apr/2025 23:23:31] "GET /static/admin/js/change_form.js HTTP/1.1" 200 606
+[17/Apr/2025 23:23:31] "GET /static/admin/js/vendor/jquery/jquery.js HTTP/1.1" 200 285314
+[17/Apr/2025 23:23:31] "GET /static/admin/js/vendor/xregexp/xregexp.js HTTP/1.1" 200 325171
+[17/Apr/2025 23:23:31] "GET /static/admin/img/search.svg HTTP/1.1" 200 458
+[17/Apr/2025 23:23:31] "GET /static/admin/img/icon-calendar.svg HTTP/1.1" 200 1086
+[17/Apr/2025 23:23:31] "GET /static/admin/img/icon-clock.svg HTTP/1.1" 200 677
+[17/Apr/2025 23:23:31] "GET /static/admin/img/selector-icons.svg HTTP/1.1" 200 3291
+[17/Apr/2025 23:23:31] "GET /static/admin/img/icon-unknown.svg HTTP/1.1" 200 655
+[17/Apr/2025 23:24:00] "GET /admin/usuarios/usuario/ HTTP/1.1" 200 17969
+[17/Apr/2025 23:24:00] "GET /static/admin/img/icon-no.svg HTTP/1.1" 200 560
+[17/Apr/2025 23:24:00] "GET /static/css/admin.css HTTP/1.1" 404 1966
+[17/Apr/2025 23:24:00] "GET /static/admin/css/changelists.css HTTP/1.1" 200 6878
+[17/Apr/2025 23:24:00] "GET /static/admin/js/filters.js HTTP/1.1" 200 978
+[17/Apr/2025 23:24:00] "GET /admin/jsi18n/ HTTP/1.1" 200 8959
+[17/Apr/2025 23:24:00] "GET /static/admin/img/icon-yes.svg HTTP/1.1" 200 436
+[17/Apr/2025 23:24:00] "GET /static/admin/img/tooltag-add.svg HTTP/1.1" 200 331
+[17/Apr/2025 23:24:00] "GET /static/admin/img/sorting-icons.svg HTTP/1.1" 200 1097
+[17/Apr/2025 23:24:00] "GET /static/admin/img/icon-viewlink.svg HTTP/1.1" 200 581
+[17/Apr/2025 23:24:06] "GET /admin/usuarios/usuario/2/change/ HTTP/1.1" 200 36614
+[17/Apr/2025 23:24:06] "GET /static/css/admin.css HTTP/1.1" 404 1966
+[17/Apr/2025 23:24:06] "GET /admin/jsi18n/ HTTP/1.1" 200 8959
+[17/Apr/2025 23:24:32] "GET / HTTP/1.1" 200 11918
+[17/Apr/2025 23:24:32] "GET /static/img/no-image.png HTTP/1.1" 200 394
+[17/Apr/2025 23:24:32] "GET /static/css/style.css?v=1744943072 HTTP/1.1" 200 12058
+[17/Apr/2025 23:24:33] "GET /superadmin/dashboard/ HTTP/1.1" 200 19175
+[17/Apr/2025 23:24:47] "GET /admin/ HTTP/1.1" 200 11853
+[17/Apr/2025 23:24:50] "GET / HTTP/1.1" 200 11918
+[17/Apr/2025 23:24:50] "GET /static/css/style.css?v=1744943090 HTTP/1.1" 200 12058
+[17/Apr/2025 23:24:52] "GET /superadmin/dashboard/ HTTP/1.1" 200 19175
+[17/Apr/2025 23:24:53] "GET /catalogo/ HTTP/1.1" 200 15687
+[17/Apr/2025 23:24:54] "GET /vendas/meus-pedidos/ HTTP/1.1" 200 9573
+[17/Apr/2025 23:24:55] "GET /vendedores/ HTTP/1.1" 200 11789
+[17/Apr/2025 23:24:56] "GET /vendedores/1/editar/ HTTP/1.1" 200 32072
+[17/Apr/2025 23:25:36] "GET /superadmin/compras-vendedores/ HTTP/1.1" 200 13872
+[17/Apr/2025 23:25:42] "GET /vendedores/ HTTP/1.1" 200 11789
+[17/Apr/2025 23:25:44] "GET /vendedores/1/editar/ HTTP/1.1" 200 32072
+[17/Apr/2025 23:25:50] "GET /vendedores/1/ HTTP/1.1" 200 17597
+[17/Apr/2025 23:26:11] "GET /vendedores/ HTTP/1.1" 200 11789
+[17/Apr/2025 23:26:14] "GET /vendedores/1/ HTTP/1.1" 200 17597
+[17/Apr/2025 23:26:16] "GET /vendedores/ HTTP/1.1" 200 11789
+[17/Apr/2025 23:26:25] "GET /vendedores/1/ HTTP/1.1" 200 17597
+[17/Apr/2025 23:26:27] "GET /media/documentos/istockphoto-1225833268-612x612_2okdbOZ.jpeg HTTP/1.1" 304 0
+[17/Apr/2025 23:26:32] "GET /vendas/meus-pedidos/ HTTP/1.1" 200 9573
+[17/Apr/2025 23:26:33] "GET /vendedores/ HTTP/1.1" 200 11789
+[17/Apr/2025 23:26:36] "GET /catalogo/ HTTP/1.1" 200 15687
+[17/Apr/2025 23:26:39] "GET /vendas/meus-pedidos/ HTTP/1.1" 200 9573
+[17/Apr/2025 23:26:39] "GET /superadmin/produtos/ HTTP/1.1" 200 31394
+[17/Apr/2025 23:26:40] "GET /superadmin/produtos/criar/ HTTP/1.1" 200 18390
+[17/Apr/2025 23:27:59] "POST /superadmin/produtos/criar/ HTTP/1.1" 302 0
+[17/Apr/2025 23:27:59] "GET /superadmin/produtos/ HTTP/1.1" 200 33121
+[17/Apr/2025 23:27:59] "GET /media/produtos/istockphoto-1225833268-612x612.jpeg HTTP/1.1" 200 8029
+[17/Apr/2025 23:28:02] "GET /catalogo/ HTTP/1.1" 200 21774
+[17/Apr/2025 23:28:02] "GET /media/produtos/istockphoto-1225833268-612x612.jpeg HTTP/1.1" 304 0
+[17/Apr/2025 23:28:04] "GET /produtos/detalhe/1/ HTTP/1.1" 200 26586
+[17/Apr/2025 23:28:04] "GET /media/produtos/istockphoto-1225833268-612x612.jpeg HTTP/1.1" 304 0
+Not Found: /adicionar-ao-carrinho/1/
+[17/Apr/2025 23:28:11] "POST /adicionar-ao-carrinho/1/ HTTP/1.1" 404 16468
+Not Found: /adicionar-ao-carrinho/1/
+[17/Apr/2025 23:28:18] "POST /adicionar-ao-carrinho/1/ HTTP/1.1" 404 16468
+[17/Apr/2025 23:28:27] "GET /catalogo/ HTTP/1.1" 200 21774
+[17/Apr/2025 23:28:27] "GET /media/produtos/istockphoto-1225833268-612x612.jpeg HTTP/1.1" 304 0
+[17/Apr/2025 23:28:30] "POST /vendas/solicitar-compra/1/ HTTP/1.1" 302 0
+[17/Apr/2025 23:28:30] "GET /carrinho/ HTTP/1.1" 200 19476
+[17/Apr/2025 23:28:30] "GET /static/css/style.css?v=1744943310 HTTP/1.1" 200 12058
+[17/Apr/2025 23:28:30] "GET /media/produtos/istockphoto-1225833268-612x612.jpeg HTTP/1.1" 304 0
+[17/Apr/2025 23:28:41] "GET /vendas/meus-pedidos/ HTTP/1.1" 200 9573
+[17/Apr/2025 23:28:42] "GET /superadmin/produtos/ HTTP/1.1" 200 32766
+[17/Apr/2025 23:28:42] "GET /media/produtos/istockphoto-1225833268-612x612.jpeg HTTP/1.1" 304 0
+[17/Apr/2025 23:28:49] "GET /catalogo/ HTTP/1.1" 200 21774
+[17/Apr/2025 23:28:49] "GET /media/produtos/istockphoto-1225833268-612x612.jpeg HTTP/1.1" 304 0
+[17/Apr/2025 23:28:50] "GET /produtos/detalhe/1/ HTTP/1.1" 200 26586
+Not Found: /adicionar-ao-carrinho/1/
+[17/Apr/2025 23:28:53] "POST /adicionar-ao-carrinho/1/ HTTP/1.1" 404 16468
+[17/Apr/2025 23:28:56] "GET /catalogo/ HTTP/1.1" 200 21774
+[17/Apr/2025 23:28:56] "GET /media/produtos/istockphoto-1225833268-612x612.jpeg HTTP/1.1" 304 0
+[17/Apr/2025 23:28:59] "POST /vendas/solicitar-compra/1/ HTTP/1.1" 302 0
+[17/Apr/2025 23:28:59] "GET /carrinho/ HTTP/1.1" 200 19478
+[17/Apr/2025 23:28:59] "GET /static/css/style.css?v=1744943339 HTTP/1.1" 200 12058
+[17/Apr/2025 23:29:04] "POST /remover-do-carrinho/1/ HTTP/1.1" 302 0
+[17/Apr/2025 23:29:04] "GET /carrinho/ HTTP/1.1" 200 13390
+[17/Apr/2025 23:29:04] "GET /static/css/style.css?v=1744943344 HTTP/1.1" 200 12058
+[17/Apr/2025 23:29:06] "GET /catalogo/ HTTP/1.1" 200 21774
+[17/Apr/2025 23:29:06] "GET /media/produtos/istockphoto-1225833268-612x612.jpeg HTTP/1.1" 304 0
+[17/Apr/2025 23:29:08] "POST /vendas/solicitar-compra/1/ HTTP/1.1" 302 0
+[17/Apr/2025 23:29:08] "GET /carrinho/ HTTP/1.1" 200 19476
+[17/Apr/2025 23:29:08] "GET /static/css/style.css?v=1744943348 HTTP/1.1" 200 12058
+Internal Server Error: /carrinho/
+Traceback (most recent call last):
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/contrib/auth/decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/core/views.py", line 673, in carrinho
+    vendedor=primeiro_item['produto'].vendedor.usuario,  # Definindo o vendedor
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'usuario'
+[17/Apr/2025 23:29:17] "POST /carrinho/ HTTP/1.1" 500 68640
+Not Found: /superadmin/gerenciar-api/
+[18/Apr/2025 08:45:43] "GET /superadmin/gerenciar-api/ HTTP/1.1" 404 25116
+[18/Apr/2025 11:53:49] "GET /carrinho/ HTTP/1.1" 200 18756
+[18/Apr/2025 11:53:49] "GET /static/css/style.css?v=1744988029 HTTP/1.1" 200 12058
+[18/Apr/2025 11:53:49] "GET /media/produtos/istockphoto-1225833268-612x612.jpeg HTTP/1.1" 304 0
+[18/Apr/2025 11:53:56] "GET /logout/ HTTP/1.1" 302 0
+[18/Apr/2025 11:53:56] "GET / HTTP/1.1" 200 10795
+[18/Apr/2025 11:53:56] "GET /static/img/no-image.png HTTP/1.1" 304 0
+[18/Apr/2025 11:53:56] "GET /static/css/style.css?v=1744988036 HTTP/1.1" 200 12058
+[18/Apr/2025 11:53:58] "GET /login/ HTTP/1.1" 200 9686
+[18/Apr/2025 11:53:58] "GET /static/css/style.css?v=1744988038 HTTP/1.1" 200 12058
+[18/Apr/2025 11:53:58] "GET /static/img/user-lock.svg HTTP/1.1" 304 0
+[18/Apr/2025 11:54:35] "POST /login/ HTTP/1.1" 302 0
+[18/Apr/2025 11:54:38] "GET /dashboard/ HTTP/1.1" 302 0
+[18/Apr/2025 11:54:38] "GET /superadmin/dashboard/ HTTP/1.1" 200 19175
+[18/Apr/2025 11:54:42] "GET /vendedores/ HTTP/1.1" 200 11789
+[18/Apr/2025 11:54:44] "GET /vendedores/1/editar/ HTTP/1.1" 200 32072
+[18/Apr/2025 11:54:56] "GET / HTTP/1.1" 200 10795
+[18/Apr/2025 11:54:56] "GET /static/css/style.css?v=1744988096 HTTP/1.1" 200 12058
+[18/Apr/2025 11:54:56] "GET /static/img/no-image.png HTTP/1.1" 200 394
+[18/Apr/2025 11:54:59] "GET /login/ HTTP/1.1" 200 9686
+[18/Apr/2025 11:54:59] "GET /static/css/style.css?v=1744988099 HTTP/1.1" 200 12058
+[18/Apr/2025 11:54:59] "GET /static/img/user-lock.svg HTTP/1.1" 200 833
+[18/Apr/2025 11:55:06] "POST /login/ HTTP/1.1" 200 10407
+[18/Apr/2025 11:55:06] "GET /static/css/style.css?v=1744988106 HTTP/1.1" 200 12058
+[18/Apr/2025 11:55:11] "POST /login/ HTTP/1.1" 200 10407
+[18/Apr/2025 11:55:11] "GET /static/css/style.css?v=1744988111 HTTP/1.1" 200 12058
+[18/Apr/2025 11:55:13] "POST /login/ HTTP/1.1" 200 10407
+[18/Apr/2025 11:55:13] "GET /static/css/style.css?v=1744988113 HTTP/1.1" 200 12058
+[18/Apr/2025 11:55:35] "POST /vendedores/1/editar/ HTTP/1.1" 302 0
+[18/Apr/2025 11:55:35] "GET /vendedores/1/ HTTP/1.1" 200 18300
+[18/Apr/2025 11:55:49] "POST /login/ HTTP/1.1" 200 10407
+[18/Apr/2025 11:55:49] "GET /static/css/style.css?v=1744988149 HTTP/1.1" 200 12058
+[18/Apr/2025 11:55:56] "POST /login/ HTTP/1.1" 302 0
+[18/Apr/2025 11:55:56] "GET /dashboard/ HTTP/1.1" 302 0
+[18/Apr/2025 11:55:56] "GET /vendedor/dashboard/ HTTP/1.1" 200 15480
+[18/Apr/2025 11:55:59] "GET /catalogo/ HTTP/1.1" 200 20691
+[18/Apr/2025 11:55:59] "GET /media/produtos/istockphoto-1225833268-612x612.jpeg HTTP/1.1" 200 8029
+[18/Apr/2025 11:56:00] "GET /vendas/meus-pedidos/ HTTP/1.1" 200 8490
+[18/Apr/2025 11:56:01] "GET /catalogo/ HTTP/1.1" 200 20691
+[18/Apr/2025 11:56:01] "GET /vendedor/dashboard/ HTTP/1.1" 200 15480
+[18/Apr/2025 11:56:02] "GET /catalogo/ HTTP/1.1" 200 20691
+[18/Apr/2025 11:56:03] "GET /vendas/meus-pedidos/ HTTP/1.1" 200 8490
+[18/Apr/2025 11:56:11] "GET /vendedor/dashboard/ HTTP/1.1" 200 15480
+[18/Apr/2025 11:56:11] "GET /catalogo/ HTTP/1.1" 200 20691
+[18/Apr/2025 11:56:12] "GET /vendas/meus-pedidos/ HTTP/1.1" 200 8490
+[18/Apr/2025 11:56:15] "GET /vendedores/ HTTP/1.1" 200 11789
+[18/Apr/2025 11:56:17] "GET /vendedores/1/editar/ HTTP/1.1" 200 32078
+[18/Apr/2025 11:56:28] "GET /vendedor/dashboard/ HTTP/1.1" 200 15480
+[18/Apr/2025 11:56:29] "GET /catalogo/ HTTP/1.1" 200 20691
+[18/Apr/2025 11:56:29] "GET /vendas/meus-pedidos/ HTTP/1.1" 200 8490
+[18/Apr/2025 11:56:30] "GET /suporte/ HTTP/1.1" 200 14894
+[18/Apr/2025 11:56:31] "GET /vendedor/dashboard/ HTTP/1.1" 200 15480
+[18/Apr/2025 11:56:32] "GET /catalogo/ HTTP/1.1" 200 20691
+[18/Apr/2025 11:56:33] "GET /vendas/meus-pedidos/ HTTP/1.1" 200 8490
+[18/Apr/2025 11:56:34] "GET /suporte/ HTTP/1.1" 200 14894
+[18/Apr/2025 11:56:35] "GET /vendedor/perfil/ HTTP/1.1" 200 22362
+[18/Apr/2025 11:57:02] "GET /vendedores/1/ HTTP/1.1" 200 17597
+[18/Apr/2025 11:57:12] "GET /vendedores/ HTTP/1.1" 200 11789
+[18/Apr/2025 11:57:14] "GET /vendedores/1/ HTTP/1.1" 200 17597
+[18/Apr/2025 11:57:15] "GET /vendedores/ HTTP/1.1" 200 11789
+[18/Apr/2025 11:57:17] "GET /vendedores/1/editar/ HTTP/1.1" 200 32078
+[18/Apr/2025 11:59:01] "GET /vendedores/1/editar/ HTTP/1.1" 200 32080
+/Users/wikiwoo/Desktop/projeto-git-repo-2/core/forms.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+April 17, 2025 - 23:20:16
+Django version 5.1.7, using settings 'core.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+DEBUG - Bairro ao carregar vendedor: None
+DEBUG - Bairro antes de renderizar: None
+DEBUG - Bairro ao carregar vendedor: None
+DEBUG - Bairro antes de renderizar: None
+==================================================
+Dados do POST recebidos:
+csrfmiddlewaretoken: i6Q4E0lrJHfP8Mu9welzHg3zzq0DT0a9PHkN9O1pK0pp3NuPmiK453ST5qgmwxuE
+nome: Teste 
+categoria: Herbecidra 
+preco: 50
+moeda: BRL
+volume_disponivel: 100
+unidade_medida: l
+tipo: pastagem
+embalagem: Caixa 
+fabricante: AgroMais
+lote: 1010
+data_validade: 2025-04-25
+quantidade_minima: 1
+peneira: dads
+variedade: suds
+descricao: Teste 
+ativo: on
+Arquivos recebidos: <MultiValueDict: {'imagem': [<InMemoryUploadedFile: istockphoto-1225833268-612x612.jpeg (image/jpeg)>]}>
+==================================================
+Formulário é válido: True
+Produto antes de salvar:
+_state: <django.db.models.base.ModelState object at 0x105cde590>
+id: None
+nome: Teste
+categoria: Herbecidra
+descricao: Teste
+preco: 50
+moeda: BRL
+volume_disponivel: 100
+unidade_medida: l
+tipo: pastagem
+embalagem: Caixa
+fabricante: AgroMais
+lote: 1010
+validade: None
+quantidade_minima: 1
+peneira: dads
+variedade: suds
+imagem: istockphoto-1225833268-612x612.jpeg
+ativo: True
+vendedor_id: None
+created_at: None
+updated_at: None
+Produto salvo com sucesso! ID: 1
+DEBUG - Bairro ao carregar vendedor: None
+DEBUG - Bairro antes de renderizar: None
+DEBUG - Bairro ao carregar vendedor: None
+DEBUG - Bairro do POST: dffd
+DEBUG - Bairro após atribuição: dffd
+DEBUG - Bairro após salvar: dffd
+DEBUG - Bairro ao carregar vendedor: dffd
+DEBUG - Bairro antes de renderizar: dffd
+DEBUG - Bairro ao carregar vendedor: dffd
+DEBUG - Bairro antes de renderizar: dffd
+DEBUG - Bairro ao carregar vendedor: Centro
+DEBUG - Bairro antes de renderizar: Centro
+Watching for file changes with StatReloader
+[18/Apr/2025 12:02:37] "GET /vendedores/1/editar/ HTTP/1.1" 200 32080
+/Users/wikiwoo/Desktop/projeto-git-repo-2/core/forms.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+April 18, 2025 - 12:01:31
+Django version 5.1.7, using settings 'core.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+DEBUG - Bairro ao carregar vendedor: Centro
+DEBUG - Bairro antes de renderizar: Centro
+Watching for file changes with StatReloader
+[18/Apr/2025 12:03:58] "GET /vendedores/1/editar/ HTTP/1.1" 200 32080
+[18/Apr/2025 12:04:04] "GET /vendedores/1/ HTTP/1.1" 200 17597
+[18/Apr/2025 12:05:57] "GET /vendedores/1/ HTTP/1.1" 200 18758
+[18/Apr/2025 12:05:57] "GET /media/documentos/istockphoto-1225833268-612x612_2okdbOZ.jpeg HTTP/1.1" 304 0
+[18/Apr/2025 12:05:59] "GET /vendedores/1/ HTTP/1.1" 200 18758
+[18/Apr/2025 12:06:00] "GET /vendedores/1/ HTTP/1.1" 200 18758
+[18/Apr/2025 12:08:11] "GET /vendedores/1/ HTTP/1.1" 200 19806
+/Users/wikiwoo/Desktop/projeto-git-repo-2/core/forms.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+April 18, 2025 - 12:03:54
+Django version 5.1.7, using settings 'core.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+DEBUG - Bairro ao carregar vendedor: Centro
+DEBUG - Bairro antes de renderizar: Centro
+Watching for file changes with StatReloader
+[18/Apr/2025 12:10:19] "GET /vendedores/1/ HTTP/1.1" 200 19806
+/Users/wikiwoo/Desktop/projeto-git-repo-2/core/forms.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+April 18, 2025 - 12:10:16
+Django version 5.1.7, using settings 'core.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+Watching for file changes with StatReloader
+[18/Apr/2025 12:11:43] "GET /vendedores/ HTTP/1.1" 200 11789
+[18/Apr/2025 12:11:44] "GET /vendedores/1/ HTTP/1.1" 200 19806
+[18/Apr/2025 12:13:06] "GET /vendedores/1/ HTTP/1.1" 200 19845
+[18/Apr/2025 12:13:29] "GET /vendedores/ HTTP/1.1" 200 11789
+[18/Apr/2025 12:14:35] "GET /superadmin/vendedores/cadastrar/ HTTP/1.1" 200 20506
+[18/Apr/2025 12:14:37] "GET /vendedores/ HTTP/1.1" 200 11789
+[18/Apr/2025 12:14:46] "GET /catalogo/ HTTP/1.1" 200 21774
+[18/Apr/2025 12:14:48] "GET /vendas/meus-pedidos/ HTTP/1.1" 200 9573
+[18/Apr/2025 12:14:49] "GET /vendedores/ HTTP/1.1" 200 11789
+[18/Apr/2025 12:14:49] "GET /catalogo/ HTTP/1.1" 200 21774
+[18/Apr/2025 12:14:52] "GET /superadmin/solicitacoes/ HTTP/1.1" 200 11082
+[18/Apr/2025 12:14:59] "GET /superadmin/compras-vendedores/ HTTP/1.1" 200 13872
+[18/Apr/2025 12:15:00] "GET /vendas/meus-pedidos/ HTTP/1.1" 200 9573
+[18/Apr/2025 12:15:01] "GET /superadmin/produtos/ HTTP/1.1" 200 32766
+[18/Apr/2025 12:15:06] "GET /vendas/meus-pedidos/ HTTP/1.1" 200 9573
+[18/Apr/2025 12:15:07] "GET /catalogo/ HTTP/1.1" 200 21774
+[18/Apr/2025 12:15:09] "POST /vendas/solicitar-compra/1/ HTTP/1.1" 302 0
+[18/Apr/2025 12:15:09] "GET /carrinho/ HTTP/1.1" 200 19476
+[18/Apr/2025 12:15:09] "GET /static/css/style.css?v=1744989309 HTTP/1.1" 200 12058
+[18/Apr/2025 12:15:17] "GET /produtos/detalhe/1/ HTTP/1.1" 200 26586
+Not Found: /adicionar-ao-carrinho/1/
+[18/Apr/2025 12:15:19] "POST /adicionar-ao-carrinho/1/ HTTP/1.1" 404 16468
+[18/Apr/2025 12:16:59] "POST /adicionar-ao-carrinho/1/ HTTP/1.1" 302 0
+[18/Apr/2025 12:17:01] "GET /carrinho/ HTTP/1.1" 200 19486
+[18/Apr/2025 12:17:01] "GET /static/css/style.css?v=1744989421 HTTP/1.1" 200 12058
+[18/Apr/2025 12:17:04] "GET /superadmin/dashboard/ HTTP/1.1" 200 19175
+[18/Apr/2025 12:17:06] "GET /catalogo/ HTTP/1.1" 200 21774
+[18/Apr/2025 12:17:10] "POST /vendas/solicitar-compra/1/ HTTP/1.1" 302 0
+[18/Apr/2025 12:17:10] "GET /carrinho/ HTTP/1.1" 200 19478
+[18/Apr/2025 12:17:10] "GET /static/css/style.css?v=1744989430 HTTP/1.1" 200 12058
+[18/Apr/2025 12:17:13] "POST /remover-do-carrinho/1/ HTTP/1.1" 302 0
+[18/Apr/2025 12:17:13] "GET /carrinho/ HTTP/1.1" 200 13390
+[18/Apr/2025 12:17:13] "GET /static/css/style.css?v=1744989433 HTTP/1.1" 200 12058
+[18/Apr/2025 12:17:14] "GET /catalogo/ HTTP/1.1" 200 21774
+[18/Apr/2025 12:17:15] "GET /produtos/detalhe/1/ HTTP/1.1" 200 12562
+[18/Apr/2025 12:17:24] "GET /catalogo/ HTTP/1.1" 200 21774
+[18/Apr/2025 12:17:28] "GET /catalogo/ HTTP/1.1" 200 21774
+[18/Apr/2025 12:17:29] "GET /produtos/detalhe/1/ HTTP/1.1" 200 12562
+[18/Apr/2025 12:18:06] "GET /catalogo/ HTTP/1.1" 200 21774
+[18/Apr/2025 12:19:08] "GET /catalogo/ HTTP/1.1" 200 21774
+[18/Apr/2025 12:19:09] "GET /produtos/detalhe/1/ HTTP/1.1" 200 26586
+Not Found: /adicionar-ao-carrinho/1/
+[18/Apr/2025 12:19:14] "POST /adicionar-ao-carrinho/1/ HTTP/1.1" 404 16468
+Not Found: /adicionar-ao-carrinho/1/
+[18/Apr/2025 12:25:42] "POST /adicionar-ao-carrinho/1/ HTTP/1.1" 404 16468
+/Users/wikiwoo/Desktop/projeto-git-repo-2/core/views.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+April 18, 2025 - 12:11:20
+Django version 5.1.7, using settings 'core.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+Watching for file changes with StatReloader
+[18/Apr/2025 12:26:04] "POST /adicionar-ao-carrinho/1/ HTTP/1.1" 302 0
+[18/Apr/2025 12:26:06] "GET /carrinho/ HTTP/1.1" 200 13411
+[18/Apr/2025 12:26:06] "GET /static/css/style.css?v=1744989966 HTTP/1.1" 200 12058
+[18/Apr/2025 12:26:08] "GET /superadmin/dashboard/ HTTP/1.1" 200 19175
+[18/Apr/2025 12:26:09] "GET /catalogo/ HTTP/1.1" 200 21774
+[18/Apr/2025 12:26:12] "POST /vendas/solicitar-compra/1/ HTTP/1.1" 302 0
+[18/Apr/2025 12:26:12] "GET /carrinho/ HTTP/1.1" 200 19476
+[18/Apr/2025 12:26:12] "GET /static/css/style.css?v=1744989972 HTTP/1.1" 200 12058
+[18/Apr/2025 12:26:14] "POST /remover-do-carrinho/1/ HTTP/1.1" 302 0
+[18/Apr/2025 12:26:14] "GET /carrinho/ HTTP/1.1" 200 13390
+[18/Apr/2025 12:26:14] "GET /static/css/style.css?v=1744989974 HTTP/1.1" 200 12058
+[18/Apr/2025 12:26:16] "GET /superadmin/dashboard/ HTTP/1.1" 200 19175
+[18/Apr/2025 12:26:18] "GET /catalogo/ HTTP/1.1" 200 21774
+[18/Apr/2025 12:26:19] "GET /produtos/detalhe/1/ HTTP/1.1" 200 26586
+[18/Apr/2025 12:26:21] "POST /adicionar-ao-carrinho/1/ HTTP/1.1" 302 0
+[18/Apr/2025 12:26:21] "GET /carrinho/ HTTP/1.1" 200 13411
+[18/Apr/2025 12:26:21] "GET /static/css/style.css?v=1744989981 HTTP/1.1" 200 12058
+/Users/wikiwoo/Desktop/projeto-git-repo-2/core/views.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+April 18, 2025 - 12:25:52
+Django version 5.1.7, using settings 'core.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+Watching for file changes with StatReloader
+[18/Apr/2025 12:29:14] "GET /catalogo/ HTTP/1.1" 200 21774
+[18/Apr/2025 12:29:16] "GET /produtos/detalhe/1/ HTTP/1.1" 200 26586
+[18/Apr/2025 12:29:18] "POST /adicionar-ao-carrinho/1/ HTTP/1.1" 302 0
+[18/Apr/2025 12:29:18] "GET /carrinho/ HTTP/1.1" 200 19476
+[18/Apr/2025 12:29:18] "GET /static/css/style.css?v=1744990158 HTTP/1.1" 200 12058
+Internal Server Error: /carrinho/
+Traceback (most recent call last):
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/contrib/auth/decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/core/views.py", line 673, in carrinho
+    vendedor=primeiro_item['produto'].vendedor.usuario,  # Definindo o vendedor
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'usuario'
+[18/Apr/2025 12:30:36] "POST /carrinho/ HTTP/1.1" 500 68640
+/Users/wikiwoo/Desktop/projeto-git-repo-2/core/views.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+April 18, 2025 - 12:29:11
+Django version 5.1.7, using settings 'core.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+Watching for file changes with StatReloader
+/Users/wikiwoo/Desktop/projeto-git-repo-2/core/views.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+April 18, 2025 - 12:31:14
+Django version 5.1.7, using settings 'core.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+Watching for file changes with StatReloader
+Internal Server Error: /carrinho/
+Traceback (most recent call last):
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/db/backends/utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/db/backends/sqlite3/base.py", line 354, in execute
+    return super().execute(query, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.IntegrityError: NOT NULL constraint failed: vendas_pedido.vendedor_id
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/contrib/auth/decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/core/views.py", line 676, in carrinho
+    pedido = Pedido.objects.create(
+             ^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/db/models/manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/db/models/query.py", line 679, in create
+    obj.save(force_insert=True, using=self.db)
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/vendas/models.py", line 109, in save
+    super().save(*args, **kwargs)
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/db/models/base.py", line 892, in save
+    self.save_base(
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/db/models/base.py", line 998, in save_base
+    updated = self._save_table(
+              ^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/db/models/base.py", line 1161, in _save_table
+    results = self._do_insert(
+              ^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/db/models/base.py", line 1202, in _do_insert
+    return manager._insert(
+           ^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/db/models/manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/db/models/query.py", line 1847, in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/db/models/sql/compiler.py", line 1836, in execute_sql
+    cursor.execute(sql, params)
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/db/backends/utils.py", line 122, in execute
+    return super().execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/db/backends/utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/db/backends/utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/db/backends/utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/db/utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/db/backends/utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/db/backends/sqlite3/base.py", line 354, in execute
+    return super().execute(query, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+django.db.utils.IntegrityError: NOT NULL constraint failed: vendas_pedido.vendedor_id
+[18/Apr/2025 12:33:20] "POST /carrinho/ HTTP/1.1" 500 175530
+/Users/wikiwoo/Desktop/projeto-git-repo-2/core/views.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+April 18, 2025 - 12:32:55
+Django version 5.1.7, using settings 'core.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+Watching for file changes with StatReloader
+[18/Apr/2025 12:34:30] "POST /carrinho/ HTTP/1.1" 302 0
+[18/Apr/2025 12:34:31] "GET /carrinho/ HTTP/1.1" 200 19520
+[18/Apr/2025 12:34:31] "GET /static/css/style.css?v=1744990471 HTTP/1.1" 200 12058
+[18/Apr/2025 12:34:38] "POST /carrinho/ HTTP/1.1" 302 0
+[18/Apr/2025 12:34:38] "GET /carrinho/ HTTP/1.1" 200 19520
+[18/Apr/2025 12:34:38] "GET /static/css/style.css?v=1744990478 HTTP/1.1" 200 12058
+[18/Apr/2025 12:34:45] "GET /catalogo/ HTTP/1.1" 200 21774
+[18/Apr/2025 12:34:47] "GET /produtos/detalhe/1/ HTTP/1.1" 200 26586
+/Users/wikiwoo/Desktop/projeto-git-repo-2/core/views.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+April 18, 2025 - 12:34:18
+Django version 5.1.7, using settings 'core.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+Watching for file changes with StatReloader
+[18/Apr/2025 12:36:35] "GET /produtos/detalhe/1/ HTTP/1.1" 200 26586
+[18/Apr/2025 12:36:37] "POST /adicionar-ao-carrinho/1/ HTTP/1.1" 302 0
+[18/Apr/2025 12:36:37] "GET /carrinho/ HTTP/1.1" 200 19478
+[18/Apr/2025 12:36:37] "GET /static/css/style.css?v=1744990597 HTTP/1.1" 200 12058
+Internal Server Error: /carrinho/
+Traceback (most recent call last):
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/db/backends/utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/db/backends/sqlite3/base.py", line 354, in execute
+    return super().execute(query, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.IntegrityError: NOT NULL constraint failed: vendas_pedido.vendedor_id
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/contrib/auth/decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/core/views.py", line 673, in carrinho
+    pedido = Pedido.objects.create(
+             ^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/db/models/manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/db/models/query.py", line 679, in create
+    obj.save(force_insert=True, using=self.db)
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/vendas/models.py", line 109, in save
+    super().save(*args, **kwargs)
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/db/models/base.py", line 892, in save
+    self.save_base(
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/db/models/base.py", line 998, in save_base
+    updated = self._save_table(
+              ^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/db/models/base.py", line 1161, in _save_table
+    results = self._do_insert(
+              ^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/db/models/base.py", line 1202, in _do_insert
+    return manager._insert(
+           ^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/db/models/manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/db/models/query.py", line 1847, in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/db/models/sql/compiler.py", line 1836, in execute_sql
+    cursor.execute(sql, params)
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/db/backends/utils.py", line 122, in execute
+    return super().execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/db/backends/utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/db/backends/utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/db/backends/utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/db/utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/db/backends/utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/db/backends/sqlite3/base.py", line 354, in execute
+    return super().execute(query, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+django.db.utils.IntegrityError: NOT NULL constraint failed: vendas_pedido.vendedor_id
+[18/Apr/2025 12:36:40] "POST /carrinho/ HTTP/1.1" 500 175476
+/Users/wikiwoo/Desktop/projeto-git-repo-2/vendas/models.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+April 18, 2025 - 12:36:33
+Django version 5.1.7, using settings 'core.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+Watching for file changes with StatReloader
+[18/Apr/2025 12:38:07] "POST /carrinho/ HTTP/1.1" 302 0
+Internal Server Error: /pedidos/
+Traceback (most recent call last):
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/contrib/auth/decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/core/views.py", line 1304, in pedidos
+    pedidos = Pedido.objects.filter(comprador=request.user).order_by('-data_criacao')
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/db/models/query.py", line 1701, in order_by
+    obj.query.add_ordering(*field_names)
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/db/models/sql/query.py", line 2249, in add_ordering
+    self.names_to_path(item.split(LOOKUP_SEP), self.model._meta)
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/db/models/sql/query.py", line 1768, in names_to_path
+    raise FieldError(
+django.core.exceptions.FieldError: Cannot resolve keyword 'data_criacao' into field. Choices are: aprovado_por, aprovado_por_id, cep, cidade, cnpj, comprador, comprador_id, cultivo_principal, data_aprovacao, data_pedido, endereco, estado, hectares, id, itens, motivo_rejeicao, nome_propriedade, observacoes, preco_unitario, produto, produto_id, quantidade, referencia, status, total, vendedor, vendedor_id
+[18/Apr/2025 12:38:08] "GET /pedidos/ HTTP/1.1" 500 83692
+/Users/wikiwoo/Desktop/projeto-git-repo-2/core/views.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+April 18, 2025 - 12:37:49
+Django version 5.1.7, using settings 'core.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+Watching for file changes with StatReloader
+[18/Apr/2025 12:39:29] "GET /pedidos/ HTTP/1.1" 200 8132
+[18/Apr/2025 12:39:29] "GET /static/css/style.css?v=1744990769 HTTP/1.1" 200 12058
+[18/Apr/2025 12:39:36] "GET /superadmin/dashboard/ HTTP/1.1" 200 19175
+[18/Apr/2025 12:39:38] "GET /superadmin/pedidos/ HTTP/1.1" 200 11867
+/Users/wikiwoo/Desktop/projeto-git-repo-2/core/views.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+April 18, 2025 - 12:38:41
+Django version 5.1.7, using settings 'core.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+Watching for file changes with StatReloader
+[18/Apr/2025 12:40:52] "GET /superadmin/pedidos/ HTTP/1.1" 200 11867
+[18/Apr/2025 12:40:53] "GET /superadmin/pedidos/ HTTP/1.1" 200 11867
+[18/Apr/2025 12:40:55] "GET /superadmin/produtos/ HTTP/1.1" 200 32766
+[18/Apr/2025 12:40:55] "GET /superadmin/pedidos/ HTTP/1.1" 200 11867
+[18/Apr/2025 12:40:57] "GET /superadmin/pedidos/ HTTP/1.1" 200 11867
+[18/Apr/2025 12:44:00] "GET /superadmin/pedidos/ HTTP/1.1" 200 11867
+[18/Apr/2025 12:44:00] "GET /superadmin/pedidos/ HTTP/1.1" 200 11867
+[18/Apr/2025 12:44:01] "GET /superadmin/produtos/ HTTP/1.1" 200 32766
+[18/Apr/2025 12:44:02] "GET /superadmin/pedidos/ HTTP/1.1" 200 11867
+[18/Apr/2025 12:44:02] "GET /superadmin/produtos/ HTTP/1.1" 200 32766
+[18/Apr/2025 12:44:03] "GET /superadmin/pedidos/ HTTP/1.1" 200 11867
+[18/Apr/2025 12:53:27] "GET /superadmin/pedidos/ HTTP/1.1" 200 11867
+[18/Apr/2025 12:53:28] "GET /superadmin/pedidos/ HTTP/1.1" 200 11867
+[18/Apr/2025 12:53:47] "GET /superadmin/pedidos/ HTTP/1.1" 200 11867
+[18/Apr/2025 12:53:58] "GET /superadmin/suporte/ HTTP/1.1" 200 10667
+[18/Apr/2025 12:53:58] "GET /superadmin/produtos/ HTTP/1.1" 200 32766
+[18/Apr/2025 12:54:00] "GET /superadmin/pedidos/ HTTP/1.1" 200 11867
+[19/Apr/2025 08:27:17] "GET /superadmin/pedidos/ HTTP/1.1" 200 11867
+[19/Apr/2025 09:24:27] "GET /superadmin/pedidos/ HTTP/1.1" 200 11867
+/Users/wikiwoo/Desktop/projeto-git-repo-2/core/urls.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+April 18, 2025 - 12:40:47
+Django version 5.1.7, using settings 'core.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+Watching for file changes with StatReloader
+[19/Apr/2025 09:25:49] "GET /superadmin/pedidos/ HTTP/1.1" 200 2531
+[19/Apr/2025 09:25:53] "GET /superadmin/pedidos/ HTTP/1.1" 200 2531
+[19/Apr/2025 09:25:59] "GET /superadmin/pedidos/ HTTP/1.1" 200 2531
+Internal Server Error: /vendedores/
+Traceback (most recent call last):
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/contrib/auth/decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/contrib/auth/decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/core/views.py", line 445, in listar_vendedores
+    return render(request, 'core/seller_list.html', {'sellers': sellers})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/template/loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/template/backends/django.py", line 107, in render
+    return self.template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/template/base.py", line 171, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/test/utils.py", line 114, in instrumented_test_render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/template/base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/template/base.py", line 1008, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/template/base.py", line 969, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/template/loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/test/utils.py", line 114, in instrumented_test_render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/template/base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/template/base.py", line 1008, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/template/base.py", line 969, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/template/defaulttags.py", line 327, in render
+    return nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/template/base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/template/base.py", line 1008, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/template/base.py", line 969, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/template/defaulttags.py", line 480, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/urls/base.py", line 88, in reverse
+    return resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/urls/resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'superadmin_orders' not found. 'superadmin_orders' is not a valid view function or pattern name.
+[19/Apr/2025 09:26:02] "GET /vendedores/ HTTP/1.1" 500 171791
+/Users/wikiwoo/Desktop/projeto-git-repo-2/core/urls.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+April 19, 2025 - 09:25:32
+Django version 5.1.7, using settings 'core.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+Watching for file changes with StatReloader
+/Users/wikiwoo/Desktop/projeto-git-repo-2/core/urls.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+Watching for file changes with StatReloader
+[19/Apr/2025 09:26:49] "GET /superadmin/produtos/ HTTP/1.1" 200 32766
+[19/Apr/2025 09:26:49] "GET /media/produtos/istockphoto-1225833268-612x612.jpeg HTTP/1.1" 304 0
+[19/Apr/2025 09:26:51] "GET /superadmin/pedidos/ HTTP/1.1" 200 11867
+[19/Apr/2025 09:26:52] "GET /superadmin/produtos/ HTTP/1.1" 200 32766
+[19/Apr/2025 09:26:53] "GET /vendas/meus-pedidos/ HTTP/1.1" 200 9573
+[19/Apr/2025 09:26:53] "GET /vendedores/ HTTP/1.1" 200 11789
+[19/Apr/2025 09:26:54] "GET /catalogo/ HTTP/1.1" 200 21774
+[19/Apr/2025 09:26:55] "GET /admin/ HTTP/1.1" 200 11853
+[19/Apr/2025 09:26:55] "GET /static/admin/css/dashboard.css HTTP/1.1" 304 0
+[19/Apr/2025 09:26:55] "GET /static/admin/js/nav_sidebar.js HTTP/1.1" 304 0
+[19/Apr/2025 09:26:55] "GET /static/admin/css/responsive.css HTTP/1.1" 304 0
+[19/Apr/2025 09:26:55] "GET /static/admin/css/nav_sidebar.css HTTP/1.1" 200 2810
+[19/Apr/2025 09:26:55] "GET /static/admin/css/dark_mode.css HTTP/1.1" 200 2804
+[19/Apr/2025 09:26:55] "GET /static/admin/img/icon-changelink.svg HTTP/1.1" 200 380
+[19/Apr/2025 09:26:55] "GET /static/admin/js/theme.js HTTP/1.1" 200 1653
+[19/Apr/2025 09:26:55] "GET /static/admin/css/base.css HTTP/1.1" 200 22092
+[19/Apr/2025 09:26:55] "GET /static/admin/img/icon-addlink.svg HTTP/1.1" 200 331
+[19/Apr/2025 09:26:58] "GET / HTTP/1.1" 200 11918
+[19/Apr/2025 09:26:58] "GET /static/img/no-image.png HTTP/1.1" 304 0
+[19/Apr/2025 09:26:58] "GET /static/css/style.css?v=1745065618 HTTP/1.1" 200 12058
+/Users/wikiwoo/Desktop/projeto-git-repo-2/core/views.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+April 19, 2025 - 09:26:40
+Django version 5.1.7, using settings 'core.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+Watching for file changes with StatReloader
+[19/Apr/2025 09:28:58] "GET /superadmin/dashboard/ HTTP/1.1" 200 19175
+[19/Apr/2025 09:29:00] "GET /vendas/meus-pedidos/ HTTP/1.1" 200 9573
+[19/Apr/2025 09:29:00] "GET /vendedores/ HTTP/1.1" 200 11789
+[19/Apr/2025 09:29:01] "GET /superadmin/produtos/ HTTP/1.1" 200 32766
+[19/Apr/2025 09:29:02] "GET /superadmin/pedidos/ HTTP/1.1" 200 1955
+[19/Apr/2025 09:32:38] "GET /superadmin/pedidos/ HTTP/1.1" 200 1955
+[19/Apr/2025 09:32:41] "GET /superadmin/pedidos/ HTTP/1.1" 200 1955
+/Users/wikiwoo/Desktop/projeto-git-repo-2/core/views.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+April 19, 2025 - 09:27:56
+Django version 5.1.7, using settings 'core.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+Watching for file changes with StatReloader
+[19/Apr/2025 09:33:01] "GET /superadmin/pedidos/ HTTP/1.1" 200 11867
+/Users/wikiwoo/Desktop/projeto-git-repo-2/core/urls.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+April 19, 2025 - 09:32:57
+Django version 5.1.7, using settings 'core.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+Watching for file changes with StatReloader
+[19/Apr/2025 09:34:57] "GET /superadmin/pedidos/ HTTP/1.1" 200 2531
+[19/Apr/2025 09:37:31] "GET /superadmin/pedidos/ HTTP/1.1" 200 2531
+/Users/wikiwoo/Desktop/projeto-git-repo-2/core/views.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+April 19, 2025 - 09:34:24
+Django version 5.1.7, using settings 'core.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+Watching for file changes with StatReloader
+[19/Apr/2025 09:38:07] "GET /superadmin/pedidos/ HTTP/1.1" 200 2531
+/Users/wikiwoo/Desktop/projeto-git-repo-2/core/urls.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+April 19, 2025 - 09:38:02
+Django version 5.1.7, using settings 'core.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+DEBUG - Total de pedidos: 1
+Watching for file changes with StatReloader
+[19/Apr/2025 09:38:58] "GET /superadmin/pedidos/ HTTP/1.1" 200 11867
+/Users/wikiwoo/Desktop/projeto-git-repo-2/core/urls.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+April 19, 2025 - 09:38:57
+Django version 5.1.7, using settings 'core.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+Watching for file changes with StatReloader
+[19/Apr/2025 09:40:15] "GET /superadmin/pedidos/ HTTP/1.1" 200 2531
+/Users/wikiwoo/Desktop/projeto-git-repo-2/core/views.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+April 19, 2025 - 09:40:09
+Django version 5.1.7, using settings 'core.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+Watching for file changes with StatReloader
+[19/Apr/2025 09:43:12] "GET /superadmin/pedidos/ HTTP/1.1" 200 2531
+[19/Apr/2025 09:43:13] "GET /superadmin/pedidos/ HTTP/1.1" 200 2531
+[19/Apr/2025 09:43:13] "GET /superadmin/pedidos/ HTTP/1.1" 200 2531
+[19/Apr/2025 09:43:14] "GET /superadmin/pedidos/ HTTP/1.1" 200 2531
+Internal Server Error: /superadmin/pedidos/
+Traceback (most recent call last):
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/contrib/auth/decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/contrib/auth/decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/core/views.py", line 1390, in superadmin_pedidos
+    pedidos = pedidos.filter(tipo_venda=tipo_venda)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/db/models/query.py", line 1476, in filter
+    return self._filter_or_exclude(False, args, kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/db/models/query.py", line 1494, in _filter_or_exclude
+    clone._filter_or_exclude_inplace(negate, args, kwargs)
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/db/models/query.py", line 1501, in _filter_or_exclude_inplace
+    self._query.add_q(Q(*args, **kwargs))
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/db/models/sql/query.py", line 1609, in add_q
+    clause, _ = self._add_q(q_object, self.used_aliases)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/db/models/sql/query.py", line 1641, in _add_q
+    child_clause, needed_inner = self.build_filter(
+                                 ^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/db/models/sql/query.py", line 1491, in build_filter
+    lookups, parts, reffed_expression = self.solve_lookup_type(arg, summarize)
+                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/db/models/sql/query.py", line 1303, in solve_lookup_type
+    _, field, _, lookup_parts = self.names_to_path(lookup_splitted, self.get_meta())
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/db/models/sql/query.py", line 1768, in names_to_path
+    raise FieldError(
+django.core.exceptions.FieldError: Cannot resolve keyword 'tipo_venda' into field. Choices are: aprovado_por, aprovado_por_id, cep, cidade, cnpj, comprador, comprador_id, cultivo_principal, data_aprovacao, data_pedido, endereco, estado, hectares, id, itens, motivo_rejeicao, nome_propriedade, observacoes, preco_unitario, produto, produto_id, quantidade, referencia, status, total, vendedor, vendedor_id
+[19/Apr/2025 09:43:19] "GET /superadmin/pedidos/?status=PENDENTE&tipo_venda=avista&data_inicio=&data_fim= HTTP/1.1" 500 115724
+Internal Server Error: /superadmin/produtos/
+Traceback (most recent call last):
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/contrib/auth/decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/contrib/auth/decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/core/views.py", line 555, in superadmin_products
+    return render(request, 'core/superadmin_products.html', context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/template/loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/template/backends/django.py", line 107, in render
+    return self.template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/template/base.py", line 171, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/test/utils.py", line 114, in instrumented_test_render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/template/base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/template/base.py", line 1008, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/template/base.py", line 969, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/template/loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/test/utils.py", line 114, in instrumented_test_render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/template/base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/template/base.py", line 1008, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/template/base.py", line 969, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/template/defaulttags.py", line 327, in render
+    return nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/template/base.py", line 1008, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/template/base.py", line 1008, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/template/base.py", line 969, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/template/defaulttags.py", line 480, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/urls/base.py", line 88, in reverse
+    return resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/urls/resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'superadmin_orders' not found. 'superadmin_orders' is not a valid view function or pattern name.
+[19/Apr/2025 09:43:25] "GET /superadmin/produtos/ HTTP/1.1" 500 197613
+[19/Apr/2025 09:43:28] "GET /superadmin/pedidos/ HTTP/1.1" 200 2531
+/Users/wikiwoo/Desktop/projeto-git-repo-2/core/views.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+April 19, 2025 - 09:42:54
+Django version 5.1.7, using settings 'core.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+Watching for file changes with StatReloader
+/Users/wikiwoo/Desktop/projeto-git-repo-2/core/views.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+April 19, 2025 - 09:43:48
+Django version 5.1.7, using settings 'core.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+Watching for file changes with StatReloader
+[19/Apr/2025 09:46:26] "GET /superadmin/pedidos/ HTTP/1.1" 200 2531
+[19/Apr/2025 09:46:29] "GET /superadmin/pedidos/ HTTP/1.1" 200 2531
+/Users/wikiwoo/Desktop/projeto-git-repo-2/core/views.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+April 19, 2025 - 09:46:11
+Django version 5.1.7, using settings 'core.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+Watching for file changes with StatReloader
+[19/Apr/2025 09:46:49] "GET /vendedores/ HTTP/1.1" 200 11789
+[19/Apr/2025 09:46:51] "GET /superadmin/produtos/ HTTP/1.1" 200 32766
+[19/Apr/2025 09:46:52] "GET /superadmin/pedidos/ HTTP/1.1" 200 11867
+/Users/wikiwoo/Desktop/projeto-git-repo-2/core/views.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+April 19, 2025 - 09:46:46
+Django version 5.1.7, using settings 'core.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+Watching for file changes with StatReloader
+/Users/wikiwoo/Desktop/projeto-git-repo-2/core/views.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+April 19, 2025 - 09:47:13
+Django version 5.1.7, using settings 'core.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+Watching for file changes with StatReloader
+/Users/wikiwoo/Desktop/projeto-git-repo-2/core/views.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+April 19, 2025 - 09:47:32
+Django version 5.1.7, using settings 'core.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+Watching for file changes with StatReloader
+[19/Apr/2025 09:48:12] "GET /superadmin/pedidos/ HTTP/1.1" 200 12698
+[19/Apr/2025 09:48:22] "GET /superadmin/produtos/ HTTP/1.1" 200 32766
+[19/Apr/2025 09:48:23] "GET /superadmin/pedidos/ HTTP/1.1" 200 12698
+/Users/wikiwoo/Desktop/projeto-git-repo-2/core/views.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+April 19, 2025 - 09:47:45
+Django version 5.1.7, using settings 'core.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+Watching for file changes with StatReloader
+/Users/wikiwoo/Desktop/projeto-git-repo-2/core/views.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+April 19, 2025 - 09:49:52
+Django version 5.1.7, using settings 'core.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+Watching for file changes with StatReloader
+[19/Apr/2025 09:51:44] "GET /superadmin/pedidos/ HTTP/1.1" 200 12698
+[19/Apr/2025 09:51:45] "GET /superadmin/pedidos/ HTTP/1.1" 200 12698
+[19/Apr/2025 09:51:45] "GET /superadmin/pedidos/ HTTP/1.1" 200 12698
+[19/Apr/2025 09:51:46] "GET /superadmin/pedidos/ HTTP/1.1" 200 12698
+[19/Apr/2025 09:51:46] "GET /superadmin/pedidos/ HTTP/1.1" 200 12698
+[19/Apr/2025 09:52:53] "GET /superadmin/pedidos/ HTTP/1.1" 200 12698
+[19/Apr/2025 09:52:54] "GET /superadmin/pedidos/ HTTP/1.1" 200 12698
+[19/Apr/2025 09:52:57] "GET /superadmin/pedidos/ HTTP/1.1" 200 12698
+/Users/wikiwoo/Desktop/projeto-git-repo-2/core/views.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+April 19, 2025 - 09:50:50
+Django version 5.1.7, using settings 'core.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+Watching for file changes with StatReloader
+/Users/wikiwoo/Desktop/projeto-git-repo-2/core/views.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+April 19, 2025 - 09:53:49
+Django version 5.1.7, using settings 'core.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+Watching for file changes with StatReloader
+/Users/wikiwoo/Desktop/projeto-git-repo-2/core/views.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+April 19, 2025 - 09:55:31
+Django version 5.1.7, using settings 'core.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+Watching for file changes with StatReloader
+/Users/wikiwoo/Desktop/projeto-git-repo-2/vendas/views.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+April 19, 2025 - 09:56:04
+Django version 5.1.7, using settings 'core.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+Watching for file changes with StatReloader
+Exception in thread django-main-thread:
+Traceback (most recent call last):
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/core/checks/urls.py", line 136, in check_custom_error_handlers
+    handler = resolver.resolve_error_handler(status_code)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/urls/resolvers.py", line 732, in resolve_error_handler
+    callback = getattr(self.urlconf_module, "handler%s" % view_type, None)
+                       ^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/utils/functional.py", line 47, in __get__
+    res = instance.__dict__[self.name] = self.func(instance)
+                                         ^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/urls/resolvers.py", line 711, in urlconf_module
+    return import_module(self.urlconf_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/importlib/__init__.py", line 126, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1204, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1147, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/config/urls.py", line 30, in <module>
+    path('vendas/', include('vendas.urls')),  # Inclui as URLs do vendas
+                    ^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/urls/conf.py", line 39, in include
+    urlconf_module = import_module(urlconf_module)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/importlib/__init__.py", line 126, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1204, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1147, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/vendas/urls.py", line 3, in <module>
+    from .views import VendaViewSet, HistoricoVendasView
+ImportError: cannot import name 'HistoricoVendasView' from 'vendas.views' (/Users/wikiwoo/Desktop/projeto-git-repo-2/vendas/views.py)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/threading.py", line 1038, in _bootstrap_inner
+    self.run()
+  File "/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/threading.py", line 975, in run
+    self._target(*self._args, **self._kwargs)
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/utils/autoreload.py", line 64, in wrapper
+    fn(*args, **kwargs)
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/core/management/commands/runserver.py", line 134, in inner_run
+    self.check(display_num_errors=True)
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/core/management/base.py", line 486, in check
+    all_issues = checks.run_checks(
+                 ^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/core/checks/registry.py", line 88, in run_checks
+    new_errors = check(app_configs=app_configs, databases=databases)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/core/checks/urls.py", line 138, in check_custom_error_handlers
+    path = getattr(resolver.urlconf_module, "handler%s" % status_code)
+                   ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/utils/functional.py", line 47, in __get__
+    res = instance.__dict__[self.name] = self.func(instance)
+                                         ^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/urls/resolvers.py", line 711, in urlconf_module
+    return import_module(self.urlconf_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/importlib/__init__.py", line 126, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1204, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1147, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/config/urls.py", line 30, in <module>
+    path('vendas/', include('vendas.urls')),  # Inclui as URLs do vendas
+                    ^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/venv/lib/python3.11/site-packages/django/urls/conf.py", line 39, in include
+    urlconf_module = import_module(urlconf_module)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/importlib/__init__.py", line 126, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1204, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1147, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/Users/wikiwoo/Desktop/projeto-git-repo-2/vendas/urls.py", line 3, in <module>
+    from .views import VendaViewSet, HistoricoVendasView
+ImportError: cannot import name 'HistoricoVendasView' from 'vendas.views' (/Users/wikiwoo/Desktop/projeto-git-repo-2/vendas/views.py)
+/Users/wikiwoo/Desktop/projeto-git-repo-2/vendas/urls.py changed, reloading.
+Performing system checks...
+
+Watching for file changes with StatReloader
+/Users/wikiwoo/Desktop/projeto-git-repo-2/core/views.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+April 19, 2025 - 10:14:45
+Django version 5.1.7, using settings 'core.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+Watching for file changes with StatReloader
+/Users/wikiwoo/Desktop/projeto-git-repo-2/core/views.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+April 19, 2025 - 10:15:48
+Django version 5.1.7, using settings 'core.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+Watching for file changes with StatReloader
+/Users/wikiwoo/Desktop/projeto-git-repo-2/core/models.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+April 19, 2025 - 10:17:53
+Django version 5.1.7, using settings 'core.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+Watching for file changes with StatReloader
+/Users/wikiwoo/Desktop/projeto-git-repo-2/core/views.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+April 19, 2025 - 10:18:41
+Django version 5.1.7, using settings 'core.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+Watching for file changes with StatReloader
+/Users/wikiwoo/Desktop/projeto-git-repo-2/core/views.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+April 19, 2025 - 10:19:04
+Django version 5.1.7, using settings 'core.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+Watching for file changes with StatReloader
+/Users/wikiwoo/Desktop/projeto-git-repo-2/core/admin.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+April 19, 2025 - 10:22:04
+Django version 5.1.7, using settings 'core.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+Watching for file changes with StatReloader
+/Users/wikiwoo/Desktop/projeto-git-repo-2/core/views.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+April 19, 2025 - 10:23:34
+Django version 5.1.7, using settings 'core.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+Watching for file changes with StatReloader
+/Users/wikiwoo/Desktop/projeto-git-repo-2/core/views.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+April 19, 2025 - 10:27:41
+Django version 5.1.7, using settings 'core.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+Watching for file changes with StatReloader
+/Users/wikiwoo/Desktop/projeto-git-repo-2/vendas/views.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+April 19, 2025 - 10:28:17
+Django version 5.1.7, using settings 'core.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+Watching for file changes with StatReloader
+/Users/wikiwoo/Desktop/projeto-git-repo-2/vendas/views.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+April 19, 2025 - 10:31:32
+Django version 5.1.7, using settings 'core.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+Watching for file changes with StatReloader
+/Users/wikiwoo/Desktop/projeto-git-repo-2/core/views.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+April 19, 2025 - 10:31:52
+Django version 5.1.7, using settings 'core.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+Watching for file changes with StatReloader
+/Users/wikiwoo/Desktop/projeto-git-repo-2/core/views.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+April 19, 2025 - 10:36:15
+Django version 5.1.7, using settings 'core.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+Watching for file changes with StatReloader

@@ -85,7 +85,7 @@
                                     <td>{{ venda.quantidade }} {{ venda.produto.unidade_medida }}</td>
                                     <td>R$ {{ venda.preco_unitario|floatformat:2 }}</td>
                                     <td>R$ {{ venda.valor_total|floatformat:2 }}</td>
-                                    <td>{{ venda.data_criacao|date:"d/m/Y H:i" }}</td>
+                                    <td>{{ venda.data_venda|date:"d/m/Y H:i" }}</td>
                                     <td>
                                         <span class="badge {% if venda.status == 'ACEITO' %}bg-success{% elif venda.status == 'PENDENTE' %}bg-warning{% elif venda.status == 'PROCESSANDO' %}bg-info{% else %}bg-danger{% endif %}">
                                             {{ venda.get_status_display }}
@@ -127,7 +127,7 @@
                                                 <div class="row">
                                                     <div class="col-md-6">
                                                         <h6>Informações da Compra</h6>
-                                                        <p><strong>Data:</strong> {{ venda.data_criacao|date:"d/m/Y H:i" }}</p>
+                                                        <p><strong>Data:</strong> {{ venda.data_venda|date:"d/m/Y H:i" }}</p>
                                                         <p><strong>Status:</strong> {{ venda.get_status_display }}</p>
                                                         <p><strong>Valor Unitário:</strong> R$ {{ venda.preco_unitario|floatformat:2 }}</p>
                                                         <p><strong>Valor Total:</strong> R$ {{ venda.valor_total|floatformat:2 }}</p>

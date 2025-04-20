@@ -381,12 +381,17 @@ class Pedido(models.Model):
     documento_matricula = models.FileField(upload_to='documentos/matricula/', null=True, blank=True)
     is_arrendatario = models.BooleanField(default=False)
     documento_arrendamento = models.FileField(upload_to='documentos/arrendamento/', null=True, blank=True)
+    total = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
     class Meta:
         ordering = ['-data_criacao']
 
     def __str__(self):
         return f'Pedido #{self.id} - {self.nome_propriedade}'
+
+    def calcular_total(self):
+        self.total = sum(venda.total for venda in self.vendas.all())
+        self.save()
 
 class Venda(models.Model):
     STATUS_CHOICES = [
