@@ -1079,9 +1079,11 @@ def checkout(request):
     from core.carrinho import Carrinho
     from produtos.models import Produto
     from core.models import Product, Pedido, ItemPedido, Venda
+    from usuarios.models import Usuario
+    from vendedor.models import Vendedor  # Corrigindo a importação do Vendedor
 
     carrinho = Carrinho(request)
-    usuario = request.user
+    usuario = Usuario.objects.get(id=request.user.id)  # Obtendo a instância real do usuário
 
     if request.method == 'POST':
         tipo_venda = request.POST.get('tipo_venda', 'avista')
@@ -1112,16 +1114,16 @@ def checkout(request):
         total = sum(item['preco_total'] for item in carrinho)
 
         # Descobrir o vendedor a partir do primeiro produto do carrinho
-        vendedor = None
+        vendedor_usuario = None
         for item in carrinho:
             produto = item['produto']
             if hasattr(produto, 'seller') and produto.seller:
-                vendedor = produto.seller.usuario if hasattr(produto.seller, 'usuario') else None
+                vendedor_usuario = produto.seller.usuario if hasattr(produto.seller, 'usuario') else None
                 break
 
         pedido = Pedido.objects.create(
             comprador=usuario,
-            vendedor=vendedor,
+            vendedor=vendedor_usuario,
             nome_propriedade=nome_propriedade,
             cnpj=cnpj,
             hectares=hectares,
@@ -1140,18 +1142,25 @@ def checkout(request):
             produto = item['produto']
             quantidade = item['quantidade']
             preco_unitario = item['preco']
-            vendedor = produto.seller if hasattr(produto, 'seller') and produto.seller else None
+            
+            # Obter a instância do Vendedor correta
+            vendedor = None
+            if hasattr(produto, 'seller') and produto.seller:
+                vendedor = produto.seller
 
-            # Cria a venda
-            Venda.objects.create(
-                vendedor=vendedor,
-                comprador=usuario,
-                produto=produto,
-                quantidade=quantidade,
-                preco_unitario=preco_unitario,
-                status='PENDENTE',
-                pedido=pedido
-            )
+            # Cria a venda apenas se tiver um vendedor válido
+            if vendedor:
+                venda = Venda(
+                    vendedor=vendedor,  # Usando a instância do Vendedor
+                    comprador=usuario,  # Usando a instância real do usuário
+                    produto=produto,
+                    quantidade=quantidade,
+                    preco_unitario=preco_unitario,
+                    status='PENDENTE',
+                    pedido=pedido
+                )
+                venda.save()  # Salvando a venda explicitamente
+
             # Buscar o Produto correto para o ItemPedido
             produto_real = Produto.objects.filter(id=produto.id).first()
             ItemPedido.objects.create(
@@ -1161,18 +1170,6 @@ def checkout(request):
                 preco_unitario=preco_unitario,
                 total=quantidade * preco_unitario
             )
-
-        # Salvar dados de venda a prazo, se aplicável
-        if tipo_venda == 'prazo':
-            pedido.inscricao_estadual = request.POST.get('inscricao_estadual', '')
-            if 'documento_ir' in request.FILES:
-                pedido.documento_ir = request.FILES['documento_ir']
-            if 'documento_matricula' in request.FILES:
-                pedido.documento_matricula = request.FILES['documento_matricula']
-            pedido.is_arrendatario = request.POST.get('is_arrendatario') == 'on'
-            if pedido.is_arrendatario and 'documento_arrendamento' in request.FILES:
-                pedido.documento_arrendamento = request.FILES['documento_arrendamento']
-            pedido.save()
 
         # Salvar dados de venda a prazo, se aplicável
         if tipo_venda == 'prazo':
@@ -1425,7 +1422,6 @@ def superadmin_product_create(request):
             produto.variedade = request.POST.get('variedade', produto.variedade)
             produto.tipo_da_semente = request.POST.get('tipo_da_semente', produto.tipo_da_semente)
             produto.tratamento_da_semente = request.POST.get('tratamento_da_semente', produto.tratamento_da_semente)
-            produto.tratamento = request.POST.get('tratamento_da_semente', produto.tratamento)
             # Garantir que a validade seja salva corretamente
             data_validade = request.POST.get('data_validade')
             if data_validade:
@@ -1472,9 +1468,8 @@ def carrinho(request):
 
 @login_required
 def adicionar_ao_carrinho(request, product_id):
-    """Adiciona um produto ao carrinho (apenas Product do core.models)"""
-    from .models import Product
-    produto = get_object_or_404(Product, id=product_id)
+    """Adiciona um produto ao carrinho"""
+    produto = get_object_or_404(Produto, id=product_id)
     carrinho = Carrinho(request)
     quantidade = int(request.POST.get('quantidade', 1))
     carrinho.adicionar(produto, quantidade)
