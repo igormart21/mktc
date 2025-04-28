@@ -49,14 +49,8 @@
                                 <label for="id_categoria" class="form-label">Categoria*</label>
                                 <select name="categoria" id="id_categoria" class="form-select" required>
                                     <option value="">Selecione...</option>
-                                    <option value="Herbicida">Herbicida</option>
-                                    <option value="Inseticida">Inseticida</option>
-                                    <option value="Fungicida">Fungicida</option>
-                                    <option value="Óleo mineral">Óleo mineral</option>
-                                    <option value="Semente">Semente</option>
-                                    <!-- Outras opções já existentes -->
-                                    {% for value, label in form.fields.categoria.choices %}
-                                        <option value="{{ value }}" {% if form.categoria.value == value %}selected{% endif %}>{{ label }}</option>
+                                    {% for category in form.fields.categoria.queryset %}
+                                        <option value="{{ category.id }}" {% if form.categoria.value == category.id %}selected{% endif %}>{{ category.nome }}</option>
                                     {% endfor %}
                                 </select>
                                 {% if form.categoria.errors %}
@@ -209,36 +203,36 @@
                             <div class="mb-3">
                                 <label class="form-label">Tipo da Semente</label><br>
                                 <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" name="tipo_semente" id="semente_branca" value="Semente Branca">
+                                    <input class="form-check-input" type="radio" name="tipo_da_semente" id="semente_branca" value="branca">
                                     <label class="form-check-label" for="semente_branca">Semente Branca</label>
                                 </div>
                                 <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" name="tipo_semente" id="semente_tratada" value="Semente Tratada">
+                                    <input class="form-check-input" type="radio" name="tipo_da_semente" id="semente_tratada" value="tratada">
                                     <label class="form-check-label" for="semente_tratada">Semente Tratada</label>
                                 </div>
                             </div>
                             <div id="campos_semente_branca" style="display:none;">
                                 <div class="mb-3">
-                                    <label for="peneira_semente_branca" class="form-label">Peneira da Semente</label>
-                                    <input type="text" class="form-control" name="peneira_semente_branca" id="peneira_semente_branca">
+                                    <label for="peneira" class="form-label">Peneira da Semente</label>
+                                    <input type="text" class="form-control" name="peneira" id="peneira">
                                 </div>
                                 <div class="mb-3">
-                                    <label for="variedade_semente_branca" class="form-label">Variedade da Semente</label>
-                                    <input type="text" class="form-control" name="variedade_semente_branca" id="variedade_semente_branca">
+                                    <label for="variedade" class="form-label">Variedade da Semente</label>
+                                    <input type="text" class="form-control" name="variedade" id="variedade">
                                 </div>
                             </div>
                             <div id="campos_semente_tratada" style="display:none;">
                                 <div class="mb-3">
-                                    <label for="peneira_semente_tratada" class="form-label">Peneira da Semente</label>
-                                    <input type="text" class="form-control" name="peneira_semente_tratada" id="peneira_semente_tratada">
+                                    <label for="peneira" class="form-label">Peneira da Semente</label>
+                                    <input type="text" class="form-control" name="peneira" id="peneira">
                                 </div>
                                 <div class="mb-3">
-                                    <label for="variedade_semente_tratada" class="form-label">Variedade da Semente</label>
-                                    <input type="text" class="form-control" name="variedade_semente_tratada" id="variedade_semente_tratada">
+                                    <label for="variedade" class="form-label">Variedade da Semente</label>
+                                    <input type="text" class="form-control" name="variedade" id="variedade">
                                 </div>
                                 <div class="mb-3">
-                                    <label for="tratamento_semente_tratada" class="form-label">Tratamento</label>
-                                    <input type="text" class="form-control" name="tratamento_semente_tratada" id="tratamento_semente_tratada">
+                                    <label for="tratamento_da_semente" class="form-label">Tratamento</label>
+                                    <input type="text" class="form-control" name="tratamento_da_semente" id="tratamento_da_semente">
                                 </div>
                             </div>
                         </div>
@@ -261,23 +255,24 @@
 <script>
 $(document).ready(function() {
     function toggleSementeFields() {
-        if ($('#id_categoria').val() === 'Semente') {
+        var categoriaText = $('#id_categoria option:selected').text();
+        if (categoriaText === 'Semente') {
             $('#opcoes_semente').show();
         } else {
             $('#opcoes_semente').hide();
             $('#campos_semente_branca').hide();
             $('#campos_semente_tratada').hide();
-            $("input[name='tipo_semente']").prop('checked', false);
+            $("input[name='tipo_da_semente']").prop('checked', false);
         }
     }
     $('#id_categoria').on('change', function() {
         toggleSementeFields();
     });
-    $("input[name='tipo_semente']").on('change', function() {
-        if ($(this).val() === 'Semente Branca') {
+    $("input[name='tipo_da_semente']").on('change', function() {
+        if ($(this).val() === 'branca') {
             $('#campos_semente_branca').show();
             $('#campos_semente_tratada').hide();
-        } else if ($(this).val() === 'Semente Tratada') {
+        } else if ($(this).val() === 'tratada') {
             $('#campos_semente_branca').hide();
             $('#campos_semente_tratada').show();
         }
