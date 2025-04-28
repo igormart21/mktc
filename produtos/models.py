@@ -64,7 +64,6 @@ class Produto(models.Model):
     # Informações da semente
     peneira = models.CharField(max_length=50, blank=True, null=True)
     variedade = models.CharField(max_length=100, blank=True, null=True)
-    tratamento = models.CharField(max_length=100, blank=True, null=True)
     
     # Imagem
     imagem = models.ImageField(upload_to=product_image_path, null=True, blank=True)

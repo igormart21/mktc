@@ -51,7 +51,7 @@ class Vendedor(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.nome_fantasia or self.usuario.username}"
+        return f"{self.nome_fantasia or self.usuario.email}"
 
     class Meta:
         verbose_name = 'Vendedor'

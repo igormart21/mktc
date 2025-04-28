@@ -113,10 +113,10 @@
                                     {{ form.product_type|as_crispy_field }}
                                 </div>
                                 <div class="mb-3">
-                                    {{ form.sieve|as_crispy_field }}
+                                    {{ form.peneira|as_crispy_field }}
                                 </div>
                                 <div class="mb-3">
-                                    {{ form.variety|as_crispy_field }}
+                                    {{ form.variedade|as_crispy_field }}
                                 </div>
                                 <div class="mb-3">
                                     {{ form.lot|as_crispy_field }}
@@ -200,10 +200,12 @@ $(document).ready(function() {
             $("input[name='tipo_semente']").prop('checked', false);
         }
     }
-    $('#id_categoria').on('change', function() {
+
+    $('#id_categoria').change(function() {
         toggleSementeFields();
     });
-    $("input[name='tipo_semente']").on('change', function() {
+
+    $("input[name='tipo_semente']").change(function() {
         if ($(this).val() === 'Semente Branca') {
             $('#campos_semente_branca').show();
             $('#campos_semente_tratada').hide();
@@ -212,7 +214,24 @@ $(document).ready(function() {
             $('#campos_semente_tratada').show();
         }
     });
-    // Inicialização
+
+    // Ao enviar o formulário, copia os valores dos campos dinâmicos para os campos do Django
+    $('form').on('submit', function(e) {
+        if ($('#id_categoria').val() === 'Semente') {
+            var tipo = $("input[name='tipo_semente']:checked").val();
+            if (tipo === 'Semente Branca') {
+                $("input[name='peneira']").val($("#peneira_semente_branca").val());
+                $("input[name='variedade']").val($("#variedade_semente_branca").val());
+                $("input[name='tratamento_da_semente']").val('');
+            } else if (tipo === 'Semente Tratada') {
+                $("input[name='peneira']").val($("#peneira_semente_tratada").val());
+                $("input[name='variedade']").val($("#variedade_semente_tratada").val());
+                $("input[name='tratamento_da_semente']").val($("#tratamento_semente_tratada").val());
+            }
+        }
+    });
+
+    // Inicializa os campos ao carregar a página
     toggleSementeFields();
 });
 </script>

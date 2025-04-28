@@ -48,7 +48,7 @@ class ProductForm(forms.ModelForm):
         fields = [
             'nome', 'categoria', 'preco', 'moeda', 'volume_disponivel', 'unidade_medida',
             'tipo', 'embalagem', 'fabricante', 'lote', 'validade', 'quantidade_minima',
-            'peneira', 'variedade', 'tratamento', 'imagem', 'descricao', 'ativo'
+            'peneira', 'variedade', 'tipo_da_semente', 'tratamento_da_semente', 'imagem', 'descricao', 'ativo'
         ]
         widgets = {
             'nome': forms.TextInput(attrs={'class': 'form-control', 'required': True}),
@@ -65,7 +65,8 @@ class ProductForm(forms.ModelForm):
             'quantidade_minima': forms.NumberInput(attrs={'class': 'form-control'}),
             'peneira': forms.TextInput(attrs={'class': 'form-control'}),
             'variedade': forms.TextInput(attrs={'class': 'form-control'}),
-            'tratamento': forms.TextInput(attrs={'class': 'form-control'}),
+            'tipo_da_semente': forms.Select(attrs={'class': 'form-select'}),
+            'tratamento_da_semente': forms.TextInput(attrs={'class': 'form-control'}),
             'imagem': forms.FileInput(attrs={'class': 'form-control'}),
             'descricao': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
             'ativo': forms.CheckboxInput(attrs={'class': 'form-check-input', 'checked': True})
@@ -85,7 +86,8 @@ class ProductForm(forms.ModelForm):
             'quantidade_minima': 'Quantidade Mínima',
             'peneira': 'Peneira da Semente',
             'variedade': 'Variedade da Semente',
-            'tratamento': 'Tratamento',
+            'tipo_da_semente': 'Tipo da Semente',
+            'tratamento_da_semente': 'Tratamento da Semente',
             'imagem': 'Imagem do Produto',
             'descricao': 'Descrição do Produto',
             'ativo': 'Produto Ativo'
@@ -162,7 +164,7 @@ class SellerRegistrationForm(forms.ModelForm):
     numero = forms.CharField(
         max_length=10,
         label='Número',
-        required=True,
+        required=False,
         widget=forms.TextInput(attrs={'class': 'form-control'})
     )
     cidade = forms.CharField(
@@ -197,7 +199,7 @@ class SellerRegistrationForm(forms.ModelForm):
     numero_documento = forms.CharField(
         max_length=20,
         label='Número do Documento',
-        required=True,
+        required=False,
         widget=forms.TextInput(attrs={'class': 'form-control'})
     )
     rg = forms.FileField(
@@ -210,23 +212,27 @@ class SellerRegistrationForm(forms.ModelForm):
         required=False,
         widget=forms.FileInput(attrs={'class': 'form-control'})
     )
-    hectares_atendidos = forms.DecimalField(
+    hectares_atendidos = forms.CharField(
         label='Hectares Atendidos',
         required=True,
-        max_value=300,
-        widget=forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'})
+        widget=forms.TextInput(attrs={'class': 'form-control'})
     )
     culturas_atendidas = forms.MultipleChoiceField(
         choices=Vendedor.CULTURAS_CHOICES,
         label='Culturas Atendidas',
         required=True,
-        widget=forms.CheckboxSelectMultiple()
+        widget=forms.CheckboxSelectMultiple(attrs={'class': 'form-check-input'})
     )
     bairro = forms.CharField(
         max_length=100, 
         label='Bairro', 
-        required=True,
+        required=False,
         widget=forms.TextInput(attrs={'class': 'form-control'})
+    )
+    arquivo_documento = forms.FileField(
+        label='Arquivo do Documento',
+        required=False,
+        widget=forms.FileInput(attrs={'class': 'form-control'})
     )
     
     def clean_cpf(self):
@@ -238,12 +244,13 @@ class SellerRegistrationForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
         tipo_documento = cleaned_data.get('tipo_documento')
-        rg = cleaned_data.get('rg')
-        cnh = cleaned_data.get('cnh')
-        if tipo_documento == 'RG' and not rg:
-            self.add_error('rg', 'O arquivo do RG é obrigatório.')
-        if tipo_documento == 'CNH' and not cnh:
-            self.add_error('cnh', 'O arquivo da CNH é obrigatório.')
+        arquivo_documento = cleaned_data.get('arquivo_documento')
+        
+        if tipo_documento == 'RG' and not arquivo_documento:
+            self.add_error('arquivo_documento', 'O arquivo do RG é obrigatório.')
+        elif tipo_documento == 'CNH' and not arquivo_documento:
+            self.add_error('arquivo_documento', 'O arquivo da CNH é obrigatório.')
+            
         return cleaned_data
     
     def save(self, commit=True):
@@ -252,20 +259,26 @@ class SellerRegistrationForm(forms.ModelForm):
         user.is_active = False  # Usuário começa inativo
         if commit:
             user.save()
-            vendedor = Vendedor.objects.create(
-                usuario=user,
-                rg=self.cleaned_data.get('rg'),
-                cnh=self.cleaned_data.get('cnh'),
-                culturas_atendidas=self.cleaned_data.get('culturas_atendidas'),
-                hectares_atendidos=self.cleaned_data.get('hectares_atendidos'),
-                telefone=self.cleaned_data.get('telefone'),
-                endereco=self.cleaned_data.get('endereco'),
-                numero=self.cleaned_data.get('numero'),
-                bairro=self.cleaned_data.get('bairro'),
-                cidade=self.cleaned_data.get('cidade'),
-                estado=self.cleaned_data.get('estado'),
-                cep=self.cleaned_data.get('cep')
-            )
+            culturas = self.cleaned_data.get('culturas_atendidas', [])
+            vendedor_kwargs = {
+                'usuario': user,
+                'culturas_atendidas': culturas,
+                'hectares_atendidos': self.cleaned_data.get('hectares_atendidos'),
+                'telefone': self.cleaned_data.get('telefone'),
+                'endereco': self.cleaned_data.get('endereco'),
+                'numero': self.cleaned_data.get('numero', ''),
+                'bairro': self.cleaned_data.get('bairro', ''),
+                'cidade': self.cleaned_data.get('cidade'),
+                'estado': self.cleaned_data.get('estado'),
+                'cep': self.cleaned_data.get('cep'),
+            }
+            tipo_documento = self.cleaned_data.get('tipo_documento')
+            arquivo_documento = self.cleaned_data.get('arquivo_documento')
+            if tipo_documento == 'RG' and arquivo_documento:
+                vendedor_kwargs['rg'] = arquivo_documento
+            if tipo_documento == 'CNH' and arquivo_documento:
+                vendedor_kwargs['cnh'] = arquivo_documento
+            Vendedor.objects.create(**vendedor_kwargs)
         return user
 
 class LoginForm(forms.Form):
