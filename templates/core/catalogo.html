@@ -170,6 +170,7 @@
                     <form method="post" action="{% url 'vendas:solicitar_compra' produto.id %}">
                         {% csrf_token %}
                         <div class="modal-body">
+<<<<<<< HEAD
                             <div class="row">
                                 <div class="col-md-4">
                                     {% if produto.imagem %}
@@ -200,6 +201,19 @@
                                         </div>
                                     </div>
                                 </div>
+=======
+                            <div class="mb-3">
+                                <h6 class="text-muted mb-2">Produto</h6>
+                                <p class="mb-0">{{ produto.nome }}</p>
+                            </div>
+                            <div class="mb-3">
+                                <h6 class="text-muted mb-2">Preço</h6>
+                                <p class="mb-0">R$ {{ produto.preco|floatformat:2|default:'0.00' }}</p>
+                            </div>
+                            <div class="mb-3">
+                                <label for="quantidade" class="form-label">Quantidade</label>
+                                <input type="number" name="quantidade" id="quantidade{{ produto.id }}" value="1" min="1" class="form-control" data-preco="{{ produto.preco|floatformat:2|default:'0.00'|cut:',' }}">
+>>>>>>> 096178b3cd38915894e00be8d56d643de26c264d
                             </div>
                             <div class="mb-3">
                                 <label for="observacoes" class="form-label">Observações</label>
@@ -212,7 +226,11 @@
                                     </div>
                                     <div class="flex-grow-1 ms-3">
                                         <h6 class="alert-heading mb-1">Valor Total</h6>
+<<<<<<< HEAD
                                         <p class="mb-0" id="valorTotal{{ produto.id }}">R$ {{ produto.preco|default:"0.00" }}</p>
+=======
+                                        <p class="mb-0" id="valorTotal{{ produto.id }}">R$ {{ produto.preco|floatformat:2|default:'0.00' }}</p>
+>>>>>>> 096178b3cd38915894e00be8d56d643de26c264d
                                     </div>
                                 </div>
                             </div>
@@ -288,6 +306,7 @@
         return new bootstrap.Tooltip(tooltipTriggerEl)
     });
 
+<<<<<<< HEAD
     // Função para calcular o valor total
     function calcularValorTotal(input) {
         const modalBody = input.closest('.modal-body');
@@ -317,6 +336,33 @@
         input.addEventListener('change', function() {
             if (this.value < 1) this.value = 1;
             calcularValorTotal(this);
+=======
+    // Função para atualizar o valor total
+    function atualizarValorTotal(input) {
+        const produtoId = input.id.replace('quantidade', '');
+        const preco = parseFloat(input.getAttribute('data-preco').replace(',', '.'));
+        const quantidade = parseInt(input.value) || 0;
+        const valorTotal = preco * quantidade;
+        document.getElementById('valorTotal' + produtoId).textContent = `R$ ${valorTotal.toFixed(2)}`;
+    }
+
+    // Atualizar valor total ao mudar a quantidade em cada modal
+    document.querySelectorAll('input[name="quantidade"]').forEach(input => {
+        input.addEventListener('input', function() {
+            atualizarValorTotal(this);
+        });
+        // Atualiza o valor total inicial ao carregar a página
+        atualizarValorTotal(input);
+    });
+
+    // Atualizar valor total ao abrir o modal (caso o valor inicial mude)
+    document.querySelectorAll('.modal').forEach(modal => {
+        modal.addEventListener('shown.bs.modal', function() {
+            const input = modal.querySelector('input[name="quantidade"]');
+            if (input) {
+                atualizarValorTotal(input);
+            }
+>>>>>>> 096178b3cd38915894e00be8d56d643de26c264d
         });
 
         // Atualizar quando o modal for aberto
