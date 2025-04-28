@@ -21,7 +21,7 @@ class ProdutoAdmin(admin.ModelAdmin):
             'fields': ('fabricante', 'lote', 'validade', 'quantidade_minima')
         }),
         ('Informações da Semente', {
-            'fields': ('peneira', 'variedade')
+            'fields': ('peneira', 'variedade', 'tipo_da_semente', 'tratamento_da_semente')
         }),
         ('Imagem', {
             'fields': ('imagem',)

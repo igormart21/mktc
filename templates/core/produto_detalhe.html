@@ -256,20 +256,18 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="col">
+                                <div class="d-flex align-items-center">
+                                    <div class="flex-shrink-0">
+                                        <i class="fas fa-vial fa-fw text-primary"></i>
+                                    </div>
+                                    <div class="flex-grow-1 ms-3">
+                                        <div class="text-muted small">Tratamento da Semente</div>
+                                        <div class="fw-bold">{{ produto.tratamento_da_semente|default:'Não especificado' }}</div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-
-                    <!-- Bloco de debug para mostrar todos os campos de especificação -->
-                    <div class="alert alert-warning mt-3">
-                        <strong>DEBUG:</strong>
-                        <ul>
-                            <li>Fabricante: {{ produto.fabricante }}</li>
-                            <li>Lote: {{ produto.lote }}</li>
-                            <li>Embalagem: {{ produto.embalagem }}</li>
-                            <li>Peneira: {{ produto.peneira }}</li>
-                            <li>Variedade: {{ produto.variedade }}</li>
-                            <li>Validade: {{ produto.validade }}</li>
-                        </ul>
                     </div>
 
                     <!-- Formulário de Solicitação -->
