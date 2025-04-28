@@ -1178,6 +1178,18 @@ def checkout(request):
                 pedido.documento_arrendamento = request.FILES['documento_arrendamento']
             pedido.save()
 
+        # Salvar dados de venda a prazo, se aplicável
+        if tipo_venda == 'prazo':
+            pedido.inscricao_estadual = request.POST.get('inscricao_estadual', '')
+            if 'documento_ir' in request.FILES:
+                pedido.documento_ir = request.FILES['documento_ir']
+            if 'documento_matricula' in request.FILES:
+                pedido.documento_matricula = request.FILES['documento_matricula']
+            pedido.is_arrendatario = request.POST.get('is_arrendatario') == 'on'
+            if pedido.is_arrendatario and 'documento_arrendamento' in request.FILES:
+                pedido.documento_arrendamento = request.FILES['documento_arrendamento']
+            pedido.save()
+
         carrinho.limpar()
         messages.success(request, 'Pedido registrado com sucesso!')
         return redirect('core:pedidos')
