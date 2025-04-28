@@ -659,3 +659,12 @@ footer h5 {
 .translate-x-0 {
     transform: translateX(0);
 }
+
+/* Forçar fundo verde claro no cabeçalho da tabela do carrinho */
+.table-success > tr > th,
+.table-success > tr > td,
+.table-success th,
+.table-success td {
+    background-color: #d1e7dd !important;
+    color: #1b4b36 !important;
+}

@@ -94,4 +94,5 @@ urlpatterns = [
     path('historico-pedidos/', views.historico_pedidos_vendedor, name='historico_pedidos'),
     path('vendedores/<int:vendedor_id>/historico-pedidos/', views.historico_pedidos_vendedor_admin, name='historico_pedidos_admin'),
     path('suporte/encerrar/<int:mensagem_id>/', views.encerrar_caso, name='encerrar_caso'),
+    path('diminuir-quantidade/<int:product_id>/', views.diminuir_quantidade, name='diminuir_quantidade'),
 ] 

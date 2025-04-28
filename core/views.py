@@ -486,7 +486,7 @@ def order_create(request):
 @login_required
 def pedido_detail(request, pedido_id):
     """Mostra os detalhes de um pedido"""
-    pedido = get_object_or_404(Pedido, id=pedido_id)
+    pedido = get_object_or_404(Pedido.objects.prefetch_related('itens__produto'), id=pedido_id)
     return render(request, 'core/pedido_detail.html', {'pedido': pedido})
 
 @login_required
@@ -1081,25 +1081,38 @@ def historico_pedidos_vendedor_admin(request, vendedor_id):
 @login_required
 def checkout(request):
     from core.carrinho import Carrinho
-    from core.models import Venda, Product, Pedido
-    from vendedor.models import Vendedor
-    from usuarios.models import Usuario
+    from produtos.models import Produto
+    from core.models import Product, Pedido, ItemPedido, Venda
 
     carrinho = Carrinho(request)
     usuario = request.user
 
     if request.method == 'POST':
-        # Dados mínimos para criar o Pedido
-        nome_propriedade = getattr(usuario, 'nome', 'Propriedade do Cliente') or 'Propriedade do Cliente'
-        cnpj = getattr(usuario, 'cpf', '00000000000000') or '00000000000000'
-        hectares = 10
-        cultivo_principal = 'soja'
-        estado = getattr(usuario, 'estado', 'SP') or 'SP'
-        cidade = getattr(usuario, 'cidade', 'Cidade') or 'Cidade'
-        endereco = getattr(usuario, 'endereco', 'Endereço') or 'Endereço'
-        cep = getattr(usuario, 'cep', '00000-000') or '00000-000'
         tipo_venda = request.POST.get('tipo_venda', 'avista')
-        observacoes = ''
+        
+        # Coletar dados do formulário com valores padrão mais robustos
+        nome_propriedade = request.POST.get('nome_propriedade')
+        if not nome_propriedade:
+            nome_completo = f"{usuario.nome} {usuario.sobrenome}" if usuario.nome and usuario.sobrenome else usuario.email
+            nome_propriedade = f"Propriedade de {nome_completo}"
+        
+        # Garantir que cnpj tenha um valor válido
+        cnpj = request.POST.get('cnpj')
+        if not cnpj:
+            cnpj = usuario.cpf if hasattr(usuario, 'cpf') and usuario.cpf else '00000000000000'
+        
+        hectares = request.POST.get('hectares', 10)
+        cultivo_principal = request.POST.get('cultivo_principal', 'soja')
+        estado = request.POST.get('estado', getattr(usuario, 'estado', 'SP'))
+        cidade = request.POST.get('cidade', getattr(usuario, 'cidade', 'Cidade'))
+        endereco = request.POST.get('endereco', getattr(usuario, 'endereco', 'Endereço'))
+        
+        # Garantir que cep tenha um valor válido
+        cep = request.POST.get('cep')
+        if not cep:
+            cep = usuario.cep if hasattr(usuario, 'cep') and usuario.cep else '00000-000'
+        
+        observacoes = request.POST.get('observacoes', '')
         total = sum(item['preco_total'] for item in carrinho)
 
         # Descobrir o vendedor a partir do primeiro produto do carrinho
@@ -1112,7 +1125,7 @@ def checkout(request):
 
         pedido = Pedido.objects.create(
             comprador=usuario,
-            vendedor=vendedor,  # Agora será o usuário do vendedor
+            vendedor=vendedor,
             nome_propriedade=nome_propriedade,
             cnpj=cnpj,
             hectares=hectares,
@@ -1129,34 +1142,36 @@ def checkout(request):
         # Cria vendas e itens do pedido para cada item do carrinho
         for item in carrinho:
             produto = item['produto']
-            if not isinstance(produto, Product):
-                continue
             quantidade = item['quantidade']
             preco_unitario = item['preco']
             vendedor = produto.seller if hasattr(produto, 'seller') and produto.seller else None
-            Venda.objects.create(
-                vendedor=vendedor,
-                comprador=usuario,
-                produto=produto,
-                quantidade=quantidade,
-                preco_unitario=preco_unitario,
-                status='PENDENTE',
-                pedido=pedido
-            )
-            # Buscar o Produto correto para o ItemPedido
-            produto_real = Produto.objects.filter(id=produto.id).first()
-            ItemPedido.objects.create(
-                pedido=pedido,
-                produto=produto_real,
-                quantidade=quantidade,
-                preco_unitario=preco_unitario,
-                total=quantidade * preco_unitario
-            )
+
+            # Se o produto for do tipo Product, criar uma venda
+            if isinstance(produto, Product):
+                Venda.objects.create(
+                    vendedor=vendedor,
+                    comprador=usuario,
+                    produto=produto,
+                    quantidade=quantidade,
+                    preco_unitario=preco_unitario,
+                    status='PENDENTE',
+                    pedido=pedido
+                )
+            else:
+                # Se o produto for do tipo Produto, criar um ItemPedido
+                ItemPedido.objects.create(
+                    pedido=pedido,
+                    produto=produto,
+                    quantidade=quantidade,
+                    preco_unitario=preco_unitario,
+                    total=quantidade * preco_unitario
+                )
+
         carrinho.limpar()
         messages.success(request, 'Pedido registrado com sucesso!')
         return redirect('core:pedidos')
 
-    itens = [item for item in carrinho if isinstance(item['produto'], Product)]
+    itens = [item for item in carrinho if isinstance(item['produto'], (Product, Produto))]
     if not itens:
         messages.error(request, 'Seu carrinho está vazio.')
         return redirect('core:carrinho')
@@ -1474,3 +1489,13 @@ def aprovar_pedido(request, pedido_id):
         messages.success(request, f'Pedido #{pedido.id} aprovado com sucesso!')
         return redirect('core:superadmin_pedidos')
     return render(request, 'core/pedido_approve.html', {'pedido': pedido})
+
+@login_required
+def diminuir_quantidade(request, product_id):
+    """Diminui a quantidade de um produto no carrinho"""
+    from .models import Produto
+    carrinho = Carrinho(request)
+    produto = get_object_or_404(Produto, id=product_id)
+    carrinho.diminuir_quantidade(produto)
+    messages.success(request, 'Quantidade do produto atualizada!')
+    return redirect('core:carrinho')

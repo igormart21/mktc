@@ -288,12 +288,9 @@ CULTIVO_CHOICES = [
 
 class Pedido(models.Model):
     STATUS_CHOICES = (
-        ('AGUARDANDO_APROVACAO', 'Aguardando Aprovação'),
+        ('PENDENTE', 'Pendente'),
         ('APROVADO', 'Aprovado'),
         ('REPROVADO', 'Reprovado'),
-        ('CANCELADO', 'Cancelado'),
-        ('ENTREGUE', 'Entregue'),
-        ('ARQUIVADO', 'Arquivado'),
     )
 
     TIPO_VENDA_CHOICES = [
@@ -313,7 +310,7 @@ class Pedido(models.Model):
     cep = models.CharField(max_length=9)
     referencia = models.CharField(max_length=200, blank=True, null=True)
     observacoes = models.TextField(blank=True, null=True)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='AGUARDANDO_APROVACAO')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PENDENTE')
     data_criacao = models.DateTimeField(auto_now_add=True)
     data_atualizacao = models.DateTimeField(auto_now=True)
     tipo_venda = models.CharField(max_length=10, choices=TIPO_VENDA_CHOICES, default='avista')
@@ -336,8 +333,11 @@ class Pedido(models.Model):
         return f'Pedido #{self.id} - {self.nome_propriedade}'
 
     def calcular_total(self):
-        self.total = sum(item.total for item in self.itens.all())
+        total_itens = sum(item.total for item in self.itens.all())
+        total_vendas = sum(venda.total for venda in self.vendas.all())
+        self.total = total_itens + total_vendas
         self.save()
+        return self.total
 
 class ItemPedido(models.Model):
     pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE, related_name='itens')
@@ -384,3 +384,7 @@ class Venda(models.Model):
         # Calcula o total antes de salvar
         self.total = self.quantidade * self.preco_unitario
         super().save(*args, **kwargs)
+        
+        # Atualiza o total do pedido se existir
+        if self.pedido:
+            self.pedido.calcular_total()

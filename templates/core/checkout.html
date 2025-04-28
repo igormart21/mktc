@@ -46,29 +46,26 @@
                             <h5 class="mb-3">Informações da Propriedade</h5>
                             <div class="row">
                                 <div class="col-md-6 mb-3">
-                                    <label for="nome_propriedade" class="form-label">Nome da Propriedade/Fazenda</label>
-                                    <input type="text" class="form-control" id="nome_propriedade" name="nome_propriedade" required>
+                                    <label for="nome_propriedade" class="form-label">Nome da Propriedade/Fazenda *</label>
+                                    <input type="text" class="form-control" id="nome_propriedade" name="nome_propriedade" required value="{% if request.user.nome and request.user.sobrenome %}{{ request.user.nome }} {{ request.user.sobrenome }}{% else %}{{ request.user.email }}{% endif %}">
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label for="cnpj" class="form-label">CNPJ da Propriedade</label>
-                                    <input type="text" class="form-control" id="cnpj" name="cnpj" required>
+                                    <label for="cnpj" class="form-label">CNPJ da Propriedade *</label>
+                                    <input type="text" class="form-control" id="cnpj" name="cnpj" required value="{{ request.user.cpf|default:'' }}" placeholder="Digite o CNPJ da propriedade">
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-md-6 mb-3">
-                                    <label for="hectares" class="form-label">Área Total (Hectares)</label>
-                                    <input type="number" class="form-control" id="hectares" name="hectares" required>
+                                    <label for="hectares" class="form-label">Área Total (Hectares) *</label>
+                                    <input type="number" class="form-control" id="hectares" name="hectares" required value="{{ request.user.vendedor.hectares_atendidos|default:10 }}" min="1">
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label for="cultivo_principal" class="form-label">Cultivo Principal</label>
+                                    <label for="cultivo_principal" class="form-label">Cultivo Principal *</label>
                                     <select class="form-select" id="cultivo_principal" name="cultivo_principal" required>
                                         <option value="">Selecione...</option>
-                                        <option value="soja">Soja</option>
-                                        <option value="milho">Milho</option>
-                                        <option value="cafe">Café</option>
-                                        <option value="cana">Cana-de-açúcar</option>
-                                        <option value="algodao">Algodão</option>
-                                        <option value="outros">Outros</option>
+                                        {% for codigo, nome in request.user.vendedor.CULTURAS_CHOICES %}
+                                            <option value="{{ codigo }}" {% if codigo in request.user.vendedor.culturas_atendidas %}selected{% endif %}>{{ nome }}</option>
+                                        {% endfor %}
                                     </select>
                                 </div>
                             </div>
@@ -78,32 +75,32 @@
                             <h5 class="mb-3">Local de Entrega</h5>
                             <div class="row">
                                 <div class="col-md-6 mb-3">
-                                    <label for="estado" class="form-label">Estado</label>
+                                    <label for="estado" class="form-label">Estado *</label>
                                     <select class="form-select" id="estado" name="estado" required>
                                         <option value="">Selecione...</option>
-                                        <option value="SP">São Paulo</option>
-                                        <option value="MG">Minas Gerais</option>
-                                        <option value="PR">Paraná</option>
-                                        <option value="MS">Mato Grosso do Sul</option>
-                                        <option value="MT">Mato Grosso</option>
-                                        <option value="GO">Goiás</option>
-                                        <option value="BA">Bahia</option>
-                                        <option value="RS">Rio Grande do Sul</option>
+                                        <option value="SP" {% if request.user.vendedor.estado == 'SP' %}selected{% endif %}>São Paulo</option>
+                                        <option value="MG" {% if request.user.vendedor.estado == 'MG' %}selected{% endif %}>Minas Gerais</option>
+                                        <option value="PR" {% if request.user.vendedor.estado == 'PR' %}selected{% endif %}>Paraná</option>
+                                        <option value="MS" {% if request.user.vendedor.estado == 'MS' %}selected{% endif %}>Mato Grosso do Sul</option>
+                                        <option value="MT" {% if request.user.vendedor.estado == 'MT' %}selected{% endif %}>Mato Grosso</option>
+                                        <option value="GO" {% if request.user.vendedor.estado == 'GO' %}selected{% endif %}>Goiás</option>
+                                        <option value="BA" {% if request.user.vendedor.estado == 'BA' %}selected{% endif %}>Bahia</option>
+                                        <option value="RS" {% if request.user.vendedor.estado == 'RS' %}selected{% endif %}>Rio Grande do Sul</option>
                                     </select>
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label for="cidade" class="form-label">Cidade</label>
-                                    <input type="text" class="form-control" id="cidade" name="cidade" required>
+                                    <label for="cidade" class="form-label">Cidade *</label>
+                                    <input type="text" class="form-control" id="cidade" name="cidade" required value="{{ request.user.vendedor.cidade|default:'' }}">
                                 </div>
                             </div>
                             <div class="mb-3">
-                                <label for="endereco" class="form-label">Endereço da Propriedade</label>
-                                <input type="text" class="form-control" id="endereco" name="endereco" required>
+                                <label for="endereco" class="form-label">Endereço da Propriedade *</label>
+                                <input type="text" class="form-control" id="endereco" name="endereco" required value="{{ request.user.vendedor.endereco|default:'' }}">
                             </div>
                             <div class="row">
                                 <div class="col-md-6 mb-3">
-                                    <label for="cep" class="form-label">CEP</label>
-                                    <input type="text" class="form-control" id="cep" name="cep" required>
+                                    <label for="cep" class="form-label">CEP *</label>
+                                    <input type="text" class="form-control" id="cep" name="cep" required value="{{ request.user.vendedor.cep|default:'' }}" placeholder="00000-000">
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label for="referencia" class="form-label">Ponto de Referência</label>

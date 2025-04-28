@@ -1,5 +1,6 @@
 {% extends 'base_internal.html' %}
 {% load static %}
+{% load custom_filters %}
 
 {% block title %}Detalhes do Pedido #{{ pedido.id }} - AgroMarketplace{% endblock %}
 
@@ -7,86 +8,100 @@
 <div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-md-8">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h1 class="h3">Detalhes do Pedido #{{ pedido.id }}</h1>
-                <a href="{% url 'core:superadmin_compras_vendedores' %}" class="btn btn-outline-secondary">
-                    <i class="fas fa-arrow-left me-2"></i>Voltar
-                </a>
-            </div>
             <div class="card border-0 shadow-sm">
-                <div class="card-header bg-white py-3">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">
-                            <i class="fas fa-shopping-cart text-primary me-2"></i>
-                            Pedido #{{ pedido.id }}
-                        </h5>
-                        <span class="badge {% if pedido.status == 'AGUARDANDO_APROVACAO' %}bg-warning{% elif pedido.status == 'APROVADO' %}bg-success{% elif pedido.status == 'CANCELADO' %}bg-danger{% else %}bg-info{% endif %}">
+                <div class="card-body">
+                    <h1 class="h4 mb-4">Pedido #{{ pedido.id }} - {{ pedido.nome_propriedade }}</h1>
+                    
+                    <div class="mb-4">
+                        <h6 class="text-muted mb-2">Status:</h6>
+                        <span class="badge {% if pedido.status == 'AGUARDANDO_APROVACAO' %}bg-warning{% elif pedido.status == 'APROVADO' %}bg-success{% elif pedido.status == 'REPROVADO' %}bg-danger{% elif pedido.status == 'CANCELADO' %}bg-danger{% elif pedido.status == 'ENTREGUE' %}bg-info{% elif pedido.status == 'ARQUIVADO' %}bg-secondary{% else %}bg-primary{% endif %}">
                             {{ pedido.get_status_display }}
                         </span>
                     </div>
-                </div>
-                <div class="card-body">
+
                     <div class="mb-4">
-                        <h6 class="text-muted mb-2">Informações do Pedido</h6>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <p class="mb-1"><strong>Data:</strong></p>
-                                <p class="mb-0">{{ pedido.data_criacao|date:"d/m/Y H:i" }}</p>
-                            </div>
-                            <div class="col-md-6">
-                                <p class="mb-1"><strong>Valor Total:</strong></p>
-                                <p class="mb-0">R$ {{ pedido.total|floatformat:2 }}</p>
-                            </div>
-                        </div>
+                        <h6 class="text-muted mb-2">Data:</h6>
+                        <p class="mb-0">{{ pedido.data_criacao|date:"d/m/Y H:i" }}</p>
                     </div>
+
                     <div class="mb-4">
-                        <h6 class="text-muted mb-2">Itens do Pedido</h6>
+                        <h6 class="text-muted mb-2">Itens:</h6>
                         <div class="table-responsive">
                             <table class="table table-sm">
                                 <thead>
                                     <tr>
                                         <th>Produto</th>
-                                        <th>Descrição</th>
-                                        <th>Categoria</th>
-                                        {# <th>Vendedor</th> #}
                                         <th class="text-center">Qtd</th>
-                                        <th class="text-end">Preço Unitário</th>
                                         <th class="text-end">Total</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {% for item in pedido.itens.all %}
                                     <tr>
-                                        <td>{{ item.produto.name }}</td>
-                                        <td>{{ item.produto.description|default:"-" }}</td>
-                                        <td>{{ item.produto.get_product_type_display|default:"-" }}</td>
-                                        {# <td>-</td> #}
+                                        <td>
+                                            {% if item.produto %}
+                                                {{ item.produto.nome }}
+                                                <small class="text-muted d-block">ID: {{ item.produto.id }}</small>
+                                                {% if item.produto.categoria %}
+                                                    <small class="text-muted d-block">{{ item.produto.get_categoria_display }}</small>
+                                                {% endif %}
+                                            {% else %}
+                                                <span class="text-danger">Produto não encontrado (ID: {{ item.produto_id }})</span>
+                                            {% endif %}
+                                        </td>
                                         <td class="text-center">{{ item.quantidade }}</td>
-                                        <td class="text-end">R$ {{ item.preco_unitario|floatformat:2 }}</td>
                                         <td class="text-end">R$ {{ item.total|floatformat:2 }}</td>
                                     </tr>
                                     {% endfor %}
+                                    {% for venda in pedido.vendas.all %}
+                                    <tr>
+                                        <td>
+                                            {% if venda.produto %}
+                                                {{ venda.produto.name }}
+                                                <small class="text-muted d-block">ID: {{ venda.produto.id }}</small>
+                                                <small class="text-muted d-block">Marketplace</small>
+                                            {% else %}
+                                                <span class="text-danger">Produto não encontrado (ID: {{ venda.produto_id }})</span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="text-center">{{ venda.quantidade }}</td>
+                                        <td class="text-end">R$ {{ venda.total|floatformat:2 }}</td>
+                                    </tr>
+                                    {% endfor %}
                                 </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="2" class="text-end"><strong>Total:</strong></td>
+                                        <td class="text-end"><strong>R$ {{ pedido.total|floatformat:2 }}</strong></td>
+                                    </tr>
+                                </tfoot>
                             </table>
                         </div>
                     </div>
+
                     <div class="mb-4">
-                        <h6 class="text-muted mb-2">Informações do Comprador</h6>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <p class="mb-1"><strong>Nome:</strong></p>
-                                <p class="mb-0">{{ pedido.comprador.nome }}</p>
-                            </div>
-                            <div class="col-md-6">
-                                <p class="mb-1"><strong>Email:</strong></p>
-                                <p class="mb-0">{{ pedido.comprador.email }}</p>
-                            </div>
-                        </div>
+                        <h6 class="text-muted mb-2">Propriedade:</h6>
+                        <p class="mb-0">{{ pedido.nome_propriedade }} - {{ pedido.cnpj|format_cnpj }}</p>
                     </div>
+
                     <div class="mb-4">
-                        <h6 class="text-muted mb-2">Observações do Pedido</h6>
-                        <p>{{ pedido.observacoes|default:"Nenhuma observação." }}</p>
+                        <h6 class="text-muted mb-2">Localização:</h6>
+                        <p class="mb-0">{{ pedido.endereco }}{% if pedido.referencia %}, {{ pedido.referencia }}{% endif %}, {{ pedido.cidade }}/{{ pedido.estado }}</p>
+                        <p class="mb-0">CEP: {{ pedido.cep|format_cep }}</p>
                     </div>
+
+                    <div class="mb-4">
+                        <h6 class="text-muted mb-2">Informações Agrícolas:</h6>
+                        <p class="mb-0">Área: {{ pedido.hectares|floatformat:2 }} hectares</p>
+                        <p class="mb-0">Cultivo Principal: {{ pedido.get_cultivo_principal_display }}</p>
+                    </div>
+
+                    {% if pedido.observacoes %}
+                    <div class="mb-4">
+                        <h6 class="text-muted mb-2">Observações:</h6>
+                        <p class="mb-0">{{ pedido.observacoes }}</p>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
         </div>

@@ -39,7 +39,15 @@
                                                     <span>{{ item.produto.nome }}</span>
                                                 </div>
                                             </td>
-                                            <td class="text-center">{{ item.quantidade }}</td>
+                                            <td class="text-center">
+                                                <form action="{% url 'core:diminuir_quantidade' item.produto.id %}" method="post" class="d-inline">
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="btn btn-success btn-sm me-1" title="Diminuir quantidade">
+                                                        <i class="fas fa-minus"></i>
+                                                    </button>
+                                                </form>
+                                                {{ item.quantidade }}
+                                            </td>
                                             <td class="text-end">R$ {{ item.preco|floatformat:2 }}</td>
                                             <td class="text-end">R$ {{ item.preco_total|floatformat:2 }}</td>
                                             <td class="text-center">
@@ -57,7 +65,7 @@
                                 <tfoot class="table-success">
                                     <tr>
                                         <td colspan="3" class="text-end"><strong>Total:</strong></td>
-                                        <td class="text-end"><strong>R$ {{ carrinho.get_preco_total|floatformat:2 }}</strong></td>
+                                        <td class="text-end"><strong class="text-success">R$ {{ carrinho.get_preco_total|floatformat:2 }}</strong></td>
                                         <td></td>
                                     </tr>
                                 </tfoot>

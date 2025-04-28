@@ -54,4 +54,13 @@ class Carrinho:
         return sum(Decimal(item['preco']) * item['quantidade'] for item in self.carrinho.values())
 
     def __bool__(self):
-        return bool(self.carrinho) 
+        return bool(self.carrinho)
+
+    def diminuir_quantidade(self, produto):
+        produto_id = str(produto.id)
+        if produto_id in self.carrinho:
+            if self.carrinho[produto_id]['quantidade'] > 1:
+                self.carrinho[produto_id]['quantidade'] -= 1
+            else:
+                del self.carrinho[produto_id]
+            self.salvar() 

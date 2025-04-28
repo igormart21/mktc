@@ -94,7 +94,7 @@
                     <div class="image-container" style="height: 200px; overflow: hidden; position: relative;">
                         {% if produto.imagem %}
                         <a href="{% url 'core:produto_detalhe' produto.id %}" class="text-decoration-none">
-                            <img src="{{ produto.imagem.url }}" class="card-img-top" alt="{{ produto.nome }}" 
+                            <img src="{{ produto.imagem.url }}?v={% now 'U' %}" class="card-img-top" alt="{{ produto.nome }}" 
                                  style="width: 100%; height: 100%; object-fit: contain; background-color: #f8f9fa;">
                         </a>
                         {% else %}
@@ -104,13 +104,6 @@
                         {% endif %}
 
                         <!-- Badges e indicadores -->
-                        <div class="position-absolute top-0 start-0 p-2">
-                            {% if produto.preco and produto.preco > 0 %}
-                            <span class="badge bg-primary mb-1 d-block">
-                                <i class="fas fa-tag me-1"></i> R$ {{ produto.preco|floatformat:2 }}
-                            </span>
-                            {% endif %}
-                        </div>
                         <div class="position-absolute top-0 end-0 p-2">
                             {% if produto.permite_troca %}
                             <span class="badge bg-success p-2" data-bs-toggle="tooltip" title="Permite troca">
@@ -138,9 +131,12 @@
                     <h5 class="card-title">
                         <a href="{% url 'core:produto_detalhe' produto.id %}" class="text-decoration-none text-dark">{{ produto.nome }}</a>
                     </h5>
-                    <div class="d-flex mb-2">
+                    <div class="d-flex mb-2 align-items-center">
                         <span class="badge bg-primary me-1">{{ produto.get_categoria_display|default:"Sem categoria" }}</span>
-                        <span class="badge bg-secondary">{{ produto.get_tipo_display|default:"Sem tipo" }}</span>
+                        <span class="badge bg-secondary me-2">{{ produto.get_tipo_display|default:"Sem tipo" }}</span>
+                        {% if produto.preco and produto.preco > 0 %}
+                        <span class="badge bg-success ms-auto"><i class="fas fa-tag me-1"></i>R$ {{ produto.preco|floatformat:2 }}</span>
+                        {% endif %}
                     </div>
                     <p class="card-text text-muted flex-grow-1">{{ produto.descricao|truncatewords:15|default:"Sem descrição" }}</p>
                     
@@ -174,17 +170,36 @@
                     <form method="post" action="{% url 'vendas:solicitar_compra' produto.id %}">
                         {% csrf_token %}
                         <div class="modal-body">
-                            <div class="mb-3">
-                                <h6 class="text-muted mb-2">Produto</h6>
-                                <p class="mb-0">{{ produto.nome }}</p>
-                            </div>
-                            <div class="mb-3">
-                                <h6 class="text-muted mb-2">Preço</h6>
-                                <p class="mb-0">R$ {{ produto.preco|default:"0.00" }}</p>
-                            </div>
-                            <div class="mb-3">
-                                <label for="quantidade" class="form-label">Quantidade</label>
-                                <input type="number" class="form-control" id="quantidade" name="quantidade" min="1" value="1" required>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    {% if produto.imagem %}
+                                    <img src="{{ produto.imagem.url }}?v={% now 'U' %}" class="img-fluid rounded" alt="{{ produto.nome }}" 
+                                         style="width: 100%; height: 200px; object-fit: contain; background-color: #f8f9fa;">
+                                    {% else %}
+                                    <div class="bg-light rounded d-flex align-items-center justify-content-center" style="height: 200px;">
+                                        <i class="fas fa-seedling fa-3x text-success"></i>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="mb-3">
+                                        <h6 class="text-muted mb-2">Produto</h6>
+                                        <p class="mb-0">{{ produto.nome }}</p>
+                                    </div>
+                                    <div class="mb-3">
+                                        <h6 class="text-muted mb-2">Preço</h6>
+                                        <p class="mb-0">R$ {{ produto.preco|default:"0.00" }}</p>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="quantidade{{ produto.id }}" class="form-label">Quantidade</label>
+                                        <div class="input-group" style="max-width: 200px; margin-left: auto;">
+                                            <input type="number" class="form-control text-center border-end-0" id="quantidade{{ produto.id }}" name="quantidade" min="1" value="1" required style="border-radius: 8px 0 0 8px;">
+                                            <button type="button" class="btn btn-primary" onclick="calcularValorTotal(this.previousElementSibling)" style="border-radius: 0 8px 8px 0; padding: 0.375rem 1rem;">
+                                                <i class="fas fa-calculator"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                             <div class="mb-3">
                                 <label for="observacoes" class="form-label">Observações</label>
@@ -197,7 +212,7 @@
                                     </div>
                                     <div class="flex-grow-1 ms-3">
                                         <h6 class="alert-heading mb-1">Valor Total</h6>
-                                        <p class="mb-0" id="valorTotal">R$ {{ produto.preco|default:"0.00" }}</p>
+                                        <p class="mb-0" id="valorTotal{{ produto.id }}">R$ {{ produto.preco|default:"0.00" }}</p>
                                     </div>
                                 </div>
                             </div>
@@ -273,17 +288,50 @@
         return new bootstrap.Tooltip(tooltipTriggerEl)
     });
 
+    // Função para calcular o valor total
+    function calcularValorTotal(input) {
+        const modalBody = input.closest('.modal-body');
+        const precoTexto = modalBody.querySelector('.mb-3:nth-child(2) p.mb-0').textContent;
+        const preco = parseFloat(precoTexto.replace(/[^0-9,]/g, '').replace(',', '.'));
+        const quantidade = parseInt(input.value) || 0;
+        const valorTotal = preco * quantidade;
+        const produtoId = input.id.replace('quantidade', '');
+        const valorTotalElement = modalBody.querySelector(`#valorTotal${produtoId}`);
+        if (valorTotalElement) {
+            valorTotalElement.textContent = `R$ ${valorTotal.toFixed(2)}`;
+            // Adicionar animação de destaque
+            valorTotalElement.style.transition = 'all 0.3s ease';
+            valorTotalElement.style.transform = 'scale(1.1)';
+            setTimeout(() => {
+                valorTotalElement.style.transform = 'scale(1)';
+            }, 300);
+        }
+    }
+
     // Atualizar valor total ao mudar a quantidade
     document.querySelectorAll('input[name="quantidade"]').forEach(input => {
-        input.addEventListener('input', function() {
-            const modalBody = this.closest('.modal-body');
-            const precoTexto = modalBody.querySelector('p.mb-0').textContent;
-            const preco = parseFloat(precoTexto.replace(/[^0-9,]/g, '').replace(',', '.'));
-            const quantidade = parseInt(this.value) || 0;
-            const valorTotal = preco * quantidade;
-            const moeda = precoTexto.match(/[R$€$]/)[0];
-            modalBody.querySelector('#valorTotal').textContent = `${moeda} ${valorTotal.toFixed(2)}`;
+        // Calcular valor inicial
+        calcularValorTotal(input);
+
+        // Atualizar quando o usuário terminar de digitar
+        input.addEventListener('change', function() {
+            if (this.value < 1) this.value = 1;
+            calcularValorTotal(this);
         });
+
+        // Atualizar quando o modal for aberto
+        const modal = input.closest('.modal');
+        if (modal) {
+            modal.addEventListener('show.bs.modal', function() {
+                input.value = 1;
+                calcularValorTotal(input);
+            });
+
+            modal.addEventListener('hidden.bs.modal', function() {
+                input.value = 1;
+                calcularValorTotal(input);
+            });
+        }
     });
 </script>
 {% endblock %} 

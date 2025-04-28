@@ -45,3 +45,12 @@ class ProdutoAdmin(admin.ModelAdmin):
     def has_change_permission(self, request, obj=None):
         # Apenas superadmins podem editar produtos
         return request.user.is_superuser
+
+    def get_search_results(self, request, queryset, search_term):
+        queryset, use_distinct = super().get_search_results(request, queryset, search_term)
+        if search_term:
+            queryset |= self.model.objects.filter(nome__icontains=search_term)
+        return queryset, use_distinct
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('vendedor')

@@ -41,6 +41,7 @@ class Produto(models.Model):
     nome = models.CharField(max_length=200)
     categoria = models.CharField(max_length=100)
     descricao = models.TextField(blank=True)
+    core_product_id = models.PositiveIntegerField(null=True, blank=True, unique=True, verbose_name='ID do Produto Core')
     
     # Preço e volume
     preco = models.DecimalField(max_digits=10, decimal_places=2, default=0)
