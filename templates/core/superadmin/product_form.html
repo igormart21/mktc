@@ -31,7 +31,7 @@
                             <div class="col-md-6">
                                 {{ form.name|as_crispy_field }}
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-6" id="div_categoria">
                                 {{ form.category|as_crispy_field }}
                             </div>
                         </div>
@@ -82,13 +82,23 @@
                             </div>
                         </div>
 
-                        <!-- Semente -->
-                        <div class="row mb-4">
-                            <div class="col-md-6">
-                                {{ form.sieve|as_crispy_field }}
+                        <!-- Campos de Semente (visíveis apenas quando categoria for Semente) -->
+                        <div id="campos_semente" style="display:none;">
+                            <div class="row mb-4">
+                                <div class="col-md-6">
+                                    {{ form.tipo_da_semente|as_crispy_field }}
+                                </div>
+                                <div class="col-md-6" id="div_tratamento_da_semente" style="display:none;">
+                                    {{ form.tratamento_da_semente|as_crispy_field }}
+                                </div>
                             </div>
-                            <div class="col-md-6">
-                                {{ form.variety|as_crispy_field }}
+                            <div class="row mb-4">
+                                <div class="col-md-6" id="div_peneira" style="display:none;">
+                                    {{ form.sieve|as_crispy_field }}
+                                </div>
+                                <div class="col-md-6" id="div_variedade" style="display:none;">
+                                    {{ form.variety|as_crispy_field }}
+                                </div>
                             </div>
                         </div>
 
@@ -136,4 +146,57 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    function atualizarCamposSemente() {
+        const categoriaSelect = document.getElementById('id_category');
+        const categoria = categoriaSelect ? categoriaSelect.value : '';
+        console.log('Categoria selecionada:', categoria); // Debug log
+        
+        const tipoSementeField = document.querySelector('[name="tipo_da_semente"]');
+        const tipoSemente = tipoSementeField ? tipoSementeField.value : '';
+        console.log('Tipo da semente:', tipoSemente); // Debug log
+
+        // Esconde todos os campos de semente inicialmente
+        document.getElementById('campos_semente').style.display = 'none';
+        document.getElementById('div_tratamento_da_semente').style.display = 'none';
+        document.getElementById('div_peneira').style.display = 'none';
+        document.getElementById('div_variedade').style.display = 'none';
+
+        // Comparação case-insensitive e trim para remover espaços
+        if (categoria && categoria.toLowerCase().trim() === 'semente') {
+            console.log('Mostrando campos de semente'); // Debug log
+            document.getElementById('campos_semente').style.display = '';
+            
+            if (tipoSemente === 'tratada') {
+                document.getElementById('div_tratamento_da_semente').style.display = '';
+                document.getElementById('div_peneira').style.display = '';
+                document.getElementById('div_variedade').style.display = '';
+            } else if (tipoSemente === 'branca') {
+                document.getElementById('div_peneira').style.display = '';
+                document.getElementById('div_variedade').style.display = '';
+            }
+        } else {
+            console.log('Categoria não é semente ou está vazia'); // Debug log
+        }
+    }
+
+    // Adiciona os event listeners
+    const categoriaSelect = document.getElementById('id_category');
+    if (categoriaSelect) {
+        categoriaSelect.addEventListener('change', atualizarCamposSemente);
+        console.log('Event listener adicionado ao select de categoria'); // Debug log
+    }
+
+    const tipoSementeField = document.querySelector('[name="tipo_da_semente"]');
+    if (tipoSementeField) {
+        tipoSementeField.addEventListener('change', atualizarCamposSemente);
+        console.log('Event listener adicionado ao campo tipo da semente'); // Debug log
+    }
+
+    // Executa a função inicialmente
+    atualizarCamposSemente();
+});
+</script>
 {% endblock %} 

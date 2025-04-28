@@ -14,13 +14,10 @@ class Produto(models.Model):
     ]
 
     TIPO_CHOICES = [
-        ('feijao', 'Feijão'),
-        ('algodao', 'Algodão'),
-        ('gergelim', 'Gergelim'),
-        ('pastagem', 'Pastagem'),
-        ('milho', 'Milho'),
         ('soja', 'Soja'),
-        ('outros', 'Outros'),
+        ('milho', 'Milho'),
+        ('pastagem', 'Pastagem'),
+        ('sorgo', 'Sorgo'),
     ]
 
     MOEDA_CHOICES = [
@@ -30,16 +27,21 @@ class Produto(models.Model):
     ]
 
     CATEGORIA_CHOICES = [
-        ('SEMENTES', 'Sementes'),
-        ('FERTILIZANTES', 'Fertilizantes'),
-        ('DEFENSIVOS', 'Defensivos'),
-        ('MAQUINARIOS', 'Maquinários'),
-        ('OUTROS', 'Outros'),
+        ('HERBICIDA', 'Herbicida'),
+        ('INSETICIDA', 'Inseticida'),
+        ('FUNGICIDA', 'Fungicida'),
+        ('OLEO_MINERAL', 'Óleo Mineral'),
+        ('SEMENTE', 'Semente'),
+    ]
+
+    TIPO_SEMENTE_CHOICES = [
+        ('branca', 'Semente Branca'),
+        ('tratada', 'Semente Tratada'),
     ]
 
     # Campos básicos
     nome = models.CharField(max_length=200)
-    categoria = models.CharField(max_length=100)
+    categoria = models.CharField(max_length=20, choices=CATEGORIA_CHOICES, default='HERBICIDA')
     descricao = models.TextField(blank=True)
     core_product_id = models.PositiveIntegerField(null=True, blank=True, unique=True, verbose_name='ID do Produto Core')
     
@@ -50,7 +52,7 @@ class Produto(models.Model):
     unidade_medida = models.CharField(max_length=2, choices=UNIDADE_CHOICES, default='un')
     
     # Classificação
-    tipo = models.CharField(max_length=20, choices=TIPO_CHOICES, default='outros')
+    tipo = models.CharField(max_length=20, choices=TIPO_CHOICES, default='soja')
     embalagem = models.CharField(max_length=50, default='Saco')
     
     # Informações adicionais
@@ -72,6 +74,20 @@ class Produto(models.Model):
     # Metadados
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    tipo_da_semente = models.CharField(
+        max_length=20,
+        choices=TIPO_SEMENTE_CHOICES,
+        blank=True,
+        null=True,
+        verbose_name='Tipo da Semente'
+    )
+    tratamento_da_semente = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True,
+        verbose_name='Tratamento da Semente'
+    )
 
     class Meta:
         verbose_name = 'Produto'

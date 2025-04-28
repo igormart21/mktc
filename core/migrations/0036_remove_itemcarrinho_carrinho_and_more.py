@@ -12,14 +12,11 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name='itemcarrinho',
-            name='carrinho',
-        ),
-        migrations.AlterUniqueTogether(
-            name='itemcarrinho',
-            unique_together=None,
-        ),
+        # Removendo a operação que causa o erro
+        # migrations.RemoveField(
+        #     model_name='itemcarrinho',
+        #     name='carrinho',
+        # ),
         migrations.RemoveField(
             model_name='itemcarrinho',
             name='produto',
