@@ -57,9 +57,9 @@
                                 <tbody>
                                     {% for item in pedido.itens.all %}
                                     <tr>
-                                        <td>{{ item.produto.nome }}</td>
-                                        <td>{{ item.produto.descricao|default:"-" }}</td>
-                                        <td>{{ item.produto.categoria|default:"-" }}</td>
+                                        <td>{{ item.produto.name }}</td>
+                                        <td>{{ item.produto.description|default:"-" }}</td>
+                                        <td>{{ item.produto.get_product_type_display|default:"-" }}</td>
                                         {# <td>-</td> #}
                                         <td class="text-center">{{ item.quantidade }}</td>
                                         <td class="text-end">R$ {{ item.preco_unitario|floatformat:2 }}</td>
@@ -75,7 +75,7 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <p class="mb-1"><strong>Nome:</strong></p>
-                                <p class="mb-0">{{ pedido.comprador.get_full_name|default:pedido.comprador.nome }}</p>
+                                <p class="mb-0">{{ pedido.comprador.nome }}</p>
                             </div>
                             <div class="col-md-6">
                                 <p class="mb-1"><strong>Email:</strong></p>

@@ -21,6 +21,9 @@
                         <h3 class="h3 mb-0">
                             <i class="fas fa-box text-primary me-2"></i>Gerenciar Produtos
                         </h3>
+                        <a href="{% url 'core:superadmin_product_create' %}" class="btn btn-success">
+                            <i class="fas fa-plus me-2"></i>Cadastrar Produto
+                        </a>
                     </div>
                     <p class="text-muted mb-0 mt-2">Cadastre, edite e gerencie todos os produtos da plataforma.</p>
                 </div>
@@ -81,12 +84,12 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for produto in products %}
+                                {% for produto in produtos %}
                                 <tr>
                                     <td>{{ produto.id }}</td>
                                     <td>
                                         {% if produto.imagem %}
-                                        <img src="{{ produto.imagem }}" alt="{{ produto.nome }}" class="img-thumbnail" style="max-width: 50px;">
+                                        <img src="{{ produto.imagem.url }}" alt="{{ produto.nome }}" class="img-thumbnail" style="max-width: 50px;">
                                         {% else %}
                                         <div class="bg-light d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
                                             <i class="fas fa-seedling text-success"></i>

@@ -1126,7 +1126,7 @@ def checkout(request):
             total=total
         )
 
-        # Cria vendas para cada item do carrinho
+        # Cria vendas e itens do pedido para cada item do carrinho
         for item in carrinho:
             produto = item['produto']
             if not isinstance(produto, Product):
@@ -1142,6 +1142,15 @@ def checkout(request):
                 preco_unitario=preco_unitario,
                 status='PENDENTE',
                 pedido=pedido
+            )
+            # Buscar o Produto correto para o ItemPedido
+            produto_real = Produto.objects.filter(id=produto.id).first()
+            ItemPedido.objects.create(
+                pedido=pedido,
+                produto=produto_real,
+                quantidade=quantidade,
+                preco_unitario=preco_unitario,
+                total=quantidade * preco_unitario
             )
         carrinho.limpar()
         messages.success(request, 'Pedido registrado com sucesso!')
