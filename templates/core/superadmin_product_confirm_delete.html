@@ -1,0 +1,36 @@
+{% extends "base_internal.html" %}
+{% load static %}
+
+{% block title %}Confirmar Exclusão - AgroMarketplace{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <h3 class="h3 mb-0">
+                        <i class="fas fa-exclamation-triangle text-danger me-2"></i>Confirmar Exclusão
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <p class="lead">Tem certeza que deseja excluir o produto "{{ produto.nome }}"?</p>
+                    <p class="text-danger"><small>Esta ação não pode ser desfeita.</small></p>
+                    
+                    <div class="d-flex justify-content-end gap-2 mt-4">
+                        <a href="{% url 'core:superadmin_products' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Cancelar
+                        </a>
+                        <form method="post" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-trash me-2"></i>Excluir
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

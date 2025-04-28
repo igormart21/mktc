@@ -49,9 +49,11 @@
                                 <label for="id_categoria" class="form-label">Categoria*</label>
                                 <select name="categoria" id="id_categoria" class="form-select" required>
                                     <option value="">Selecione...</option>
-                                    {% for category in form.fields.categoria.queryset %}
-                                        <option value="{{ category.id }}" {% if form.categoria.value == category.id %}selected{% endif %}>{{ category.nome }}</option>
-                                    {% endfor %}
+                                    <option value="HERBICIDA">Herbicida</option>
+                                    <option value="INSETICIDA">Inseticida</option>
+                                    <option value="FUNGICIDA">Fungicida</option>
+                                    <option value="OLEO_MINERAL">Óleo mineral</option>
+                                    <option value="SEMENTE">Semente</option>
                                 </select>
                                 {% if form.categoria.errors %}
                                 <div class="invalid-feedback d-block">
@@ -230,10 +232,6 @@
                                     <label for="variedade" class="form-label">Variedade da Semente</label>
                                     <input type="text" class="form-control" name="variedade" id="variedade">
                                 </div>
-                                <div class="mb-3">
-                                    <label for="tratamento_da_semente" class="form-label">Tratamento</label>
-                                    <input type="text" class="form-control" name="tratamento_da_semente" id="tratamento_da_semente">
-                                </div>
                             </div>
                         </div>
 
@@ -255,8 +253,7 @@
 <script>
 $(document).ready(function() {
     function toggleSementeFields() {
-        var categoriaText = $('#id_categoria option:selected').text();
-        if (categoriaText === 'Semente') {
+        if ($('#id_categoria').val() === 'SEMENTE') {
             $('#opcoes_semente').show();
         } else {
             $('#opcoes_semente').hide();

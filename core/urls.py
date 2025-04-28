@@ -40,10 +40,10 @@ urlpatterns = [
     path('pedido/<int:pedido_id>/reprovar/', views.reprovar_pedido, name='reprovar_pedido'),
 
     # URLs de produtos do superadmin
-    path('superadmin/produtos/', views.superadmin_products, name='superadmin_products'),
-    path('superadmin/produtos/criar/', views.superadmin_product_create, name='superadmin_product_create'),
-    path('superadmin/produtos/editar/<int:pk>/', views.superadmin_product_update, name='superadmin_product_update'),
-    path('superadmin/produtos/excluir/<int:pk>/', views.superadmin_product_delete, name='superadmin_product_delete'),
+    path('superadmin/products/', views.superadmin_products, name='superadmin_products'),
+    path('superadmin/products/create/', views.superadmin_product_create, name='superadmin_product_create'),
+    path('superadmin/products/<int:pk>/update/', views.superadmin_product_update, name='superadmin_product_update'),
+    path('superadmin/products/<int:produto_id>/delete/', views.superadmin_product_delete, name='superadmin_product_delete'),
 
     # URLs de produtos do vendedor
     path('vendedor/produtos/', views.seller_products, name='seller_products'),

@@ -34,8 +34,8 @@
                                 </span>
                             </div>
                         </a>
-                {% else %}
-                <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 400px;">
+                        {% else %}
+                        <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 400px;">
                             <i class="fas fa-seedling fa-4x text-success"></i>
                         </div>
                         {% endif %}
@@ -186,7 +186,6 @@
                                 </div>
                             </div>
                             {% endif %}
-                            
                             {% if produto.lote %}
                             <div class="col">
                                 <div class="d-flex align-items-center">
@@ -200,7 +199,6 @@
                                 </div>
                             </div>
                             {% endif %}
-                            
                             {% if produto.embalagem %}
                             <div class="col">
                                 <div class="d-flex align-items-center">
@@ -209,13 +207,33 @@
                                     </div>
                                     <div class="flex-grow-1 ms-3">
                                         <div class="text-muted small">Embalagem</div>
-                                        <div class="fw-bold">{{ produto.get_embalagem_display }}</div>
+                                        <div class="fw-bold">{{ produto.embalagem }}</div>
                                     </div>
                                 </div>
                             </div>
                             {% endif %}
-                            
-                            {% if produto.validade %}
+                            <div class="col">
+                                <div class="d-flex align-items-center">
+                                    <div class="flex-shrink-0">
+                                        <i class="fas fa-filter fa-fw text-primary"></i>
+                                    </div>
+                                    <div class="flex-grow-1 ms-3">
+                                        <div class="text-muted small">Peneira da semente</div>
+                                        <div class="fw-bold">{{ produto.peneira|default:'Não especificado' }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="d-flex align-items-center">
+                                    <div class="flex-shrink-0">
+                                        <i class="fas fa-seedling fa-fw text-primary"></i>
+                                    </div>
+                                    <div class="flex-grow-1 ms-3">
+                                        <div class="text-muted small">Variedade da semente</div>
+                                        <div class="fw-bold">{{ produto.variedade|default:'Não especificado' }}</div>
+                                    </div>
+                                </div>
+                            </div>
                             <div class="col">
                                 <div class="d-flex align-items-center">
                                     <div class="flex-shrink-0">
@@ -223,40 +241,35 @@
                                     </div>
                                     <div class="flex-grow-1 ms-3">
                                         <div class="text-muted small">Validade</div>
-                                        <div class="fw-bold">{{ produto.validade|date:"d/m/Y" }}</div>
+                                        <div class="fw-bold">{{ produto.validade|default:'Não especificado' }}</div>
                                     </div>
                                 </div>
                             </div>
-                            {% endif %}
-                            
-                            {% if produto.peneira %}
                             <div class="col">
                                 <div class="d-flex align-items-center">
                                     <div class="flex-shrink-0">
-                                        <i class="fas fa-filter fa-fw text-primary"></i>
+                                        <i class="fas fa-leaf fa-fw text-primary"></i>
                                     </div>
                                     <div class="flex-grow-1 ms-3">
-                                        <div class="text-muted small">Peneira</div>
-                                        <div class="fw-bold">{{ produto.peneira }}</div>
+                                        <div class="text-muted small">Tipo da semente</div>
+                                        <div class="fw-bold">{{ produto.get_tipo_display|default:'Não especificado' }}</div>
                                     </div>
                                 </div>
                             </div>
-                            {% endif %}
-                            
-                            {% if produto.variedade %}
-                            <div class="col">
-                                <div class="d-flex align-items-center">
-                                    <div class="flex-shrink-0">
-                                        <i class="fas fa-dna fa-fw text-primary"></i>
-                                    </div>
-                                    <div class="flex-grow-1 ms-3">
-                                        <div class="text-muted small">Variedade</div>
-                                        <div class="fw-bold">{{ produto.variedade }}</div>
-                                    </div>
-                                </div>
-                            </div>
-                            {% endif %}
                         </div>
+                    </div>
+
+                    <!-- Bloco de debug para mostrar todos os campos de especificação -->
+                    <div class="alert alert-warning mt-3">
+                        <strong>DEBUG:</strong>
+                        <ul>
+                            <li>Fabricante: {{ produto.fabricante }}</li>
+                            <li>Lote: {{ produto.lote }}</li>
+                            <li>Embalagem: {{ produto.embalagem }}</li>
+                            <li>Peneira: {{ produto.peneira }}</li>
+                            <li>Variedade: {{ produto.variedade }}</li>
+                            <li>Validade: {{ produto.validade }}</li>
+                        </ul>
                     </div>
 
                     <!-- Formulário de Solicitação -->

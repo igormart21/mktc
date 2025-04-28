@@ -30,7 +30,7 @@ class Produto(models.Model):
         ('HERBICIDA', 'Herbicida'),
         ('INSETICIDA', 'Inseticida'),
         ('FUNGICIDA', 'Fungicida'),
-        ('OLEO_MINERAL', 'Óleo Mineral'),
+        ('OLEO_MINERAL', 'Óleo mineral'),
         ('SEMENTE', 'Semente'),
     ]
 
@@ -41,7 +41,7 @@ class Produto(models.Model):
 
     # Campos básicos
     nome = models.CharField(max_length=200)
-    categoria = models.CharField(max_length=20, choices=CATEGORIA_CHOICES, default='HERBICIDA')
+    categoria = models.CharField(max_length=100, choices=CATEGORIA_CHOICES)
     descricao = models.TextField(blank=True)
     core_product_id = models.PositiveIntegerField(null=True, blank=True, unique=True, verbose_name='ID do Produto Core')
     
@@ -64,6 +64,7 @@ class Produto(models.Model):
     # Informações da semente
     peneira = models.CharField(max_length=50, blank=True, null=True)
     variedade = models.CharField(max_length=100, blank=True, null=True)
+    tratamento = models.CharField(max_length=100, blank=True, null=True)
     
     # Imagem
     imagem = models.ImageField(upload_to=product_image_path, null=True, blank=True)

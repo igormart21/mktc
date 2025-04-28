@@ -316,12 +316,9 @@ def product_create(request):
     if request.method == 'POST':
         form = ProductForm(request.POST, request.FILES)
         if form.is_valid():
-            product = form.save(commit=False)
-            if hasattr(request.user, 'vendedor'):
-                product.seller = request.user.vendedor
-                product.save()
-                messages.success(request, 'Produto criado com sucesso!')
-                return redirect('core:product_list')
+            produto = form.save()
+            messages.success(request, 'Produto criado com sucesso!')
+            return redirect('core:product_list')
     else:
         form = ProductForm()
     return render(request, 'core/product_form.html', {'form': form})
@@ -446,7 +443,6 @@ def seller_disable(request, seller_id):
 @login_required
 @user_passes_test(is_superadmin)
 def seller_enable(request, seller_id):
-    """Ativa um vendedor (apenas se aprovado)"""
     seller = get_object_or_404(Vendedor, id=seller_id)
     if seller.status_aprovacao == 'APROVADO':
         seller.usuario.is_active = True
@@ -511,7 +507,7 @@ def superadmin_pedidos(request):
     tipo_venda = request.GET.get('tipo_venda')
     data_inicio = request.GET.get('data_inicio')
     data_fim = request.GET.get('data_fim')
-
+    
     # Ação de arquivar/desarquivar
     if request.method == 'POST':
         pedido_id = request.POST.get('pedido_id')
@@ -527,14 +523,14 @@ def superadmin_pedidos(request):
                 pedido.save()
                 messages.success(request, f'Pedido #{pedido.id} desarquivado com sucesso!')
             return redirect('core:superadmin_pedidos')
-
+    
     # Obter todos os pedidos
     pedidos = Pedido.objects.all().order_by('-data_criacao')
-
+    
     # Por padrão, não mostrar arquivados, só se filtrar explicitamente
     if not status or status != 'ARQUIVADO':
         pedidos = pedidos.exclude(status='ARQUIVADO')
-
+    
     # Aplicar filtros
     if status:
         pedidos = pedidos.filter(status=status)
@@ -553,12 +549,12 @@ def superadmin_pedidos(request):
             pedidos = pedidos.filter(data_criacao__lte=data_fim)
         except ValueError:
             pass
-
+    
     # Paginação
     paginator = Paginator(pedidos, 20)
     page = request.GET.get('page')
     pedidos = paginator.get_page(page)
-
+    
     context = {
         'pedidos': pedidos,
         'status_choices': Pedido.STATUS_CHOICES,
@@ -1432,14 +1428,18 @@ def superadmin_product_create(request):
 
 @login_required
 @user_passes_test(is_superadmin)
-def superadmin_product_delete(request, pk):
-    """Deleta um produto como superadmin"""
-    produto = get_object_or_404(Produto, pk=pk)
+def superadmin_product_delete(request, produto_id):
+    """Exclui um produto"""
+    produto = get_object_or_404(Produto, id=produto_id)
+    
     if request.method == 'POST':
-        produto.delete()
-        messages.success(request, 'Produto deletado com sucesso!')
-        return redirect('core:superadmin_products')
-    return render(request, 'core/superadmin_product_confirm_delete.html', {'produto': produto})
+        try:
+            produto.delete()
+            messages.success(request, 'Produto excluído com sucesso!')
+        except Exception as e:
+            messages.error(request, f'Erro ao excluir produto: {str(e)}')
+    
+    return redirect('core:superadmin_products')
 
 @login_required
 @user_passes_test(is_vendedor)

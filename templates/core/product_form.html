@@ -41,66 +41,77 @@
                         
                         <!-- Nome do Produto em largura total -->
                         <div class="mb-4">
-                            {{ form.name|as_crispy_field }}
+                            {{ form.nome|as_crispy_field }}
                         </div>
                         
                         <div class="row">
                             <!-- Coluna 1 -->
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    {{ form.category|as_crispy_field }}
+                                    <label for="id_categoria" class="form-label">Categoria*</label>
+                                    <select name="categoria" id="id_categoria" class="form-select" required>
+                                        <option value="">Selecione...</option>
+                                        <option value="HERBICIDA">Herbicida</option>
+                                        <option value="INSETICIDA">Inseticida</option>
+                                        <option value="FUNGICIDA">Fungicida</option>
+                                        <option value="OLEO_MINERAL">Óleo mineral</option>
+                                        <option value="SEMENTE">Semente</option>
+                                    </select>
                                 </div>
                                 <div class="mb-3">
-                                    {{ form.product_type|as_crispy_field }}
+                                    {{ form.tipo|as_crispy_field }}
                                 </div>
                                 <div class="mb-3">
-                                    {{ form.sieve|as_crispy_field }}
+                                    {{ form.peneira|as_crispy_field }}
                                 </div>
                                 <div class="mb-3">
-                                    {{ form.variety|as_crispy_field }}
+                                    {{ form.variedade|as_crispy_field }}
                                 </div>
                                 <div class="mb-3">
-                                    {{ form.lot|as_crispy_field }}
+                                    {{ form.lote|as_crispy_field }}
                                 </div>
                                 <div class="mb-3">
-                                    {{ form.available_volume|as_crispy_field }}
+                                    {{ form.volume_disponivel|as_crispy_field }}
                                 </div>
                                 <div class="mb-3">
-                                    {{ form.unit|as_crispy_field }}
+                                    {{ form.unidade_medida|as_crispy_field }}
                                 </div>
                                 <div class="mb-3">
-                                    {{ form.packaging|as_crispy_field }}
+                                    {{ form.embalagem|as_crispy_field }}
+                                </div>
+                                <div class="mb-3">
+                                    {{ form.tratamento|as_crispy_field }}
                                 </div>
                             </div>
                             
                             <!-- Coluna 2 -->
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    {{ form.currency|as_crispy_field }}
+                                    {{ form.moeda|as_crispy_field }}
                                 </div>
                                 <div class="mb-3">
-                                    {{ form.price|as_crispy_field }}
+                                    {{ form.preco|as_crispy_field }}
                                 </div>
                                 <div class="mb-3">
-                                    {{ form.manufacturer|as_crispy_field }}
+                                    {{ form.fabricante|as_crispy_field }}
                                 </div>
                                 <div class="mb-3">
-                                    {{ form.minimum_quantity|as_crispy_field }}
+                                    {{ form.quantidade_minima|as_crispy_field }}
                                 </div>
                                 <div class="mb-3">
-                                    {{ form.expiration_date|as_crispy_field }}
+                                    {{ form.validade|as_crispy_field }}
                                 </div>
                                 <div class="mb-3">
-                                    {{ form.allow_exchange|as_crispy_field }}
+                                    {{ form.ativo|as_crispy_field }}
                                 </div>
                                 <div class="mb-3">
-                                    {{ form.image|as_crispy_field }}
+                                    {{ form.imagem|as_crispy_field }}
                                 </div>
-                                {% if form.instance.image %}
+                                {% if form.instance.imagem %}
                             <div class="mb-3">
                                     <label class="form-label">Imagem Atual</label>
                                     <div class="mt-2">
-                                        <img src="{{ form.instance.image.url }}" alt="Imagem atual" class="img-thumbnail" style="max-height: 200px;">
+                                        <img src="{{ form.instance.imagem.url }}" alt="Imagem atual" class="img-thumbnail" style="max-height: 200px;">
                                     </div>
                                 </div>
                                 {% endif %}
@@ -109,7 +120,7 @@
                         
                         <!-- Descrição em largura total -->
                         <div class="mb-4">
-                            {{ form.description|as_crispy_field }}
+                            {{ form.descricao|as_crispy_field }}
                         </div>
                         
                         <div class="d-flex justify-content-between align-items-center">

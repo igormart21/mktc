@@ -106,21 +106,12 @@
                                         </span>
                                     </td>
                                     <td>
-                                        {% if produto.id %}
-                                        <a href="/superadmin/produtos/editar/{{ produto.id }}/" class="btn btn-sm btn-primary">
+                                        <a href="{% url 'core:superadmin_product_update' pk=produto.id %}" class="btn btn-primary btn-sm">
                                             <i class="fas fa-edit"></i>
                                         </a>
-                                        {% else %}
-                                        <a href="#" class="btn btn-sm btn-primary disabled">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                        {% endif %}
-                                        <a href="#" class="btn btn-sm {% if produto.ativo %}btn-warning{% else %}btn-success{% endif %} toggle-status" data-id="{{ produto.id }}">
-                                            <i class="fas {% if produto.ativo %}fa-ban{% else %}fa-check{% endif %}"></i>
-                                        </a>
-                                        <a href="#" class="btn btn-sm btn-danger delete-product" data-id="{{ produto.id }}">
+                                        <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal{{ produto.id }}">
                                             <i class="fas fa-trash"></i>
-                                        </a>
+                                        </button>
                                     </td>
                                 </tr>
                                 {% empty %}
@@ -146,6 +137,30 @@
         </div>
     </div>
 </div>
+
+<!-- Modais de confirmação de exclusão -->
+{% for produto in produtos %}
+<div class="modal fade" id="deleteModal{{ produto.id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ produto.id }}" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel{{ produto.id }}">Confirmar Exclusão</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Tem certeza que deseja excluir o produto "{{ produto.nome }}"?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <form method="post" action="{% url 'core:superadmin_product_delete' produto.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Excluir</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
 
 <script>
 $(document).ready(function() {
@@ -371,13 +386,10 @@ $(document).ready(function() {
                                 </span>
                             </td>
                             <td>
-                                <a href="${editUrl}" class="btn btn-sm btn-primary">
+                                <a href="${editUrl}" class="btn btn-primary btn-sm">
                                     <i class="fas fa-edit"></i>
                                 </a>
-                                <button class="btn btn-sm ${product.ativo ? 'btn-warning' : 'btn-success'} toggle-status" data-id="${product.id}">
-                                    <i class="fas ${product.ativo ? 'fa-ban' : 'fa-check'}"></i>
-                                </button>
-                                <button class="btn btn-sm btn-danger delete-product" data-id="${product.id}">
+                                <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal{{ product.id }}">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </td>

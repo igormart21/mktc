@@ -48,7 +48,7 @@ class ProductForm(forms.ModelForm):
         fields = [
             'nome', 'categoria', 'preco', 'moeda', 'volume_disponivel', 'unidade_medida',
             'tipo', 'embalagem', 'fabricante', 'lote', 'validade', 'quantidade_minima',
-            'peneira', 'variedade', 'tipo_da_semente', 'tratamento_da_semente', 'imagem', 'descricao', 'ativo'
+            'peneira', 'variedade', 'tratamento', 'imagem', 'descricao', 'ativo'
         ]
         widgets = {
             'nome': forms.TextInput(attrs={'class': 'form-control', 'required': True}),
@@ -65,8 +65,7 @@ class ProductForm(forms.ModelForm):
             'quantidade_minima': forms.NumberInput(attrs={'class': 'form-control'}),
             'peneira': forms.TextInput(attrs={'class': 'form-control'}),
             'variedade': forms.TextInput(attrs={'class': 'form-control'}),
-            'tipo_da_semente': forms.Select(attrs={'class': 'form-select'}),
-            'tratamento_da_semente': forms.TextInput(attrs={'class': 'form-control'}),
+            'tratamento': forms.TextInput(attrs={'class': 'form-control'}),
             'imagem': forms.FileInput(attrs={'class': 'form-control'}),
             'descricao': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
             'ativo': forms.CheckboxInput(attrs={'class': 'form-check-input', 'checked': True})
@@ -86,8 +85,7 @@ class ProductForm(forms.ModelForm):
             'quantidade_minima': 'Quantidade Mínima',
             'peneira': 'Peneira da Semente',
             'variedade': 'Variedade da Semente',
-            'tipo_da_semente': 'Tipo da Semente',
-            'tratamento_da_semente': 'Tratamento da Semente',
+            'tratamento': 'Tratamento',
             'imagem': 'Imagem do Produto',
             'descricao': 'Descrição do Produto',
             'ativo': 'Produto Ativo'
