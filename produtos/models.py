@@ -69,7 +69,6 @@ class Produto(models.Model):
     ativo = models.BooleanField(default=True)
     
     # Metadados
-    vendedor = models.ForeignKey(Vendedor, on_delete=models.CASCADE, related_name='produtos', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

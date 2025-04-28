@@ -1,0 +1,29 @@
+{% extends 'base_internal.html' %}
+{% load static %}
+
+{% block title %}Reprovar Pedido #{{ pedido.id }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-danger text-white">
+                    <h4 class="mb-0">Reprovar Pedido #{{ pedido.id }}</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="justificativa" class="form-label">Justificativa da Reprovação <span class="text-danger">*</span></label>
+                            <textarea class="form-control" id="justificativa" name="justificativa" rows="4" required>{{ request.POST.justificativa }}</textarea>
+                        </div>
+                        <button type="submit" class="btn btn-danger">Reprovar Pedido</button>
+                        <a href="{% url 'core:superadmin_pedidos' %}" class="btn btn-secondary ms-2">Cancelar</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

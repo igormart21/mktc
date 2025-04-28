@@ -45,6 +45,7 @@ class Vendedor(models.Model):
         default='PENDENTE',
         verbose_name='Status de Aprovação'
     )
+    justificativa_recusa = models.TextField(blank=True, null=True, verbose_name='Justificativa da Recusa')
     
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)

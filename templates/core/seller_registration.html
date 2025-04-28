@@ -2,7 +2,7 @@
 {% load static %}
 {% load crispy_forms_tags %}
 
-{% block title %}Cadastro de Vendedor - AgroMais{% endblock %}
+{% block title %}Cadastro de Vendedor - AgroMarketplace{% endblock %}
 
 {% block content %}
 <div class="container py-5">
@@ -68,7 +68,6 @@
                         {% endif %}
                     </div>
                 </div>
-
                 <div class="mb-3">
                     <label for="{{ form.email.id_for_label }}" class="form-label">E-mail</label>
                     <div class="input-group">
@@ -134,16 +133,28 @@
                     {% endif %}
                 </div>
 
-                <div class="mb-3">
-                    <label for="{{ form.documento.id_for_label }}" class="form-label">Arquivo do Documento</label>
+                <!-- Campo de upload dinâmico -->
+                <div class="mb-3" id="upload-rg" style="display:none;">
+                    <label for="{{ form.rg.id_for_label }}" class="form-label">RG (PDF, JPG, PNG)</label>
                     <div class="input-group">
                         <span class="input-group-text bg-light"><i class="fas fa-file-upload"></i></span>
-                        {{ form.documento }}
+                        {{ form.rg }}
                     </div>
-                    <div class="form-text">Aceita apenas arquivos PDF, JPG, JPEG ou PNG</div>
-                    {% if form.documento.errors %}
+                    {% if form.rg.errors %}
                         <div class="invalid-feedback d-block">
-                            {{ form.documento.errors }}
+                            {{ form.rg.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="mb-3" id="upload-cnh" style="display:none;">
+                    <label for="{{ form.cnh.id_for_label }}" class="form-label">CNH (PDF, JPG, PNG)</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light"><i class="fas fa-file-upload"></i></span>
+                        {{ form.cnh }}
+                    </div>
+                    {% if form.cnh.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.cnh.errors }}
                         </div>
                     {% endif %}
                 </div>
@@ -177,6 +188,18 @@
                         </div>
                     {% endif %}
                 </div>
+                <div class="mb-3">
+                    <label for="{{ form.numero.id_for_label }}" class="form-label">Número</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light"><i class="fas fa-hashtag"></i></span>
+                        {{ form.numero }}
+                    </div>
+                    {% if form.numero.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.numero.errors }}
+                        </div>
+                    {% endif %}
+                </div>
 
                 <div class="row mb-3">
                     <div class="col-md-6">
@@ -203,6 +226,19 @@
                             </div>
                         {% endif %}
                     </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="{{ form.bairro.id_for_label }}" class="form-label">Bairro</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light"><i class="fas fa-map"></i></span>
+                        {{ form.bairro }}
+                    </div>
+                    {% if form.bairro.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.bairro.errors }}
+                        </div>
+                    {% endif %}
                 </div>
 
                 <div class="form-group mb-3">
@@ -301,11 +337,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function validarCPF(cpf) {
         cpf = cpf.replace(/[^\d]/g, '');
         if (cpf.length !== 11) return false;
-        
-        // Verifica se todos os dígitos são iguais
         if (/^(\d)\1+$/.test(cpf)) return false;
-        
-        // Validação do primeiro dígito verificador
         let soma = 0;
         for (let i = 0; i < 9; i++) {
             soma += parseInt(cpf.charAt(i)) * (10 - i);
@@ -313,8 +345,6 @@ document.addEventListener('DOMContentLoaded', function() {
         let resto = 11 - (soma % 11);
         if (resto > 9) resto = 0;
         if (resto !== parseInt(cpf.charAt(9))) return false;
-        
-        // Validação do segundo dígito verificador
         soma = 0;
         for (let i = 0; i < 10; i++) {
             soma += parseInt(cpf.charAt(i)) * (11 - i);
@@ -322,11 +352,9 @@ document.addEventListener('DOMContentLoaded', function() {
         resto = 11 - (soma % 11);
         if (resto > 9) resto = 0;
         if (resto !== parseInt(cpf.charAt(10))) return false;
-        
         return true;
     }
 
-    // Adiciona validação ao formulário
     const form = document.getElementById('sellerRegistrationForm');
     form.addEventListener('submit', function(e) {
         const cpf = cpfInput.value.replace(/[^\d]/g, '');
@@ -337,37 +365,36 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Código existente para busca de CEP
+    // Busca de CEP
     const cepInput = document.getElementById('{{ form.cep.id_for_label }}');
     const enderecoInput = document.getElementById('{{ form.endereco.id_for_label }}');
     const cidadeInput = document.getElementById('{{ form.cidade.id_for_label }}');
     const estadoInput = document.getElementById('{{ form.estado.id_for_label }}');
+    const bairroInput = document.getElementById('{{ form.bairro.id_for_label }}');
     const buscarCepBtn = document.getElementById('buscarCep');
 
     function limparEndereco() {
         enderecoInput.value = '';
         cidadeInput.value = '';
         estadoInput.value = '';
+        bairroInput.value = '';
     }
 
     function preencherEndereco(dados) {
         enderecoInput.value = dados.logradouro || '';
         cidadeInput.value = dados.localidade || '';
         estadoInput.value = dados.uf || '';
+        bairroInput.value = dados.bairro || '';
     }
 
     function buscarCep() {
         const cep = cepInput.value.replace(/\D/g, '');
-        
         if (cep.length !== 8) {
             alert('CEP inválido! Digite um CEP com 8 dígitos.');
             return;
         }
-
-        // Mostrar loading
         buscarCepBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Buscando...';
         buscarCepBtn.disabled = true;
-
         fetch(`https://viacep.com.br/ws/${cep}/json/`)
             .then(response => response.json())
             .then(data => {
@@ -384,22 +411,38 @@ document.addEventListener('DOMContentLoaded', function() {
                 limparEndereco();
             })
             .finally(() => {
-                // Restaurar botão
                 buscarCepBtn.innerHTML = '<i class="fas fa-search"></i> Buscar';
                 buscarCepBtn.disabled = false;
             });
     }
 
-    // Event listeners
     buscarCepBtn.addEventListener('click', buscarCep);
-    
-    // Buscar automaticamente quando o CEP tiver 8 dígitos
     cepInput.addEventListener('input', function(e) {
         const cep = e.target.value.replace(/\D/g, '');
         if (cep.length === 8) {
             buscarCep();
         }
     });
+
+    // Lógica para mostrar o campo correto de upload de documento
+    const tipoDocumentoSelect = document.getElementById('{{ form.tipo_documento.id_for_label }}');
+    const uploadRG = document.getElementById('upload-rg');
+    const uploadCNH = document.getElementById('upload-cnh');
+
+    function atualizarCampoDocumento() {
+        if (tipoDocumentoSelect.value === 'RG') {
+            uploadRG.style.display = 'block';
+            uploadCNH.style.display = 'none';
+        } else if (tipoDocumentoSelect.value === 'CNH') {
+            uploadRG.style.display = 'none';
+            uploadCNH.style.display = 'block';
+        } else {
+            uploadRG.style.display = 'none';
+            uploadCNH.style.display = 'none';
+        }
+    }
+    tipoDocumentoSelect.addEventListener('change', atualizarCampoDocumento);
+    atualizarCampoDocumento(); // Executa ao carregar a página
 });
 </script>
 {% endblock %} 

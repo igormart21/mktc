@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.core.exceptions import ValidationError
-from .models import Product, SellerRegistration, SolicitacaoProduto, Pedido, Venda
+from .models import SellerRegistration, SolicitacaoProduto, Pedido, ItemPedido
 from usuarios.models import Usuario
 from vendedor.models import Vendedor
 from produtos.models import Produto
@@ -89,15 +89,34 @@ class ProductForm(forms.ModelForm):
             'ativo': 'Produto Ativo'
         }
 
-class OrderForm(forms.ModelForm):
+class PedidoForm(forms.ModelForm):
     class Meta:
         model = Pedido
-        fields = ['status', 'observacoes']
+        fields = [
+            'nome_propriedade',
+            'cnpj',
+            'hectares',
+            'cultivo_principal',
+            'estado',
+            'cidade',
+            'endereco',
+            'cep',
+            'referencia',
+            'observacoes',
+            'status',
+            'tipo_venda',
+            'documento_ir',
+            'inscricao_estadual',
+            'documento_matricula',
+            'is_arrendatario',
+            'documento_arrendamento',
+            'total',
+        ]
 
 class SellerRegistrationForm(forms.ModelForm):
     class Meta:
         model = Usuario
-        fields = ['email', 'nome', 'sobrenome', 'cpf', 'telefone', 'endereco', 'bairro', 'cidade', 'estado', 'cep', 'tipo_documento', 'numero_documento', 'documento', 'hectares_atendidos']
+        fields = ['email', 'nome', 'sobrenome', 'cpf', 'telefone', 'endereco', 'numero', 'bairro', 'cidade', 'estado', 'cep', 'tipo_documento', 'numero_documento', 'hectares_atendidos']
     
     nome = forms.CharField(
         max_length=100, 
@@ -138,6 +157,12 @@ class SellerRegistrationForm(forms.ModelForm):
         required=True,
         widget=forms.TextInput(attrs={'class': 'form-control'})
     )
+    numero = forms.CharField(
+        max_length=10,
+        label='Número',
+        required=True,
+        widget=forms.TextInput(attrs={'class': 'form-control'})
+    )
     cidade = forms.CharField(
         max_length=100, 
         label='Cidade', 
@@ -173,9 +198,14 @@ class SellerRegistrationForm(forms.ModelForm):
         required=True,
         widget=forms.TextInput(attrs={'class': 'form-control'})
     )
-    documento = forms.ImageField(
-        label='Documento',
-        required=True,
+    rg = forms.FileField(
+        label='RG',
+        required=False,
+        widget=forms.FileInput(attrs={'class': 'form-control'})
+    )
+    cnh = forms.FileField(
+        label='CNH',
+        required=False,
         widget=forms.FileInput(attrs={'class': 'form-control'})
     )
     hectares_atendidos = forms.DecimalField(
@@ -191,50 +221,49 @@ class SellerRegistrationForm(forms.ModelForm):
         widget=forms.CheckboxSelectMultiple()
     )
     bairro = forms.CharField(
-        max_length=100,
-        label='Bairro',
+        max_length=100, 
+        label='Bairro', 
         required=True,
         widget=forms.TextInput(attrs={'class': 'form-control'})
     )
-
+    
     def clean_cpf(self):
         cpf = self.cleaned_data.get('cpf')
         if not validar_cpf(cpf):
-            raise forms.ValidationError('CPF inválido. Por favor, digite um CPF válido.')
+            raise ValidationError('CPF inválido')
         return cpf
-
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        tipo_documento = cleaned_data.get('tipo_documento')
+        rg = cleaned_data.get('rg')
+        cnh = cleaned_data.get('cnh')
+        if tipo_documento == 'RG' and not rg:
+            self.add_error('rg', 'O arquivo do RG é obrigatório.')
+        if tipo_documento == 'CNH' and not cnh:
+            self.add_error('cnh', 'O arquivo da CNH é obrigatório.')
+        return cleaned_data
+    
     def save(self, commit=True):
         user = super().save(commit=False)
-        user.is_active = False
-        user.is_vendedor = True
-        user.sobrenome = self.cleaned_data['sobrenome']
+        user.set_password('123456')  # Senha padrão
+        user.is_active = False  # Usuário começa inativo
         if commit:
             user.save()
-            # Criar o vendedor associado
             vendedor = Vendedor.objects.create(
                 usuario=user,
-                nome_fantasia=f"{self.cleaned_data['nome']} {self.cleaned_data['sobrenome']}",
-                telefone=self.cleaned_data['telefone'],
-                endereco=self.cleaned_data['endereco'],
-                bairro=self.cleaned_data['bairro'],
-                cidade=self.cleaned_data['cidade'],
-                estado=self.cleaned_data['estado'],
-                cep=self.cleaned_data['cep'],
-                hectares_atendidos=self.cleaned_data['hectares_atendidos'],
-                culturas_atendidas=self.cleaned_data['culturas_atendidas']
+                rg=self.cleaned_data.get('rg'),
+                cnh=self.cleaned_data.get('cnh'),
+                culturas_atendidas=self.cleaned_data.get('culturas_atendidas'),
+                hectares_atendidos=self.cleaned_data.get('hectares_atendidos'),
+                telefone=self.cleaned_data.get('telefone'),
+                endereco=self.cleaned_data.get('endereco'),
+                numero=self.cleaned_data.get('numero'),
+                bairro=self.cleaned_data.get('bairro'),
+                cidade=self.cleaned_data.get('cidade'),
+                estado=self.cleaned_data.get('estado'),
+                cep=self.cleaned_data.get('cep')
             )
-            # Salvar os campos de documento
-            user.tipo_documento = self.cleaned_data['tipo_documento']
-            user.numero_documento = self.cleaned_data['numero_documento']
-            user.documento = self.cleaned_data['documento']
-            user.save()
-            # Salvar o documento também no campo rg ou cnh do vendedor, conforme o tipo
-            if self.cleaned_data['tipo_documento'] == 'RG':
-                vendedor.rg = self.cleaned_data['documento']
-                vendedor.save()
-            elif self.cleaned_data['tipo_documento'] == 'CNH':
-                vendedor.cnh = self.cleaned_data['documento']
-                vendedor.save()
         return user
 
 class LoginForm(forms.Form):

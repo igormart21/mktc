@@ -31,7 +31,7 @@ class VendaViewSet(viewsets.ModelViewSet):
         action = self.action
 
         if action == 'vendas_recebidas':
-            return Venda.objects.filter(vendedor=user)
+            return Venda.objects.filter(vendedor=user.vendedor)
         return Venda.objects.none()
 
     def get_permissions(self):
@@ -63,15 +63,15 @@ class VendaListView(ListView):
     ordering = ['-data_criacao']
 
     def get_queryset(self):
-        return Venda.objects.filter(vendedor=self.request.user).order_by('-data_criacao')
+        return Venda.objects.filter(vendedor=self.request.user.vendedor).order_by('-data_criacao')
 
 @login_required
 def solicitar_compra(request, produto_id):
     try:
         produto = get_object_or_404(Produto, id=produto_id)
         
-        # Verifica se o usuário é vendedor do produto
-        if hasattr(request.user, 'vendedor') and produto.vendedor == request.user.vendedor:
+        # Produto não tem campo vendedor, então essa verificação não faz sentido
+        if False:
             messages.error(request, 'Você não pode comprar seus próprios produtos.')
             return redirect('core:produto_detalhe', produto_id=produto_id)
         
@@ -107,43 +107,41 @@ def solicitar_compra(request, produto_id):
 
 @login_required
 def meus_pedidos(request):
+    pedidos = []
+    vendas = []
     try:
-        # Tenta obter a instância do modelo Usuario correspondente ao usuário autenticado
+        # Busca o usuário do modelo Usuario pelo e-mail do usuário autenticado
         usuario = Usuario.objects.get(email=request.user.email)
-        
-        try:
-            # Primeiro tenta buscar os pedidos do app vendas
-            pedidos = list(Pedido.objects.filter(comprador=usuario).order_by('-data_pedido'))
-        except (ImportError, OperationalError):
-            # Se não encontrar, busca do core
-            pedidos = []
-        
-        try:
-            # Busca as vendas usando o modelo Venda do app vendas
-            vendas = Venda.objects.filter(vendedor=request.user).order_by('-data_criacao')
-        except (ImportError, OperationalError):
+
+        pedidos = Pedido.objects.filter(comprador=usuario).order_by('-data_criacao')
+        if hasattr(request.user, 'vendedor'):
+            vendas = Venda.objects.filter(vendedor=request.user.vendedor).order_by('-data_criacao')
+        else:
             vendas = []
-        
+
         return render(request, 'vendas/meus_pedidos.html', {
             'pedidos': pedidos,
             'vendas': vendas
         })
+
     except Usuario.DoesNotExist:
-        messages.error(request, 'Seu perfil de usuário não está configurado corretamente.')
+        messages.error(request, 'Usuário não encontrado no sistema.')
+        return redirect('core:home')
+
+    except Exception as e:
+        print(f"Erro ao buscar pedidos/vendas: {str(e)}")
+        messages.error(request, f'Ocorreu um erro ao buscar seus pedidos: {str(e)}')
         return redirect('core:home')
 
 @login_required
 def cancelar_pedido(request, pedido_id):
     try:
-        # Tenta obter a instância do modelo Usuario correspondente ao usuário autenticado
-        usuario = Usuario.objects.get(email=request.user.email)
-        
         try:
             # Primeiro tenta buscar o pedido do app vendas
-            pedido = get_object_or_404(Pedido, id=pedido_id, comprador=usuario)
+            pedido = get_object_or_404(Pedido, id=pedido_id, comprador=request.user)
         except (ImportError, OperationalError):
             # Se não encontrar, busca do core
-            pedido = get_object_or_404(Pedido, id=pedido_id, comprador=usuario)
+            pedido = get_object_or_404(Pedido, id=pedido_id, comprador=request.user)
         
         # Verifica se o pedido pode ser cancelado
         if pedido.status not in ['PROCESSANDO', 'PENDENTE']:
@@ -153,8 +151,6 @@ def cancelar_pedido(request, pedido_id):
             pedido.save()
             messages.success(request, 'Pedido cancelado com sucesso!')
         
-    except Usuario.DoesNotExist:
-        messages.error(request, 'Seu perfil de usuário não está configurado corretamente.')
     except Exception as e:
         messages.error(request, f'Ocorreu um erro ao cancelar o pedido. Por favor, tente novamente.')
     
@@ -163,16 +159,13 @@ def cancelar_pedido(request, pedido_id):
 @login_required
 def editar_pedido(request, pedido_id):
     try:
-        # Tenta obter a instância do modelo Usuario correspondente ao usuário autenticado
-        usuario = Usuario.objects.get(email=request.user.email)
-        
         try:
             # Primeiro tenta buscar o pedido do app vendas
-            pedido = get_object_or_404(Pedido, id=pedido_id, comprador=usuario)
+            pedido = get_object_or_404(Pedido, id=pedido_id, comprador=request.user)
             is_vendas_pedido = True
         except (ImportError, OperationalError):
             # Se não encontrar, busca do core
-            pedido = get_object_or_404(Pedido, id=pedido_id, comprador=usuario)
+            pedido = get_object_or_404(Pedido, id=pedido_id, comprador=request.user)
             is_vendas_pedido = False
         
         # Verifica se o pedido pode ser editado
@@ -209,9 +202,6 @@ def editar_pedido(request, pedido_id):
             'pedido': pedido,
             'is_vendas_pedido': is_vendas_pedido
         })
-    except Usuario.DoesNotExist:
-        messages.error(request, 'Seu perfil de usuário não está configurado corretamente.')
-        return redirect('vendas:meus_pedidos')
     except Exception as e:
         messages.error(request, f'Ocorreu um erro ao processar o pedido. Por favor, tente novamente.')
         return redirect('vendas:meus_pedidos')
@@ -219,7 +209,7 @@ def editar_pedido(request, pedido_id):
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
 def lista_pedidos_admin(request):
-    pedidos = Pedido.objects.all().order_by('-data_pedido')
+    pedidos = Pedido.objects.all().order_by('-data_criacao')
     return render(request, 'vendas/admin/lista_pedidos.html', {'pedidos': pedidos})
 
 @login_required

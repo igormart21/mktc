@@ -1,0 +1,122 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+                <i class="fas fa-headset me-2"></i>
+                Central de Suporte
+            </h5>
+        </div>
+        <div class="card-body">
+            {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Vendedor</th>
+                            <th>Assunto</th>
+                            <th>Mensagem</th>
+                            <th>Data</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for mensagem in mensagens %}
+                        <tr>
+                            <td>{{ mensagem.id }}</td>
+                            <td>{{ mensagem.vendedor.nome_fantasia }}</td>
+                            <td>{{ mensagem.assunto }}</td>
+                            <td>{{ mensagem.mensagem|truncatechars:50 }}</td>
+                            <td>{{ mensagem.data_envio|date:"d/m/Y H:i" }}</td>
+                            <td>
+                                {% if mensagem.respondido %}
+                                <span class="badge bg-success">Respondido</span>
+                                {% else %}
+                                <span class="badge bg-warning">Pendente</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#modalDetalhes{{ mensagem.id }}">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                {% if not mensagem.respondido %}
+                                <form method="post" class="d-inline" onsubmit="return confirm('Tem certeza que deseja encerrar este caso?');">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="encerrar_id" value="{{ mensagem.id }}">
+                                    <button type="submit" class="btn btn-success btn-sm">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                </form>
+                                {% endif %}
+                            </td>
+                        </tr>
+
+                        <!-- Modal de Detalhes -->
+                        <div class="modal fade" id="modalDetalhes{{ mensagem.id }}" tabindex="-1" aria-labelledby="modalDetalhesLabel{{ mensagem.id }}" aria-hidden="true">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="modalDetalhesLabel{{ mensagem.id }}">Detalhes da Mensagem #{{ mensagem.id }}</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="mb-3">
+                                            <h6>Vendedor:</h6>
+                                            <p>{{ mensagem.vendedor.nome_fantasia }}</p>
+                                        </div>
+                                        <div class="mb-3">
+                                            <h6>Assunto:</h6>
+                                            <p>{{ mensagem.assunto }}</p>
+                                        </div>
+                                        <div class="mb-3">
+                                            <h6>Mensagem:</h6>
+                                            <p>{{ mensagem.mensagem }}</p>
+                                        </div>
+                                        <div class="mb-3">
+                                            <h6>Data de Envio:</h6>
+                                            <p>{{ mensagem.data_envio|date:"d/m/Y H:i" }}</p>
+                                        </div>
+                                        {% if mensagem.resposta %}
+                                        <div class="mb-3">
+                                            <h6>Resposta:</h6>
+                                            <p>{{ mensagem.resposta }}</p>
+                                        </div>
+                                        <div class="mb-3">
+                                            <h6>Data da Resposta:</h6>
+                                            <p>{{ mensagem.data_resposta|date:"d/m/Y H:i" }}</p>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center">Nenhuma mensagem de suporte encontrada.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

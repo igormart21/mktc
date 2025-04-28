@@ -1,229 +1,127 @@
-{% extends "base_internal.html" %}
+{% extends 'base_internal.html' %}
 {% load static %}
 
-{% block title %}Histórico de Compras dos Vendedores - AgroMarketplace{% endblock %}
+{% block title %}Compras por Vendedor - SuperAdmin{% endblock %}
 
 {% block content %}
-<div class="container-fluid py-4">
+<div class="container py-4">
     <div class="row mb-4">
-        <div class="col-12">
-            <div class="card shadow-sm">
+        <div class="col-md-12">
+            <div class="card border-0 shadow-sm">
                 <div class="card-header bg-white py-3">
                     <div class="d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">
-                            <i class="fas fa-cash-register text-primary me-2"></i>
-                            Histórico de Compras dos Vendedores
-                        </h5>
+                        <h3 class="h3 mb-0">
+                            <i class="fas fa-shopping-cart text-primary me-2"></i>Compras por Vendedor
+                        </h3>
                     </div>
+                    <p class="text-muted mb-0 mt-2">Visualize e gerencie as compras realizadas por vendedor.</p>
                 </div>
                 <div class="card-body">
                     <!-- Filtros -->
-                    <form method="get" class="row g-3 mb-4">
-                        <div class="col-md-3">
-                            <label class="form-label">Vendedor</label>
-                            <select name="vendedor" class="form-select">
-                                <option value="">Todos os vendedores</option>
-                                {% for vendedor in vendedores %}
-                                    <option value="{{ vendedor.id }}" {% if filtro_vendedor == vendedor.id|stringformat:"s" %}selected{% endif %}>
-                                        {{ vendedor.nome_fantasia }}
+                    <form method="get" class="mb-4">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label for="vendedor" class="form-label">Vendedor</label>
+                                <select name="vendedor" id="vendedor" class="form-select">
+                                    <option value="">Todos os vendedores</option>
+                                    {% for vendedor in vendedores %}
+                                    <option value="{{ vendedor.id }}" {% if vendedor.id|stringformat:"i" == request.GET.vendedor %}selected{% endif %}>
+                                        {{ vendedor.nome_fantasia|default:vendedor.usuario.nome|default:vendedor.usuario.email|default:vendedor.id }}
                                     </option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div class="col-md-2">
-                            <label class="form-label">Status</label>
-                            <select name="status" class="form-select">
-                                <option value="">Todos os status</option>
-                                {% for status_value, status_label in status_choices %}
-                                    <option value="{{ status_value }}" {% if filtro_status == status_value %}selected{% endif %}>
-                                        {{ status_label }}
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="status" class="form-label">Status</label>
+                                <select name="status" id="status" class="form-select">
+                                    <option value="">Todos os status</option>
+                                    {% for status in status_choices %}
+                                    <option value="{{ status.0 }}" {% if status.0 == request.GET.status %}selected{% endif %}>
+                                        {{ status.1 }}
                                     </option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label">Data Início</label>
-                            <input type="date" name="data_inicio" class="form-control" value="{{ filtro_data_inicio|date:'Y-m-d' }}">
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label">Data Fim</label>
-                            <input type="date" name="data_fim" class="form-control" value="{{ filtro_data_fim|date:'Y-m-d' }}">
-                        </div>
-                        <div class="col-md-1 d-flex align-items-end">
-                            <button type="submit" class="btn btn-primary w-100">Filtrar</button>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="data_inicio" class="form-label">Data Início</label>
+                                <input type="date" name="data_inicio" id="data_inicio" class="form-control" 
+                                       value="{{ request.GET.data_inicio }}">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="data_fim" class="form-label">Data Fim</label>
+                                <input type="date" name="data_fim" id="data_fim" class="form-control" 
+                                       value="{{ request.GET.data_fim }}">
+                            </div>
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-filter me-2"></i>Filtrar
+                                </button>
+                                <a href="{% url 'core:superadmin_compras_vendedores' %}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-times me-2"></i>Limpar Filtros
+                                </a>
+                            </div>
                         </div>
                     </form>
-                    
-                    <!-- Tabela de Compras -->
-                    <div class="table-responsive">
-                        <table class="table table-striped table-hover">
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Vendedor</th>
-                                    <th>Produto</th>
-                                    <th>Quantidade</th>
-                                    <th>Valor Unit.</th>
-                                    <th>Valor Total</th>
-                                    <th>Data</th>
-                                    <th>Status</th>
-                                    <th>Ações</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for venda in vendas %}
-                                <tr>
-                                    <td>#{{ venda.id }}</td>
-                                    <td>
-                                        {% if venda.vendedor %}
-                                            {{ venda.vendedor.nome_fantasia }}
-                                        {% else %}
-                                            <span class="text-muted">Não disponível</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>{{ venda.produto.nome }}</td>
-                                    <td>{{ venda.quantidade }} {{ venda.produto.unidade_medida }}</td>
-                                    <td>R$ {{ venda.preco_unitario|floatformat:2 }}</td>
-                                    <td>R$ {{ venda.valor_total|floatformat:2 }}</td>
-                                    <td>{{ venda.data_criacao|date:"d/m/Y H:i" }}</td>
-                                    <td>
-                                        <span class="badge {% if venda.status == 'ACEITO' %}bg-success{% elif venda.status == 'PENDENTE' %}bg-warning{% elif venda.status == 'PROCESSANDO' %}bg-info{% else %}bg-danger{% endif %}">
-                                            {{ venda.get_status_display }}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <div class="btn-group" role="group">
-                                            <button type="button" class="btn btn-sm btn-primary" 
-                                                data-bs-toggle="modal" 
-                                                data-bs-target="#modalDetalhesUnico"
-                                                data-venda-id="{{ venda.id }}"
-                                                data-vendedor-nome="{{ venda.vendedor.nome_fantasia|default:'Não disponível' }}"
-                                                data-vendedor-cnpj="{{ venda.vendedor.cnpj|default:'Não disponível' }}"
-                                                data-vendedor-telefone="{{ venda.vendedor.telefone|default:'Não disponível' }}"
-                                                data-produto-nome="{{ venda.produto.nome }}"
-                                                data-produto-categoria="{{ venda.produto.get_categoria_display }}"
-                                                data-produto-quantidade="{{ venda.quantidade }} {{ venda.produto.unidade_medida }}"
-                                                data-data-venda="{{ venda.data_criacao|date:'d/m/Y H:i' }}"
-                                                data-status="{{ venda.get_status_display }}"
-                                                data-preco-unitario="R$ {{ venda.preco_unitario|floatformat:2 }}"
-                                                data-valor-total="R$ {{ venda.valor_total|floatformat:2 }}"
-                                            >
-                                                <i class="fas fa-eye"></i>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                {% empty %}
-                                <tr>
-                                    <td colspan="9" class="text-center py-4">
-                                        <p class="text-muted mb-0">Nenhuma compra encontrada</p>
-                                        <small class="text-muted">Tente ajustar os filtros de busca</small>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+
+                    <!-- Lista de Pedidos -->
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Vendedor</th>
+                                            <th>Cliente</th>
+                                            <th>Data</th>
+                                            <th>Total</th>
+                                            <th>Status</th>
+                                            <th>Detalhes</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for pedido in pedidos %}
+                                        <tr>
+                                            <td>{{ pedido.id }}</td>
+                                            <td>
+                                                {{ pedido.vendedor.nome_fantasia|default:pedido.vendedor.nome|default:pedido.vendedor.email|default:pedido.vendedor.id }}
+                                            </td>
+                                            <td>
+                                                {% if pedido.comprador.get_full_name %}
+                                                    {{ pedido.comprador.get_full_name }}
+                                                {% else %}
+                                                    {{ pedido.comprador.nome|default:pedido.comprador.email|default:pedido.comprador.id }}
+                                                {% endif %}
+                                            </td>
+                                            <td>{{ pedido.data_criacao|date:"d/m/Y H:i" }}</td>
+                                            <td>R$ {{ pedido.total }}</td>
+                                            <td>
+                                                <span class="badge {% if pedido.status == 'AGUARDANDO_APROVACAO' %}bg-warning
+                                                         {% elif pedido.status == 'APROVADO' %}bg-success
+                                                         {% elif pedido.status == 'CANCELADO' %}bg-danger
+                                                         {% else %}bg-info{% endif %}">
+                                                    {{ pedido.get_status_display }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <a href="{% url 'core:pedido_detail' pedido.id %}" class="btn btn-sm btn-info">
+                                                    <i class="fas fa-eye"></i> Detalhes
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        {% empty %}
+                                        <tr>
+                                            <td colspan="7" class="text-center">Nenhum pedido encontrado</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
-                    
-                    <!-- Paginação -->
-                    {% if vendas.has_other_pages %}
-                    <nav aria-label="Paginação" class="mt-4">
-                        <ul class="pagination justify-content-center">
-                            {% if vendas.has_previous %}
-                                <li class="page-item">
-                                    <a class="page-link" href="?page=1{% if filtro_vendedor %}&vendedor={{ filtro_vendedor }}{% endif %}{% if filtro_status %}&status={{ filtro_status }}{% endif %}{% if filtro_data_inicio %}&data_inicio={{ filtro_data_inicio|date:'Y-m-d' }}{% endif %}{% if filtro_data_fim %}&data_fim={{ filtro_data_fim|date:'Y-m-d' }}{% endif %}" aria-label="Primeira">
-                                        <span aria-hidden="true">&laquo;</span>
-                                    </a>
-                                </li>
-                                <li class="page-item">
-                                    <a class="page-link" href="?page={{ vendas.previous_page_number }}{% if filtro_vendedor %}&vendedor={{ filtro_vendedor }}{% endif %}{% if filtro_status %}&status={{ filtro_status }}{% endif %}{% if filtro_data_inicio %}&data_inicio={{ filtro_data_inicio|date:'Y-m-d' }}{% endif %}{% if filtro_data_fim %}&data_fim={{ filtro_data_fim|date:'Y-m-d' }}{% endif %}">
-                                        {{ vendas.previous_page_number }}
-                                    </a>
-                                </li>
-                            {% endif %}
-                            
-                            <li class="page-item active">
-                                <span class="page-link">{{ vendas.number }}</span>
-                            </li>
-                            
-                            {% if vendas.has_next %}
-                                <li class="page-item">
-                                    <a class="page-link" href="?page={{ vendas.next_page_number }}{% if filtro_vendedor %}&vendedor={{ filtro_vendedor }}{% endif %}{% if filtro_status %}&status={{ filtro_status }}{% endif %}{% if filtro_data_inicio %}&data_inicio={{ filtro_data_inicio|date:'Y-m-d' }}{% endif %}{% if filtro_data_fim %}&data_fim={{ filtro_data_fim|date:'Y-m-d' }}{% endif %}">
-                                        {{ vendas.next_page_number }}
-                                    </a>
-                                </li>
-                                <li class="page-item">
-                                    <a class="page-link" href="?page={{ vendas.paginator.num_pages }}{% if filtro_vendedor %}&vendedor={{ filtro_vendedor }}{% endif %}{% if filtro_status %}&status={{ filtro_status }}{% endif %}{% if filtro_data_inicio %}&data_inicio={{ filtro_data_inicio|date:'Y-m-d' }}{% endif %}{% if filtro_data_fim %}&data_fim={{ filtro_data_fim|date:'Y-m-d' }}{% endif %}" aria-label="Última">
-                                        <span aria-hidden="true">&raquo;</span>
-                                    </a>
-                                </li>
-                            {% endif %}
-                        </ul>
-                    </nav>
-                    {% endif %}
                 </div>
             </div>
         </div>
     </div>
 </div>
-
-<!-- Modal Único Dinâmico -->
-<div class="modal fade" id="modalDetalhesUnico" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Detalhes da Compra</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <h6>Informações do Vendedor</h6>
-                        <p><strong>Nome:</strong> <span id="modal-vendedor-nome"></span></p>
-                        <p><strong>CNPJ:</strong> <span id="modal-vendedor-cnpj"></span></p>
-                        <p><strong>Telefone:</strong> <span id="modal-vendedor-telefone"></span></p>
-                    </div>
-                    <div class="col-md-6">
-                        <h6>Informações do Produto</h6>
-                        <p><strong>Nome:</strong> <span id="modal-produto-nome"></span></p>
-                        <p><strong>Categoria:</strong> <span id="modal-produto-categoria"></span></p>
-                        <p><strong>Quantidade:</strong> <span id="modal-produto-quantidade"></span></p>
-                    </div>
-                </div>
-                <hr>
-                <div class="row">
-                    <div class="col-md-6">
-                        <h6>Informações da Compra</h6>
-                        <p><strong>Data:</strong> <span id="modal-data-venda"></span></p>
-                        <p><strong>Status:</strong> <span id="modal-status"></span></p>
-                        <p><strong>Valor Unitário:</strong> <span id="modal-preco-unitario"></span></p>
-                        <p><strong>Valor Total:</strong> <span id="modal-valor-total"></span></p>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        var modal = document.getElementById('modalDetalhesUnico');
-        modal.addEventListener('show.bs.modal', function (event) {
-            var button = event.relatedTarget;
-            document.getElementById('modal-vendedor-nome').textContent = button.getAttribute('data-vendedor-nome');
-            document.getElementById('modal-vendedor-cnpj').textContent = button.getAttribute('data-vendedor-cnpj');
-            document.getElementById('modal-vendedor-telefone').textContent = button.getAttribute('data-vendedor-telefone');
-            document.getElementById('modal-produto-nome').textContent = button.getAttribute('data-produto-nome');
-            document.getElementById('modal-produto-categoria').textContent = button.getAttribute('data-produto-categoria');
-            document.getElementById('modal-produto-quantidade').textContent = button.getAttribute('data-produto-quantidade');
-            document.getElementById('modal-data-venda').textContent = button.getAttribute('data-data-venda');
-            document.getElementById('modal-status').textContent = button.getAttribute('data-status');
-            document.getElementById('modal-preco-unitario').textContent = button.getAttribute('data-preco-unitario');
-            document.getElementById('modal-valor-total').textContent = button.getAttribute('data-valor-total');
-        });
-    });
-</script>
 {% endblock %} 

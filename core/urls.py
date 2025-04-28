@@ -15,7 +15,7 @@ urlpatterns = [
     path('vendedor/perfil/', views.seller_profile, name='seller_profile'),
     path('vendedor/solicitar-produto/', views.request_product, name='request_product'),
     path('superadmin/dashboard/', views.superadmin_dashboard, name='superadmin_dashboard'),
-    path('produtos/', views.product_list, name='products'),
+    path('produtos/', views.catalogo, name='products'),
     path('produtos/criar/', views.product_create, name='product_create'),
     path('produtos/detalhe/<int:pk>/', views.product_detail, name='product_detail'),
     path('produtos/excluir/<int:pk>/', views.product_delete, name='product_delete'),
@@ -35,8 +35,9 @@ urlpatterns = [
     path('pedidos/', views.pedidos, name='pedidos'),
     path('pedido/<int:pedido_id>/', views.pedido_detail, name='pedido_detail'),
     path('pedido/<int:pedido_id>/editar/', views.pedido_edit, name='pedido_edit'),
-    path('pedido/<int:pedido_id>/aprovar/', views.pedido_approve, name='pedido_approve'),
+    path('pedido/<int:pedido_id>/aprovar/', views.aprovar_pedido, name='aprovar_pedido'),
     path('pedido/<int:pedido_id>/cancelar/', views.pedido_cancel, name='pedido_cancel'),
+    path('pedido/<int:pedido_id>/reprovar/', views.reprovar_pedido, name='reprovar_pedido'),
 
     # URLs de produtos do superadmin
     path('superadmin/produtos/', views.superadmin_products, name='superadmin_products'),
@@ -49,7 +50,7 @@ urlpatterns = [
     path('vendedor/produtos/adicionar-ao-carrinho/<int:product_id>/', views.adicionar_ao_carrinho, name='adicionar_ao_carrinho'),
 
     # Superadmin - Pedidos
-    path('superadmin/pedidos/', views.superadmin_orders, name='superadmin_orders'),
+    path('superadmin/pedidos/', views.superadmin_pedidos, name='superadmin_pedidos'),
     path('superadmin/pedidos/<int:order_id>/', views.superadmin_order_detail, name='superadmin_order_detail'),
     path('superadmin/pedidos/<int:order_id>/excluir/', views.superadmin_order_delete, name='superadmin_order_delete'),
 
@@ -92,4 +93,5 @@ urlpatterns = [
     path('vendedores/reprovar/<int:vendedor_id>/', views.reprovar_vendedor, name='reprovar_vendedor'),
     path('historico-pedidos/', views.historico_pedidos_vendedor, name='historico_pedidos'),
     path('vendedores/<int:vendedor_id>/historico-pedidos/', views.historico_pedidos_vendedor_admin, name='historico_pedidos_admin'),
+    path('suporte/encerrar/<int:mensagem_id>/', views.encerrar_caso, name='encerrar_caso'),
 ] 

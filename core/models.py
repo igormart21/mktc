@@ -287,20 +287,22 @@ CULTIVO_CHOICES = [
 ]
 
 class Pedido(models.Model):
-    STATUS_CHOICES = [
-        ('PROCESSANDO', 'Processando'),
+    STATUS_CHOICES = (
+        ('AGUARDANDO_APROVACAO', 'Aguardando Aprovação'),
         ('APROVADO', 'Aprovado'),
-        ('REJEITADO', 'Rejeitado'),
+        ('REPROVADO', 'Reprovado'),
+        ('CANCELADO', 'Cancelado'),
         ('ENTREGUE', 'Entregue'),
-    ]
+        ('ARQUIVADO', 'Arquivado'),
+    )
 
     TIPO_VENDA_CHOICES = [
         ('avista', 'À Vista'),
         ('prazo', 'A Prazo'),
     ]
 
-    comprador = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='pedidos')
-    vendedor = models.ForeignKey(Usuario, on_delete=models.SET_NULL, related_name='pedidos_como_vendedor', null=True, blank=True)
+    comprador = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='pedidos')
+    vendedor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, related_name='pedidos_como_vendedor', null=True, blank=True)
     nome_propriedade = models.CharField(max_length=100)
     cnpj = models.CharField(max_length=18)
     hectares = models.DecimalField(max_digits=10, decimal_places=2)
@@ -311,7 +313,7 @@ class Pedido(models.Model):
     cep = models.CharField(max_length=9)
     referencia = models.CharField(max_length=200, blank=True, null=True)
     observacoes = models.TextField(blank=True, null=True)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PROCESSANDO')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='AGUARDANDO_APROVACAO')
     data_criacao = models.DateTimeField(auto_now_add=True)
     data_atualizacao = models.DateTimeField(auto_now=True)
     tipo_venda = models.CharField(max_length=10, choices=TIPO_VENDA_CHOICES, default='avista')
@@ -321,6 +323,11 @@ class Pedido(models.Model):
     is_arrendatario = models.BooleanField(default=False)
     documento_arrendamento = models.FileField(upload_to='documentos/arrendamento/', null=True, blank=True)
     total = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    justificativa_reprovacao = models.TextField(blank=True, null=True)
+    aprovado_por = models.ForeignKey('usuarios.Usuario', null=True, blank=True, on_delete=models.SET_NULL, related_name='pedidos_aprovados')
+    aprovado_em = models.DateTimeField(null=True, blank=True)
+    reprovado_por = models.ForeignKey('usuarios.Usuario', null=True, blank=True, on_delete=models.SET_NULL, related_name='pedidos_reprovados')
+    reprovado_em = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         ordering = ['-data_criacao']
@@ -329,8 +336,23 @@ class Pedido(models.Model):
         return f'Pedido #{self.id} - {self.nome_propriedade}'
 
     def calcular_total(self):
-        self.total = sum(venda.total for venda in self.vendas.all())
+        self.total = sum(item.total for item in self.itens.all())
         self.save()
+
+class ItemPedido(models.Model):
+    pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE, related_name='itens')
+    produto = models.ForeignKey(Produto, on_delete=models.PROTECT)
+    quantidade = models.PositiveIntegerField(default=1)
+    preco_unitario = models.DecimalField(max_digits=10, decimal_places=2)
+    total = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+
+    def save(self, *args, **kwargs):
+        self.total = self.quantidade * self.preco_unitario
+        super().save(*args, **kwargs)
+        self.pedido.calcular_total()
+
+    def __str__(self):
+        return f'Item #{self.id} - {self.produto.nome} ({self.quantidade})'
 
 class Venda(models.Model):
     STATUS_CHOICES = [

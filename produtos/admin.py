@@ -36,10 +36,6 @@ class ProdutoAdmin(admin.ModelAdmin):
     )
 
     def save_model(self, request, obj, form, change):
-        if not change:  # Se é uma criação (não uma edição)
-            if not obj.vendedor:  # Se o vendedor não foi definido
-                if hasattr(request.user, 'vendedor'):  # Se o usuário é um vendedor
-                    obj.vendedor = request.user.vendedor
         super().save_model(request, obj, form, change)
 
     def has_add_permission(self, request):

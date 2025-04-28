@@ -1,3 +1,5 @@
+import json
+from django.forms import ModelForm
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth import login, authenticate, logout, update_session_auth_hash
@@ -12,7 +14,7 @@ from django.template.loader import render_to_string
 from django.core.mail import send_mail
 from django.conf import settings
 from django.core.exceptions import ValidationError
-from .models import Product, VendorApplication, SellerRegistration, MensagemSuporte, SolicitacaoProduto, Pedido, Venda, Vendedor
+from .models import Product, VendorApplication, SellerRegistration, MensagemSuporte, SolicitacaoProduto, Pedido, Venda, Vendedor, ItemPedido
 from .forms import ProductForm, SellerRegistrationForm, LoginForm, SolicitacaoProdutoForm, SellerProfileForm, AdminProfileForm, VendaPrazoForm
 from .utils import validate_file_upload, validate_cpf, is_superadmin, is_vendedor
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect, Http404
@@ -34,6 +36,8 @@ from decimal import Decimal
 
 logger = logging.getLogger(__name__)
 
+Usuario = get_user_model()
+
 def home(request):
     """View principal do site"""
     products = Product.objects.filter(is_active=True).order_by('-created_at')[:6]
@@ -48,11 +52,14 @@ def login_view(request):
     if request.method == 'POST':
         form = LoginForm(request.POST)
         if form.is_valid():
-            username = form.cleaned_data['username']
+            email = form.cleaned_data['username']
             password = form.cleaned_data['password']
-            user = authenticate(request, username=username, password=password)
+            from django.contrib.auth import authenticate
+            user = authenticate(request, username=email, password=password)
             if user is not None:
-                login(request, user)
+                # O objeto retornado por authenticate já tem o backend
+                from django.contrib.auth import login
+                login(request, user, backend=user.backend)
                 return redirect('core:dashboard')
             else:
                 messages.error(request, 'Email ou senha inválidos.')
@@ -128,25 +135,49 @@ def seller_registration(request):
 @user_passes_test(lambda u: u.is_superuser)
 def superadmin_dashboard(request):
     """Dashboard do superadmin"""
-    total_products = Product.objects.count()
-    total_orders = Pedido.objects.count()
-    total_sellers = Vendedor.objects.count()
-    total_users = Usuario.objects.count()
-    
-    recent_orders = Pedido.objects.order_by('-data_criacao')[:5]
-    recent_products = Product.objects.order_by('-created_at')[:5]
-    recent_sellers = Vendedor.objects.order_by('-created_at')[:5]
-    vendas_pendentes = Venda.objects.filter(status='PENDENTE').order_by('-data_criacao')[:5]
+    from django.db.models import Q
+    # Métricas principais
+    total_vendedores = Vendedor.objects.count()
+    vendedores_ativos = Vendedor.objects.filter(usuario__is_active=True).count()
+    total_produtos = Produto.objects.count()
+    mensagens_pendentes = MensagemSuporte.objects.filter(respondido=False).count()
+    total_usuarios = Usuario.objects.count()
+    total_pedidos = Pedido.objects.count()
+
+    # Métricas de desempenho
+    pedidos_recebidos = Pedido.objects.count()
+    vendas_aprovadas = Pedido.objects.filter(status='APROVADO').count()
+    if pedidos_recebidos > 0:
+        percentual_vendas_aprovadas = int((vendas_aprovadas / pedidos_recebidos) * 100)
+    else:
+        percentual_vendas_aprovadas = 0
+
+    # Últimos vendedores registrados
+    ultimos_vendedores = Vendedor.objects.order_by('-created_at')[:5]
+
+    # Pedidos pendentes
+    pedidos_pendentes = Pedido.objects.filter(status='AGUARDANDO_APROVACAO').order_by('-data_criacao')[:5]
+
+    # Pedidos recentes
+    pedidos_recentes = Pedido.objects.order_by('-data_criacao')[:5]
+
+    # Produtos recentes
+    produtos_recentes = Produto.objects.order_by('-created_at')[:5]
 
     context = {
-        'total_products': total_products,
-        'total_orders': total_orders,
-        'total_sellers': total_sellers,
-        'total_users': total_users,
-        'recent_orders': recent_orders,
-        'recent_products': recent_products,
-        'recent_sellers': recent_sellers,
-        'vendas_pendentes': vendas_pendentes,
+        'total_vendedores': total_vendedores,
+        'vendedores_ativos': vendedores_ativos,
+        'total_produtos': total_produtos,
+        'mensagens_pendentes': mensagens_pendentes,
+        'total_usuarios': total_usuarios,
+        'total_pedidos': total_pedidos,
+        'pedidos_recebidos': pedidos_recebidos,
+        'vendas_aprovadas': vendas_aprovadas,
+        'percentual_vendas_aprovadas': percentual_vendas_aprovadas,
+        'ultimos_vendedores': ultimos_vendedores,
+        'pedidos_pendentes': pedidos_pendentes,
+        'pedidos_recentes': pedidos_recentes,
+        'produtos_recentes': produtos_recentes,
     }
     return render(request, 'core/superadmin_dashboard.html', context)
 
@@ -155,27 +186,74 @@ def superadmin_dashboard(request):
 def seller_dashboard(request):
     """Dashboard do vendedor"""
     try:
-        vendedor = request.user.vendedor
-    except Exception:
+        # Garantir que temos um objeto Usuario válido
+        usuario = request.user
+        if not isinstance(usuario, Usuario):
+            usuario = Usuario.objects.get(pk=request.user.pk)
+        
+        # Garantir que temos um objeto Vendedor válido
+        vendedor = Vendedor.objects.get(usuario=usuario)
+    except (Usuario.DoesNotExist, Vendedor.DoesNotExist, AttributeError):
         messages.error(request, 'Você precisa ser um vendedor para acessar esta página.')
         return redirect('core:home')
     
-    # Produtos do vendedor
-    total_products = Produto.objects.filter(vendedor=vendedor).count()
-    recent_products = Produto.objects.filter(vendedor=vendedor).order_by('-created_at')[:5]
+    # Produtos - agora mostrando todos os produtos ativos
+    total_products = Produto.objects.filter(ativo=True).count()
+    recent_products = Produto.objects.filter(ativo=True).order_by('-created_at')[:5]
 
-    # Pedidos do vendedor
-    pedidos = Pedido.objects.filter(vendedor=request.user)
+    # Pedidos do vendedor - usando o objeto Usuario ao invés do Vendedor
+    pedidos = Pedido.objects.filter(vendedor=usuario)
     total_pedidos = pedidos.count()
-    pedidos_pendentes = pedidos.filter(status='PENDENTE').count()
+    pedidos_pendentes = pedidos.filter(status='AGUARDANDO_APROVACAO').count()
     pedidos_aprovados = pedidos.filter(status='APROVADO').count()
     pedidos_rejeitados = pedidos.filter(status='REJEITADO').count()
-    ultimos_pedidos = pedidos.order_by('-data_pedido')[:5]
-    total_vendas = pedidos.filter(status='APROVADO').aggregate(total=Sum('total'))['total'] or 0
+    ultimos_pedidos = pedidos.order_by('-data_criacao')[:5]
+    
+    # Calcular o total de vendas somando os itens dos pedidos aprovados
+    total_vendas = 0
+    for pedido in pedidos.filter(status='APROVADO'):
+        for item in pedido.itens.all():
+            total_vendas += item.quantidade * item.preco_unitario
+
+    # Calcular vendas por mês para o gráfico
+    vendas_por_mes = []
+    meses = []
+    hoje = timezone.now()
+    
+    # Pegar os últimos 6 meses
+    for i in range(6):
+        mes = hoje - timedelta(days=30*i)
+        mes_inicio = mes.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        mes_fim = (mes_inicio + timedelta(days=32)).replace(day=1) - timedelta(days=1)
+        
+        vendas_mes = 0
+        pedidos_mes = pedidos.filter(
+            status='APROVADO',
+            data_criacao__range=[mes_inicio, mes_fim]
+        )
+        
+        for pedido in pedidos_mes:
+            for item in pedido.itens.all():
+                vendas_mes += float(item.quantidade) * float(item.preco_unitario)
+        
+        vendas_por_mes.append(round(vendas_mes, 2))
+        meses.append(mes.strftime('%b/%Y'))
+    
+    # Inverter as listas para mostrar do mais antigo para o mais recente
+    vendas_por_mes.reverse()
+    meses.reverse()
+
+    # Garantir que temos pelo menos 6 meses de dados
+    while len(vendas_por_mes) < 6:
+        vendas_por_mes.append(0)
+        meses.append((hoje - timedelta(days=30*len(vendas_por_mes))).strftime('%b/%Y'))
+
+    # Mensagens de suporte do vendedor
+    mensagens_suporte = MensagemSuporte.objects.filter(usuario=usuario).order_by('-data_envio')
 
     # Garante que o contexto tenha o usuário correto para o template
     context = {
-        'user': request.user,
+        'user': usuario,
         'vendedor': vendedor,
         'total_products': total_products,
         'total_pedidos': total_pedidos,
@@ -185,7 +263,11 @@ def seller_dashboard(request):
         'ultimos_pedidos': ultimos_pedidos,
         'total_vendas': total_vendas,
         'recent_products': recent_products,
+        'mensagens_suporte': mensagens_suporte,
+        'vendas_por_mes': vendas_por_mes,
+        'meses': meses,
     }
+    
     return render(request, 'core/seller_dashboard.html', context)
 
 @login_required
@@ -354,7 +436,7 @@ def seller_edit(request, seller_id):
 @login_required
 @user_passes_test(is_superadmin)
 def seller_disable(request, seller_id):
-    """Desativa um vendedor"""
+    """Desativa um vendedor (não altera status_aprovacao)"""
     seller = get_object_or_404(Vendedor, id=seller_id)
     seller.usuario.is_active = False
     seller.usuario.save()
@@ -364,11 +446,14 @@ def seller_disable(request, seller_id):
 @login_required
 @user_passes_test(is_superadmin)
 def seller_enable(request, seller_id):
-    """Ativa um vendedor"""
+    """Ativa um vendedor (apenas se aprovado)"""
     seller = get_object_or_404(Vendedor, id=seller_id)
-    seller.usuario.is_active = True
-    seller.usuario.save()
-    messages.success(request, 'Vendedor ativado com sucesso!')
+    if seller.status_aprovacao == 'APROVADO':
+        seller.usuario.is_active = True
+        seller.usuario.save()
+        messages.success(request, 'Vendedor ativado com sucesso!')
+    else:
+        messages.error(request, 'Só é possível ativar vendedores aprovados.')
     return redirect('core:listar_vendedores')
 
 @login_required
@@ -386,7 +471,7 @@ def seller_delete(request, seller_id):
 def order_create(request):
     """Cria um novo pedido"""
     if request.method == 'POST':
-        form = OrderForm(request.POST)
+        form = ModelForm(request.POST)
         if form.is_valid():
             order = form.save(commit=False)
             order.customer_name = request.user.get_full_name()
@@ -395,7 +480,7 @@ def order_create(request):
             messages.success(request, 'Pedido criado com sucesso!')
             return redirect('core:pedido_detail', pedido_id=order.id)
     else:
-        form = OrderForm()
+        form = ModelForm()
     return render(request, 'core/order_form.html', {'form': form})
 
 @login_required
@@ -409,421 +494,99 @@ def pedido_edit(request, pedido_id):
     """Edita um pedido"""
     pedido = get_object_or_404(Pedido, id=pedido_id)
     if request.method == 'POST':
-        form = OrderForm(request.POST, instance=pedido)
+        form = ModelForm(request.POST, instance=pedido)
         if form.is_valid():
             form.save()
             messages.success(request, 'Pedido atualizado com sucesso!')
             return redirect('core:pedido_detail', pedido_id=pedido.id)
     else:
-        form = OrderForm(instance=pedido)
+        form = ModelForm(instance=pedido)
     return render(request, 'core/order_form.html', {'form': form})
 
 @login_required
-def pedido_approve(request, pedido_id):
-    """Aprova um pedido"""
-    pedido = get_object_or_404(Pedido, id=pedido_id)
-    pedido.status = 'APROVADO'
-    pedido.save()
-    messages.success(request, 'Pedido aprovado com sucesso!')
-    return redirect('core:pedido_detail', pedido_id=pedido.id)
-
-@login_required
-def pedido_cancel(request, pedido_id):
-    """Cancela um pedido"""
-    pedido = get_object_or_404(Pedido, id=pedido_id)
-    pedido.status = 'REJEITADO'
-    pedido.save()
-    messages.success(request, 'Pedido cancelado com sucesso!')
-    return redirect('core:pedido_detail', pedido_id=pedido.id)
-
-def product_list(request):
-    """Lista todos os produtos"""
-    products = Product.objects.filter(is_active=True)
-    return render(request, 'core/product_list.html', {'products': products})
-
-@login_required
 @user_passes_test(is_superadmin)
-def listar_vendedores(request):
-    """Lista todos os vendedores"""
-    sellers = Vendedor.objects.all().order_by('-created_at')
-    return render(request, 'core/seller_list.html', {'sellers': sellers})
-
-@login_required
-@user_passes_test(is_superadmin)
-def aprovar_vendedor(request, vendedor_id):
-    """Aprova um vendedor"""
-    seller = get_object_or_404(Vendedor, id=vendedor_id)
-    seller.usuario.is_active = True
-    seller.usuario.save()
-    seller.data_aprovacao = timezone.now()
-    seller.status_aprovacao = 'APROVADO'
-    seller.save()
-    messages.success(request, 'Vendedor aprovado com sucesso!')
-    return redirect('core:listar_vendedores')
-
-@login_required
-@user_passes_test(is_superadmin)
-def reprovar_vendedor(request, vendedor_id):
-    """Reprova um vendedor"""
-    seller = get_object_or_404(Vendedor, id=vendedor_id)
-    seller.usuario.is_active = False
-    seller.usuario.save()
-    seller.data_aprovacao = None
-    seller.save()
-    messages.success(request, 'Vendedor reprovado com sucesso!')
-    return redirect('core:listar_vendedores')
-
-@login_required
-@user_passes_test(is_superadmin)
-def superadmin_products(request):
-    """Lista todos os produtos para o superadmin"""
-    category = request.GET.get('category')
-    status = request.GET.get('status')
-    search_query = request.GET.get('search')
-
-    # Obter produtos tanto do modelo Produto quanto do modelo Product
-    produtos_model = Produto.objects.all()
-    
-    try:
-        # Tenta obter produtos do modelo Product também
-        from core.models import Product
-        product_model = Product.objects.all()
-        
-        # Converter campos do Product para mapeá-los para o formato do Produto
-        products_converted = []
-        for p in product_model:
-            products_converted.append({
-                'id': p.id,  # Removido o prefixo 'core_'
-                'nome': p.name,
-                'descricao': p.description,
-                'preco': p.price,
-                'categoria': p.product_type,
-                'tipo': p.product_type,
-                'ativo': p.is_active,
-                'imagem': p.image.url if p.image else None,
-                'created_at': p.created_at,
-                'modelo': 'Product'  # Adicionado campo para identificar o modelo
-            })
-    except:
-        products_converted = []
-    
-    # Aplicar filtros nos produtos do modelo Produto
-    if category:
-        produtos_model = produtos_model.filter(categoria=category)
-    if status:
-        is_active = status == 'active'
-        produtos_model = produtos_model.filter(ativo=is_active)
-    if search_query:
-        produtos_model = produtos_model.filter(
-            Q(nome__icontains=search_query) |
-            Q(descricao__icontains=search_query)
-        )
-
-    # Ordenar por data de criação
-    produtos_model = produtos_model.order_by('-created_at')
-    
-    # Converter produtos do modelo Produto para lista de dicionários para template
-    produtos_list = []
-    for produto in produtos_model:
-        produto_dict = {
-            'id': produto.pk,  # Removido o prefixo 'prod_'
-            'nome': produto.nome,
-            'descricao': produto.descricao,
-            'preco': float(produto.preco) if produto.preco else 0,
-            'volume_disponivel': float(produto.volume_disponivel) if produto.volume_disponivel else 0,
-            'categoria': produto.get_categoria_display(),  # Agora usando o método
-            'tipo': produto.get_tipo_display(),  # Agora usando o método
-            'unidade_medida': produto.get_unidade_medida_display(),  # Agora usando o método
-            'created_at': produto.created_at,
-            'imagem': produto.imagem.url if produto.imagem else None,
-            'ativo': produto.ativo,
-            'modelo': 'Produto'  # Adicionado campo para identificar o modelo
-        }
-        produtos_list.append(produto_dict)
-    
-    # Combinar os produtos dos dois modelos
-    all_products = produtos_list + products_converted
-    
-    # Categorias para o filtro
-    categories = [
-        {'id': choice[0], 'name': choice[1]} 
-        for choice in Produto.CATEGORIA_CHOICES
-    ]
-    
-    context = {
-        'products': all_products,
-        'categories': categories,
-        'selected_category': category,
-        'selected_status': status,
-        'search_query': search_query,
-    }
-    return render(request, 'core/superadmin_products.html', context)
-
-@login_required
-@user_passes_test(is_superadmin)
-def superadmin_product_create(request):
-    """Cria um novo produto como superadmin"""
-    if request.method == 'POST':
-        print("="*50)
-        print("Dados do POST recebidos:")
-        for key, value in request.POST.items():
-            print(f"{key}: {value}")
-        print("Arquivos recebidos:", request.FILES)
-        print("="*50)
-        
-        form = ProductForm(request.POST, request.FILES)
-        print("Formulário é válido:", form.is_valid())
-        if not form.is_valid():
-            print("Erros do formulário:")
-            for field, errors in form.errors.items():
-                print(f"{field}: {errors}")
-        
-        if form.is_valid():
-            try:
-                product = form.save(commit=False)
-                print("Produto antes de salvar:")
-                for key, value in product.__dict__.items():
-                    print(f"{key}: {value}")
-                
-                product.save()
-                print("Produto salvo com sucesso! ID:", product.id)
-                messages.success(request, 'Produto criado com sucesso!')
-                return redirect('core:superadmin_products')
-            except Exception as e:
-                print("Erro ao salvar:", str(e))
-                messages.error(request, f'Erro ao salvar o produto: {str(e)}')
-        else:
-            for field, errors in form.errors.items():
-                for error in errors:
-                    messages.error(request, f'{field}: {error}')
-    else:
-        form = ProductForm()
-    
-    context = {
-        'form': form,
-        'title': 'Criar Novo Produto'
-    }
-    return render(request, 'core/superadmin_product_form.html', context)
-
-@login_required
-@user_passes_test(is_superadmin)
-def superadmin_product_delete(request, pk):
-    """Deleta um produto como superadmin"""
-    product = get_object_or_404(Product, pk=pk)
-    if request.method == 'POST':
-        product.delete()
-        messages.success(request, 'Produto deletado com sucesso!')
-        return redirect('core:superadmin_products')
-    return render(request, 'core/superadmin_product_confirm_delete.html', {'product': product})
-
-@login_required
-def seller_products(request):
-    """Lista os produtos de um vendedor"""
-    try:
-        vendedor = request.user.vendedor
-        if not vendedor.data_aprovacao:
-            messages.error(request, 'Você precisa ser aprovado para visualizar seus produtos.')
-            return redirect('core:dashboard')
-            
-        produtos = Produto.objects.filter(vendedor=vendedor).order_by('-created_at')
-        
-        # Filtros
-        categoria = request.GET.get('categoria')
-        status = request.GET.get('status')
-        busca = request.GET.get('busca')
-        
-        if categoria:
-            produtos = produtos.filter(categoria=categoria)
-        if status:
-            ativo = status == 'active'
-            produtos = produtos.filter(ativo=ativo)
-        if busca:
-            produtos = produtos.filter(
-                Q(nome__icontains=busca) |
-                Q(descricao__icontains=busca)
-            )
-        
-        context = {
-            'products': produtos,
-            'categorias': Produto.CATEGORIA_CHOICES,
-            'categoria_selecionada': categoria,
-            'status_selecionado': status,
-            'busca': busca,
-        }
-        return render(request, 'core/seller_products.html', context)
-    except Vendedor.DoesNotExist:
-        messages.error(request, 'Você precisa ser um vendedor para acessar esta página.')
-        return redirect('core:dashboard')
-
-@login_required
-def carrinho(request):
-    if request.method == 'POST':
-        tipo_venda = request.POST.get('tipo_venda')
-        carrinho = Carrinho(request)
-        if not carrinho:
-            messages.error(request, 'Seu carrinho está vazio.')
-            return redirect('core:carrinho')
-        # Obter o primeiro item do carrinho para referência
-        primeiro_item = next(iter(carrinho), None)
-        if not primeiro_item:
-            messages.error(request, 'Seu carrinho está vazio.')
-            return redirect('core:carrinho')
-        
-        if tipo_venda == 'avista':
-            # Obter o vendedor do produto
-            vendedor_produto = None
-            if hasattr(primeiro_item['produto'], 'vendedor_id'):
-                vendedor_produto = primeiro_item['produto'].vendedor_id
-            elif hasattr(primeiro_item['produto'], 'vendedor'):
-                vendedor_produto = primeiro_item['produto'].vendedor.id if primeiro_item['produto'].vendedor else None
-            # Criar pedido
-            pedido = Pedido.objects.create(
-                comprador=request.user,
-                vendedor_id=vendedor_produto,  # Associar vendedor corretamente
-                produto=primeiro_item['produto'],
-                quantidade=1,
-                preco_unitario=0,
-                total=0,
-                status='PENDENTE',
-                nome_propriedade='A definir',
-                cnpj='A definir',
-                hectares=0,
-                cultivo_principal='outros',
-                estado='SP',
-                cidade='A definir',
-                endereco='A definir',
-                cep='00000000'
-            )
-            for item in carrinho:
-                ItemPedido.objects.create(
-                    pedido=pedido,
-                    produto=item['produto'],
-                    quantidade=item['quantidade'],
-                    preco_unitario=item['preco']
-                )
-            carrinho.limpar()
-            messages.success(request, 'Pedido realizado com sucesso!')
-            return redirect('core:pedidos')
-        elif tipo_venda == 'prazo':
-            venda_prazo_form = VendaPrazoForm(request.POST, request.FILES)
-            if venda_prazo_form.is_valid():
-                # Obter o vendedor do produto
-                vendedor_produto = None
-                if hasattr(primeiro_item['produto'], 'vendedor_id'):
-                    vendedor_produto = primeiro_item['produto'].vendedor_id
-                elif hasattr(primeiro_item['produto'], 'vendedor'):
-                    vendedor_produto = primeiro_item['produto'].vendedor.id if primeiro_item['produto'].vendedor else None
-                # Criar pedido
-                pedido = Pedido.objects.create(
-                    comprador=request.user,
-                    vendedor_id=vendedor_produto,  # Associar vendedor corretamente
-                    produto=primeiro_item['produto'],
-                    quantidade=1,
-                    preco_unitario=0,
-                    total=0,
-                    status='PENDENTE',
-                    nome_propriedade='A definir',
-                    cnpj='A definir',
-                    hectares=0,
-                    cultivo_principal='outros',
-                    estado='SP',
-                    cidade='A definir',
-                    endereco='A definir',
-                    cep='00000000'
-                )
-                for item in carrinho:
-                    ItemPedido.objects.create(
-                        pedido=pedido,
-                        produto=item['produto'],
-                        quantidade=item['quantidade'],
-                        preco_unitario=item['preco']
-                    )
-                carrinho.limpar()
-                messages.success(request, 'Pedido realizado com sucesso!')
-                return redirect('core:pedidos')
-            else:
-                messages.error(request, 'Por favor, corrija os erros no formulário.')
-                return render(request, 'core/carrinho.html', {
-                    'carrinho': carrinho,
-                    'venda_prazo_form': venda_prazo_form
-                })
-    else:
-        carrinho = Carrinho(request)
-        venda_prazo_form = VendaPrazoForm()
-        return render(request, 'core/carrinho.html', {
-            'carrinho': carrinho,
-            'venda_prazo_form': venda_prazo_form
-        })
-
-def adicionar_ao_carrinho(request, product_id):
-    from django.contrib import messages
-    from django.shortcuts import redirect
-    from core.models import Product
-    from produtos.models import Produto
-    from .carrinho import Carrinho
-    produto = None
-    produto_nome = None
-    # Tenta buscar no modelo Product (core)
-    try:
-        produto = Product.objects.get(id=product_id)
-        produto_nome = produto.name
-    except Product.DoesNotExist:
-        # Se não encontrar, tenta buscar no modelo Produto (produtos)
-        try:
-            produto = Produto.objects.get(id=product_id)
-            produto_nome = produto.nome
-        except Produto.DoesNotExist:
-            messages.error(request, 'Produto não encontrado ou não disponível.')
-            return redirect('core:carrinho')
-    carrinho = Carrinho(request)
-    carrinho.adicionar(produto)
-    messages.success(request, f'{produto_nome} adicionado ao carrinho!')
-    return redirect('core:carrinho')
-
-def remover_do_carrinho(request, product_id):
-    produto = get_object_or_404(Produto, id=product_id)
-    carrinho = Carrinho(request)
-    carrinho.remover(produto)
-    messages.success(request, f'{produto.nome} removido do carrinho!')
-    return redirect('core:carrinho')
-
-@login_required
-@user_passes_test(is_superadmin)
-def superadmin_orders(request):
-    """Lista todos os pedidos para o superadmin"""
+def superadmin_pedidos(request):
     # Filtros
     status = request.GET.get('status')
+    tipo_venda = request.GET.get('tipo_venda')
     data_inicio = request.GET.get('data_inicio')
     data_fim = request.GET.get('data_fim')
-    
+
+    # Ação de arquivar/desarquivar
+    if request.method == 'POST':
+        pedido_id = request.POST.get('pedido_id')
+        acao = request.POST.get('acao')
+        if pedido_id and acao:
+            pedido = Pedido.objects.get(id=pedido_id)
+            if acao == 'arquivar' and pedido.status == 'APROVADO':
+                pedido.status = 'ARQUIVADO'
+                pedido.save()
+                messages.success(request, f'Pedido #{pedido.id} arquivado com sucesso!')
+            elif acao == 'desarquivar' and pedido.status == 'ARQUIVADO':
+                pedido.status = 'APROVADO'
+                pedido.save()
+                messages.success(request, f'Pedido #{pedido.id} desarquivado com sucesso!')
+            return redirect('core:superadmin_pedidos')
+
     # Obter todos os pedidos
-    orders = Pedido.objects.all().order_by('-created_at')
-    
+    pedidos = Pedido.objects.all().order_by('-data_criacao')
+
+    # Por padrão, não mostrar arquivados, só se filtrar explicitamente
+    if not status or status != 'ARQUIVADO':
+        pedidos = pedidos.exclude(status='ARQUIVADO')
+
     # Aplicar filtros
     if status:
-        orders = orders.filter(status=status)
+        pedidos = pedidos.filter(status=status)
+    if tipo_venda:
+        pedidos = pedidos.filter(tipo_venda=tipo_venda)
     if data_inicio:
-        orders = orders.filter(created_at__date__gte=data_inicio)
+        try:
+            data_inicio = timezone.datetime.strptime(data_inicio, '%Y-%m-%d')
+            pedidos = pedidos.filter(data_criacao__gte=data_inicio)
+        except ValueError:
+            pass
     if data_fim:
-        orders = orders.filter(created_at__date__lte=data_fim)
-    
+        try:
+            data_fim = timezone.datetime.strptime(data_fim, '%Y-%m-%d')
+            data_fim = data_fim.replace(hour=23, minute=59, second=59)
+            pedidos = pedidos.filter(data_criacao__lte=data_fim)
+        except ValueError:
+            pass
+
     # Paginação
-    paginator = Paginator(orders, 20)  # 20 itens por página
+    paginator = Paginator(pedidos, 20)
     page = request.GET.get('page')
-    orders = paginator.get_page(page)
-    
+    pedidos = paginator.get_page(page)
+
     context = {
-        'orders': orders,
+        'pedidos': pedidos,
         'status_choices': Pedido.STATUS_CHOICES,
+        'tipo_venda_choices': Pedido.TIPO_VENDA_CHOICES,
         'current_status': status,
+        'current_tipo_venda': tipo_venda,
+        'data_inicio': data_inicio,
+        'data_fim': data_fim,
     }
-    return render(request, 'core/superadmin_orders.html', context)
+    return render(request, 'core/superadmin_pedidos.html', context)
 
 @login_required
 @user_passes_test(is_superadmin)
 def superadmin_order_detail(request, order_id):
-    """Mostra os detalhes de um pedido para o superadmin"""
     order = get_object_or_404(Pedido, id=order_id)
+    if request.method == 'POST':
+        novo_status = request.POST.get('status')
+        if novo_status and novo_status != order.status:
+            order.status = novo_status
+            order.save()
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': True,
+                'order_id': order.id,
+                'status': order.status,
+                'status_display': order.get_status_display(),
+            })
+        return redirect('core:superadmin_pedidos')
     return render(request, 'core/superadmin_order_detail.html', {'order': order})
 
 @login_required
@@ -834,7 +597,7 @@ def superadmin_order_delete(request, order_id):
     if request.method == 'POST':
         order.delete()
         messages.success(request, 'Pedido deletado com sucesso!')
-        return redirect('core:superadmin_orders')
+        return redirect('core:superadmin_pedidos')
     return render(request, 'core/superadmin_order_confirm_delete.html', {'order': order})
 
 @login_required
@@ -1030,12 +793,25 @@ def suporte(request):
         )
         messages.success(request, 'Mensagem enviada com sucesso!')
         return redirect('core:suporte')
-    return render(request, 'core/suporte.html')
+    # Buscar as mensagens do usuário autenticado
+    mensagens = MensagemSuporte.objects.filter(usuario=request.user).order_by('-data_envio')
+    return render(request, 'core/suporte.html', {'mensagens': mensagens})
 
 @login_required
 @user_passes_test(is_superadmin)
 def superadmin_suporte(request):
     """Página de suporte para superadmin"""
+    if request.method == 'POST' and 'encerrar_id' in request.POST:
+        encerrar_id = request.POST.get('encerrar_id')
+        mensagem = MensagemSuporte.objects.filter(id=encerrar_id).first()
+        if mensagem:
+            mensagem.respondido = True
+            if not mensagem.resposta:
+                mensagem.resposta = 'Caso encerrado pelo administrador.'
+            mensagem.data_resposta = timezone.now()
+            mensagem.save()
+            messages.success(request, 'Caso encerrado com sucesso!')
+        return redirect('core:superadmin_suporte')
     mensagens = MensagemSuporte.objects.all()
     return render(request, 'core/superadmin_suporte.html', {'mensagens': mensagens})
 
@@ -1060,7 +836,7 @@ def solicitar_produto(request):
             # Se o formulário não for válido, mostra os erros
             for field, errors in form.errors.items():
                 for error in errors:
-                    messages.error(request, f"{form.fields[field].label}: {error}")
+                    messages.error(request, f"{field}: {error}")
     else:
         form = SolicitacaoProdutoForm()
     
@@ -1069,7 +845,10 @@ def solicitar_produto(request):
 @login_required
 def minhas_solicitacoes(request):
     """Lista as solicitações de produto do usuário"""
-    solicitacoes = SolicitacaoProduto.objects.filter(vendedor=request.user)
+    if not hasattr(request.user, 'vendedor'):
+        messages.error(request, 'Você precisa ser um vendedor para acessar esta página.')
+        return redirect('core:dashboard')
+    solicitacoes = SolicitacaoProduto.objects.filter(vendedor=request.user.vendedor)
     return render(request, 'core/minhas_solicitacoes.html', {'solicitacoes': solicitacoes})
 
 @login_required
@@ -1119,16 +898,17 @@ def superadmin_detalhes_solicitacao(request, pk):
 @login_required
 def request_product(request):
     """Solicita um novo produto"""
+    if not hasattr(request.user, 'vendedor'):
+        messages.error(request, 'Você precisa ser um vendedor para acessar esta página.')
+        return redirect('core:dashboard')
     if request.method == 'POST':
         form = SolicitacaoProdutoForm(request.POST)
         if form.is_valid():
             solicitacao = form.save(commit=False)
-            solicitacao.vendedor = request.user
-            
+            solicitacao.vendedor = request.user.vendedor
             # Garantir que quantidade tenha um valor padrão se estiver em branco
             if not solicitacao.quantidade:
                 solicitacao.quantidade = 1.0
-                
             solicitacao.save()
             messages.success(request, 'Solicitação enviada com sucesso!')
             return redirect('core:minhas_solicitacoes')
@@ -1260,7 +1040,7 @@ def rejeitar_venda(request, venda_id):
 def historico_pedidos_vendedor(request):
     """Lista o histórico de pedidos do vendedor logado"""
     vendedor = request.user.vendedor
-    pedidos = Pedido.objects.filter(vendedor=vendedor).order_by('-data_pedido')
+    pedidos = Pedido.objects.filter(vendedor=vendedor).order_by('-data_criacao')
     # Filtros
     status = request.GET.get('status')
     data_inicio = request.GET.get('data_inicio')
@@ -1268,9 +1048,9 @@ def historico_pedidos_vendedor(request):
     if status:
         pedidos = pedidos.filter(status=status)
     if data_inicio:
-        pedidos = pedidos.filter(data_pedido__date__gte=data_inicio)
+        pedidos = pedidos.filter(data_criacao__date__gte=data_inicio)
     if data_fim:
-        pedidos = pedidos.filter(data_pedido__date__lte=data_fim)
+        pedidos = pedidos.filter(data_criacao__date__lte=data_fim)
     context = {
         'pedidos': pedidos,
         'status_choices': [('PENDENTE', 'Pendente'), ('APROVADO', 'Aprovado'), ('REJEITADO', 'Rejeitado')],
@@ -1300,34 +1080,82 @@ def historico_pedidos_vendedor_admin(request, vendedor_id):
 
 @login_required
 def checkout(request):
+    from core.carrinho import Carrinho
+    from core.models import Venda, Product, Pedido
+    from vendedor.models import Vendedor
+    from usuarios.models import Usuario
+
+    carrinho = Carrinho(request)
+    usuario = request.user
+
     if request.method == 'POST':
-        # Obter vendas pendentes do usuário
-        vendas = Venda.objects.filter(comprador=request.user, status='PENDENTE')
-        
-        if not vendas.exists():
-            messages.error(request, 'Seu carrinho está vazio.')
-            return redirect('core:carrinho')
+        # Dados mínimos para criar o Pedido
+        nome_propriedade = getattr(usuario, 'nome', 'Propriedade do Cliente') or 'Propriedade do Cliente'
+        cnpj = getattr(usuario, 'cpf', '00000000000000') or '00000000000000'
+        hectares = 10
+        cultivo_principal = 'soja'
+        estado = getattr(usuario, 'estado', 'SP') or 'SP'
+        cidade = getattr(usuario, 'cidade', 'Cidade') or 'Cidade'
+        endereco = getattr(usuario, 'endereco', 'Endereço') or 'Endereço'
+        cep = getattr(usuario, 'cep', '00000-000') or '00000-000'
+        tipo_venda = request.POST.get('tipo_venda', 'avista')
+        observacoes = ''
+        total = sum(item['preco_total'] for item in carrinho)
 
-        # Atualizar status das vendas para PROCESSANDO
-        for venda in vendas:
-            venda.status = 'PROCESSANDO'
-            venda.save()
+        # Descobrir o vendedor a partir do primeiro produto do carrinho
+        vendedor = None
+        for item in carrinho:
+            produto = item['produto']
+            if hasattr(produto, 'seller') and produto.seller:
+                vendedor = produto.seller.usuario if hasattr(produto.seller, 'usuario') else None
+                break
 
+        pedido = Pedido.objects.create(
+            comprador=usuario,
+            vendedor=vendedor,  # Agora será o usuário do vendedor
+            nome_propriedade=nome_propriedade,
+            cnpj=cnpj,
+            hectares=hectares,
+            cultivo_principal=cultivo_principal,
+            estado=estado,
+            cidade=cidade,
+            endereco=endereco,
+            cep=cep,
+            tipo_venda=tipo_venda,
+            observacoes=observacoes,
+            total=total
+        )
+
+        # Cria vendas para cada item do carrinho
+        for item in carrinho:
+            produto = item['produto']
+            if not isinstance(produto, Product):
+                continue
+            quantidade = item['quantidade']
+            preco_unitario = item['preco']
+            vendedor = produto.seller if hasattr(produto, 'seller') and produto.seller else None
+            Venda.objects.create(
+                vendedor=vendedor,
+                comprador=usuario,
+                produto=produto,
+                quantidade=quantidade,
+                preco_unitario=preco_unitario,
+                status='PENDENTE',
+                pedido=pedido
+            )
+        carrinho.limpar()
         messages.success(request, 'Pedido registrado com sucesso!')
         return redirect('core:pedidos')
 
-    # Se for GET, mostrar o formulário
-    vendas = Venda.objects.filter(comprador=request.user, status='PENDENTE')
-    if not vendas.exists():
+    itens = [item for item in carrinho if isinstance(item['produto'], Product)]
+    if not itens:
         messages.error(request, 'Seu carrinho está vazio.')
         return redirect('core:carrinho')
 
-    # Calcular o total do carrinho
-    total = sum(venda.quantidade * venda.preco_unitario for venda in vendas)
-    
+    total = sum(item['preco_total'] for item in itens)
     context = {
         'carrinho': {
-            'itens': vendas,
+            'itens': itens,
             'total': total
         }
     }
@@ -1335,123 +1163,80 @@ def checkout(request):
 
 @login_required
 def pedidos(request):
-    pedidos = Pedido.objects.filter(comprador=request.user).order_by('-data_pedido')
+    # Filtros
+    status = request.GET.get('status')
+    data_inicio = request.GET.get('data_inicio')
+    data_fim = request.GET.get('data_fim')
+    
+    # Obter pedidos do usuário
+    pedidos = Pedido.objects.filter(comprador=request.user).order_by('-data_criacao')
+    
+    # Aplicar filtros
+    if status:
+        pedidos = pedidos.filter(status=status)
+    if data_inicio:
+        try:
+            data_inicio = timezone.datetime.strptime(data_inicio, '%Y-%m-%d')
+            pedidos = pedidos.filter(data_criacao__gte=data_inicio)
+        except ValueError:
+            pass
+    if data_fim:
+        try:
+            data_fim = timezone.datetime.strptime(data_fim, '%Y-%m-%d')
+            data_fim = data_fim.replace(hour=23, minute=59, second=59)
+            pedidos = pedidos.filter(data_criacao__lte=data_fim)
+        except ValueError:
+            pass
     
     context = {
-        'pedidos': pedidos
+        'pedidos': pedidos,
+        'status_choices': Pedido.STATUS_CHOICES,
+        'status_selecionado': status,
+        'data_inicio': data_inicio,
+        'data_fim': data_fim,
     }
     return render(request, 'core/pedidos.html', context)
 
 @login_required
 @user_passes_test(is_superadmin)
 def superadmin_compras_vendedores(request):
-    """Lista o histórico de compras de todos os vendedores"""
+    if not request.user.is_superuser and not request.user.is_staff:
+        messages.error(request, 'Você não tem permissão para acessar esta página.')
+        return redirect('core:index')
+    
     # Filtros
     vendedor_id = request.GET.get('vendedor')
     status = request.GET.get('status')
     data_inicio = request.GET.get('data_inicio')
     data_fim = request.GET.get('data_fim')
     
-    # Lista de vendedores para o filtro
-    vendedores = Vendedor.objects.all().order_by('nome_fantasia')
-    
-    # Obter todas as vendas
-    vendas = Venda.objects.filter(status__in=['ACEITO', 'PROCESSANDO']).order_by('-data_criacao')
+    # Query base
+    pedidos = Pedido.objects.all().order_by('-data_criacao')
+    pedidos = pedidos.filter(vendedor__isnull=False)
     
     # Aplicar filtros
     if vendedor_id:
-        try:
-            vendedor = Vendedor.objects.get(id=vendedor_id)
-            vendas = vendas.filter(comprador=vendedor.usuario)
-        except Vendedor.DoesNotExist:
-            pass
-    
-    if status:
-        vendas = vendas.filter(status=status)
-        
-    if data_inicio:
-        try:
-            data_inicio = timezone.datetime.strptime(data_inicio, '%Y-%m-%d')
-            vendas = vendas.filter(data_criacao__gte=data_inicio)
-        except ValueError:
-            pass
-            
-    if data_fim:
-        try:
-            data_fim = timezone.datetime.strptime(data_fim, '%Y-%m-%d')
-            data_fim = data_fim.replace(hour=23, minute=59, second=59)
-            vendas = vendas.filter(data_criacao__lte=data_fim)
-        except ValueError:
-            pass
-    
-    # Paginação
-    paginator = Paginator(vendas, 20)  # 20 itens por página
-    page = request.GET.get('page')
-    vendas_paginadas = paginator.get_page(page)
-    
-    context = {
-        'vendas': vendas_paginadas,
-        'vendedores': vendedores,
-        'filtro_vendedor': vendedor_id,
-        'filtro_status': status,
-        'filtro_data_inicio': data_inicio,
-        'filtro_data_fim': data_fim,
-        'status_choices': [
-            ('PENDENTE', 'Pendente'),
-            ('PROCESSANDO', 'Processando'),
-            ('ACEITO', 'Aceito'),
-            ('REJEITADO', 'Rejeitado')
-        ],
-    }
-    return render(request, 'core/superadmin_compras_vendedores.html', context)
-
-@login_required
-@user_passes_test(is_superadmin)
-def superadmin_pedidos(request):
-    """Lista todos os pedidos para o superadmin"""
-    # Filtros
-    status = request.GET.get('status')
-    tipo_venda = request.GET.get('tipo_venda')
-    data_inicio = request.GET.get('data_inicio')
-    data_fim = request.GET.get('data_fim')
-    
-    # Obter todos os pedidos
-    pedidos = Pedido.objects.all().order_by('-data_pedido')
-    
-    # Aplicar filtros
+        pedidos = pedidos.filter(vendedor_id=vendedor_id)
     if status:
         pedidos = pedidos.filter(status=status)
-    if tipo_venda:
-        pedidos = pedidos.filter(tipo_venda=tipo_venda)
     if data_inicio:
-        try:
-            data_inicio = timezone.datetime.strptime(data_inicio, '%Y-%m-%d')
-            pedidos = pedidos.filter(data_pedido__gte=data_inicio)
-        except ValueError:
-            pass
+        pedidos = pedidos.filter(data_criacao__date__gte=data_inicio)
     if data_fim:
-        try:
-            data_fim = timezone.datetime.strptime(data_fim, '%Y-%m-%d')
-            data_fim = data_fim.replace(hour=23, minute=59, second=59)
-            pedidos = pedidos.filter(data_pedido__lte=data_fim)
-        except ValueError:
-            pass
+        pedidos = pedidos.filter(data_criacao__date__lte=data_fim)
     
-    # Paginação
-    paginator = Paginator(pedidos, 20)  # 20 itens por página
-    page = request.GET.get('page')
-    pedidos = paginator.get_page(page)
+    # Obter lista de vendedores para o filtro
+    vendedores = Vendedor.objects.all()
+    
+    # Status choices para o filtro
+    status_choices = Pedido.STATUS_CHOICES
     
     context = {
         'pedidos': pedidos,
-        'status_choices': Pedido.STATUS_CHOICES,
-        'tipo_venda_choices': Pedido.TIPO_VENDA_CHOICES,
-        'current_status': status,
-        'current_tipo_venda': tipo_venda,
-        'data_inicio': data_inicio,
-        'data_fim': data_fim,
+        'vendedores': vendedores,
+        'status_choices': status_choices,
     }
-    return render(request, 'core/superadmin_pedidos.html', context)
+    
+    return render(request, 'core/superadmin_compras_vendedores.html', context)
 
 def solicitar_compra(request, product_id):
     if request.method == 'POST':
@@ -1475,3 +1260,208 @@ def solicitar_compra(request, product_id):
             return redirect('core:produto_detalhe', produto_id=product_id)
             
     return redirect('core:produto_detalhe', produto_id=product_id)
+
+@login_required
+@is_seller
+def encerrar_caso(request, mensagem_id):
+    """View para encerrar um caso de suporte"""
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Método não permitido'}, status=405)
+    
+    try:
+        # Busca a mensagem usando o ID e o vendedor atual
+        mensagem = get_object_or_404(
+            MensagemSuporte, 
+            id=mensagem_id,
+            vendedor__usuario=request.user
+        )
+        
+        # Verifica se a mensagem já foi respondida e não está fechada
+        if not mensagem.respondida:
+            return JsonResponse({
+                'error': 'Não é possível encerrar um caso que ainda não foi respondido'
+            }, status=400)
+            
+        if mensagem.encerrado:
+            return JsonResponse({
+                'error': 'Este caso já está encerrado'
+            }, status=400)
+        
+        # Encerra o caso
+        mensagem.encerrado = True
+        mensagem.data_encerramento = timezone.now()
+        mensagem.save()
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'Caso encerrado com sucesso!'
+        })
+        
+    except MensagemSuporte.DoesNotExist:
+        return JsonResponse({
+            'error': 'Mensagem não encontrada'
+        }, status=404)
+    except Exception as e:
+        logger.error(f'Erro ao encerrar caso: {str(e)}')
+        return JsonResponse({
+            'error': 'Erro ao encerrar o caso'
+        }, status=500)
+
+@login_required
+@user_passes_test(is_superadmin)
+def reprovar_pedido(request, pedido_id):
+    pedido = get_object_or_404(Pedido, id=pedido_id)
+    if pedido.status != 'AGUARDANDO_APROVACAO':
+        messages.error(request, 'Só é possível reprovar pedidos aguardando aprovação.')
+        return redirect('core:superadmin_pedidos')
+    if request.method == 'POST':
+        justificativa = request.POST.get('justificativa', '').strip()
+        if not justificativa:
+            messages.error(request, 'A justificativa é obrigatória para reprovar um pedido.')
+            return render(request, 'core/pedido_reprovar.html', {'pedido': pedido})
+        pedido.status = 'REPROVADO'
+        pedido.reprovado_por = request.user
+        pedido.reprovado_em = timezone.now()
+        pedido.justificativa_reprovacao = justificativa
+        pedido.aprovado_por = None
+        pedido.aprovado_em = None
+        pedido.save()
+        messages.success(request, f'Pedido #{pedido.id} reprovado com sucesso!')
+        return redirect('core:superadmin_pedidos')
+    return render(request, 'core/pedido_reprovar.html', {'pedido': pedido})
+
+@login_required
+@user_passes_test(is_superadmin)
+def reprovar_vendedor(request, vendedor_id):
+    """Reprova um vendedor, exigindo justificativa"""
+    vendedor = get_object_or_404(Vendedor, id=vendedor_id)
+    if request.method == 'POST':
+        justificativa = request.POST.get('justificativa_recusa', '').strip()
+        if not justificativa:
+            messages.error(request, 'A justificativa da recusa é obrigatória.')
+            return redirect('core:seller_detail', seller_id=vendedor.id)
+        vendedor.usuario.is_active = False
+        vendedor.status_aprovacao = 'RECUSADO'
+        vendedor.justificativa_recusa = justificativa
+        vendedor.usuario.save()
+        vendedor.save()
+        messages.success(request, 'Vendedor reprovado com sucesso!')
+    return redirect('core:listar_vendedores')
+
+@login_required
+def pedido_cancel(request, pedido_id):
+    """Cancela um pedido"""
+    pedido = get_object_or_404(Pedido, id=pedido_id)
+    if pedido.status == 'AGUARDANDO_APROVACAO':
+        pedido.status = 'CANCELADO'
+        pedido.save()
+        messages.success(request, 'Pedido cancelado com sucesso!')
+    else:
+        messages.error(request, 'Este pedido não pode ser cancelado.')
+    return redirect('core:pedidos')
+
+@login_required
+@user_passes_test(is_superadmin)
+def superadmin_products(request):
+    """Lista todos os produtos para o superadmin"""
+    produtos = Produto.objects.all().order_by('-created_at')
+    return render(request, 'core/superadmin_products.html', {'produtos': produtos})
+
+@login_required
+@user_passes_test(is_superadmin)
+def superadmin_product_create(request):
+    """Cria um novo produto como superadmin"""
+    if request.method == 'POST':
+        form = ProductForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Produto criado com sucesso!')
+            return redirect('core:superadmin_products')
+    else:
+        form = ProductForm()
+    return render(request, 'core/superadmin_product_form.html', {'form': form})
+
+@login_required
+@user_passes_test(is_superadmin)
+def superadmin_product_delete(request, pk):
+    """Deleta um produto como superadmin"""
+    produto = get_object_or_404(Produto, pk=pk)
+    if request.method == 'POST':
+        produto.delete()
+        messages.success(request, 'Produto deletado com sucesso!')
+        return redirect('core:superadmin_products')
+    return render(request, 'core/superadmin_product_confirm_delete.html', {'produto': produto})
+
+@login_required
+@user_passes_test(is_vendedor)
+def seller_products(request):
+    """Lista os produtos do vendedor"""
+    produtos = Produto.objects.filter(vendedor=request.user.vendedor)
+    return render(request, 'core/seller_products.html', {'produtos': produtos})
+
+@login_required
+def carrinho(request):
+    """Mostra o carrinho de compras e exibe o formulário de venda a prazo se necessário"""
+    from .forms import VendaPrazoForm
+    carrinho = Carrinho(request)
+    form = VendaPrazoForm()
+    return render(request, 'core/carrinho.html', {'carrinho': carrinho, 'form': form})
+
+@login_required
+def adicionar_ao_carrinho(request, product_id):
+    """Adiciona um produto ao carrinho (apenas Product do core.models)"""
+    from .models import Product
+    produto = get_object_or_404(Product, id=product_id)
+    carrinho = Carrinho(request)
+    quantidade = int(request.POST.get('quantidade', 1))
+    carrinho.adicionar(produto, quantidade)
+    messages.success(request, 'Produto adicionado ao carrinho!')
+    return redirect('core:carrinho')
+
+@login_required
+def remover_do_carrinho(request, product_id):
+    """Remove um produto do carrinho"""
+    carrinho = Carrinho(request)
+    produto = get_object_or_404(Produto, id=product_id)
+    carrinho.remover(produto)
+    messages.success(request, 'Produto removido do carrinho!')
+    return redirect('core:carrinho')
+
+@login_required
+@user_passes_test(is_superadmin)
+def listar_vendedores(request):
+    """Lista todos os vendedores"""
+    vendedores = Vendedor.objects.all().order_by('-created_at')
+    return render(request, 'core/listar_vendedores.html', {'vendedores': vendedores})
+
+@login_required
+@user_passes_test(is_superadmin)
+def aprovar_vendedor(request, vendedor_id):
+    """Aprova um vendedor, inclusive se já foi recusado"""
+    vendedor = get_object_or_404(Vendedor, id=vendedor_id)
+    vendedor.usuario.is_active = True
+    vendedor.status_aprovacao = 'APROVADO'
+    vendedor.justificativa_recusa = ''  # Limpa justificativa ao aprovar
+    vendedor.usuario.save()
+    vendedor.save()
+    messages.success(request, 'Vendedor aprovado com sucesso!')
+    return redirect('core:listar_vendedores')
+
+@login_required
+@user_passes_test(is_superadmin)
+def aprovar_pedido(request, pedido_id):
+    pedido = get_object_or_404(Pedido, id=pedido_id)
+    if pedido.status != 'AGUARDANDO_APROVACAO':
+        messages.error(request, 'Só é possível aprovar pedidos aguardando aprovação.')
+        return redirect('core:superadmin_pedidos')
+    if request.method == 'POST':
+        pedido.status = 'APROVADO'
+        pedido.aprovado_por = request.user
+        pedido.aprovado_em = timezone.now()
+        pedido.justificativa_reprovacao = ''
+        pedido.reprovado_por = None
+        pedido.reprovado_em = None
+        pedido.save()
+        messages.success(request, f'Pedido #{pedido.id} aprovado com sucesso!')
+        return redirect('core:superadmin_pedidos')
+    return render(request, 'core/pedido_approve.html', {'pedido': pedido})

@@ -30,7 +30,7 @@ class Command(BaseCommand):
                 preco_unitario=produto.preco,
                 preco_total=produto.preco * 5,
                 status='ACEITO',
-                data_venda=timezone.now(),
+                data_criacao=timezone.now(),
                 estoque_atualizado=True
             )
             self.stdout.write(self.style.SUCCESS(f'Criada venda de teste para comprador {comprador.email}'))

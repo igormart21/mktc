@@ -14,7 +14,7 @@
                     <h5 class="card-title mb-0">Informações do Pedido</h5>
                 </div>
                 <div class="card-body">
-                    <p><strong>Data:</strong> {{ pedido.created_at|date:"d/m/Y H:i" }}</p>
+                    <p><strong>Data:</strong> {{ pedido.data_criacao|date:"d/m/Y H:i" }}</p>
                     <p><strong>Cliente:</strong> {{ pedido.user.get_full_name }}</p>
                     <p><strong>Vendedor:</strong> {{ pedido.vendedor.get_full_name }}</p>
                     <p><strong>Total:</strong> R$ {{ pedido.total_price|floatformat:2 }}</p>

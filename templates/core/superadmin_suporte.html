@@ -1,3 +1,4 @@
+<!-- TESTE SUPORTE 123 -->
 {% extends "base_internal.html" %}
 {% load static %}
 
@@ -7,9 +8,17 @@
 <div class="container-fluid py-4">
     <!-- Cabeçalho -->
     <div class="row mb-4">
-        <div class="col">
-            <h1 class="h3 mb-2">Gerenciar Mensagens de Suporte</h1>
-            <p class="text-muted">Visualize e responda as mensagens dos vendedores</p>
+        <div class="col-md-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h3 class="h3 mb-0">
+                            <i class="fas fa-headset text-primary me-2"></i>Gerenciar Suporte
+                        </h3>
+                    </div>
+                    <p class="text-muted mb-0 mt-2">Visualize e responda as mensagens dos vendedores.</p>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -34,61 +43,75 @@
         </div>
     </div>
 
-    <!-- Lista de Mensagens -->
-    <div class="row">
-        {% for mensagem in mensagens %}
-        <div class="col-12 mb-4">
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-white">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h5 class="mb-0">{{ mensagem.usuario.nome }}</h5>
-                            <small class="text-muted">{{ mensagem.data_envio|date:"d/m/Y H:i" }}</small>
-                        </div>
-                        <span class="badge {% if mensagem.respondido %}bg-success{% else %}bg-warning{% endif %}">
-                            {{ mensagem.get_assunto_display }}
-                        </span>
-                    </div>
+    <!-- Lista de Mensagens em Accordion -->
+    <div class="accordion" id="suporteAccordion">
+      {% for mensagem in mensagens %}
+        <div class="accordion-item mb-3">
+          <h2 class="accordion-header" id="heading{{ mensagem.id }}">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ mensagem.id }}" aria-expanded="false" aria-controls="collapse{{ mensagem.id }}">
+              <span class="me-2">
+                <span class="badge {% if mensagem.respondido %}bg-success{% else %}bg-warning{% endif %}">
+                  {{ mensagem.get_assunto_display }}
+                </span>
+              </span>
+              <b>{{ mensagem.usuario.nome }}</b> - {{ mensagem.data_envio|date:"d/m/Y H:i" }}
+            </button>
+          </h2>
+          <div id="collapse{{ mensagem.id }}" class="accordion-collapse collapse" aria-labelledby="heading{{ mensagem.id }}" data-bs-parent="#suporteAccordion">
+            <div class="accordion-body">
+              <h6>Mensagem</h6>
+              <p>{{ mensagem.mensagem }}</p>
+              {% if mensagem.respondido %}
+                <div class="alert alert-success">
+                  <h6>Resposta</h6>
+                  <p>{{ mensagem.resposta }}</p>
+                  <small class="text-muted">Respondido em: {{ mensagem.data_resposta|date:"d/m/Y H:i" }}</small>
                 </div>
-                <div class="card-body">
-                    <div class="mb-4">
-                        <h6 class="text-muted mb-2">Mensagem</h6>
-                        <p class="mb-0">{{ mensagem.mensagem }}</p>
-                    </div>
-
-                    {% if mensagem.respondido %}
-                    <div class="alert alert-success mb-0">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <h6 class="mb-0">Resposta</h6>
-                            <small class="text-muted">{{ mensagem.data_resposta|date:"d/m/Y H:i" }}</small>
-                        </div>
-                        <p class="mb-0">{{ mensagem.resposta }}</p>
-                    </div>
-                    {% else %}
-                    <form method="post" action="{% url 'core:superadmin_suporte' %}">
-                        {% csrf_token %}
-                        <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
-                        <input type="hidden" name="mensagem_id" value="{{ mensagem.id }}">
-                        <div class="mb-3">
-                            <label for="resposta{{ mensagem.id }}" class="form-label">Responder</label>
-                            <textarea class="form-control" id="resposta{{ mensagem.id }}" name="resposta" rows="3" required></textarea>
-                        </div>
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-paper-plane me-2"></i>Enviar Resposta
-                        </button>
-                    </form>
-                    {% endif %}
-                </div>
+                <button class="btn btn-outline-secondary mt-2" onclick="encerrarCaso({{ mensagem.id }})">Encerrar Caso</button>
+              {% else %}
+                <form method="post" action="{% url 'core:superadmin_suporte' %}">
+                  {% csrf_token %}
+                  <input type="hidden" name="mensagem_id" value="{{ mensagem.id }}">
+                  <div class="mb-3">
+                    <label for="resposta{{ mensagem.id }}" class="form-label">Responder</label>
+                    <textarea class="form-control" id="resposta{{ mensagem.id }}" name="resposta" rows="3" required></textarea>
+                  </div>
+                  <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-paper-plane me-2"></i>Enviar Resposta
+                  </button>
+                </form>
+              {% endif %}
             </div>
+          </div>
         </div>
-        {% empty %}
-        <div class="col-12">
-            <div class="alert alert-info mb-0">
-                <i class="fas fa-info-circle me-2"></i>
-                Nenhuma mensagem encontrada.
-            </div>
+      {% empty %}
+        <div class="alert alert-info mb-0">
+          <i class="fas fa-info-circle me-2"></i>
+          Nenhuma mensagem encontrada.
         </div>
-        {% endfor %}
+      {% endfor %}
     </div>
 </div>
+
+<script>
+function encerrarCaso(mensagemId) {
+    if (confirm('Tem certeza que deseja encerrar este caso?')) {
+        const form = document.createElement('form');
+        form.method = 'post';
+        form.action = '';
+        const csrf = document.createElement('input');
+        csrf.type = 'hidden';
+        csrf.name = 'csrfmiddlewaretoken';
+        csrf.value = '{{ csrf_token }}';
+        form.appendChild(csrf);
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'encerrar_id';
+        input.value = mensagemId;
+        form.appendChild(input);
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+</script>
 {% endblock %} 

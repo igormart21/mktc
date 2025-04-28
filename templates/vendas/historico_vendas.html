@@ -33,7 +33,7 @@
                             <td>#{{ venda.id }}</td>
                             <td>{{ venda.produto.nome }}</td>
                             <td>{{ venda.comprador.nome }}</td>
-                            <td>{{ venda.data_pedido|date:"d/m/Y H:i" }}</td>
+                            <td>{{ venda.data_criacao|date:"d/m/Y H:i" }}</td>
                             <td>
                                 <span class="badge {% if venda.status == 'PENDENTE' %}bg-warning{% elif venda.status == 'ACEITO' %}bg-success{% else %}bg-danger{% endif %}">
                                     {{ venda.get_status_display }}
@@ -68,7 +68,7 @@
                                         </div>
                                         <div class="mb-3">
                                             <h6 class="text-muted mb-2">Data da Venda</h6>
-                                            <p class="mb-0">{{ venda.data_pedido|date:"d/m/Y H:i" }}</p>
+                                            <p class="mb-0">{{ venda.data_criacao|date:"d/m/Y H:i" }}</p>
                                         </div>
                                         <div class="mb-3">
                                             <h6 class="text-muted mb-2">Status</h6>

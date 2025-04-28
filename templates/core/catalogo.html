@@ -5,17 +5,23 @@
 
 {% block content %}
 <div class="container-fluid py-4">
-    <!-- Cabeçalho -->
+    <!-- Cabeçalho padronizado -->
     <div class="row mb-4">
-        <div class="col">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h1 class="h3 mb-2">Catálogo de Produtos</h1>
-                    <p class="text-muted">Explore nossa variedade de produtos agrícolas</p>
+        <div class="col-md-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h3 class="h3 mb-0">
+                                <i class="fas fa-box text-primary me-2"></i>Catálogo de Produtos
+                            </h3>
+                            <p class="text-muted mb-0 mt-2">Explore nossa variedade de produtos agrícolas.</p>
+                        </div>
+                        <a href="{% url 'core:carrinho' %}" class="btn btn-primary">
+                            <i class="fas fa-shopping-cart me-2"></i>Carrinho
+                        </a>
+                    </div>
                 </div>
-                <a href="{% url 'core:carrinho' %}" class="btn btn-primary">
-                    <i class="fas fa-shopping-cart me-2"></i>Carrinho
-                </a>
             </div>
         </div>
     </div>
@@ -139,7 +145,7 @@
                     <p class="card-text text-muted flex-grow-1">{{ produto.descricao|truncatewords:15|default:"Sem descrição" }}</p>
                     
                     <div class="mt-auto">
-                        {% if user.is_authenticated and user.vendedor == produto.vendedor %}
+                        {% if False %}
                         <button type="button" class="btn btn-secondary w-100" disabled>
                             <i class="fas fa-shopping-cart me-2"></i>Seu Produto
                         </button>

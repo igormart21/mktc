@@ -5,6 +5,7 @@
 {% block title %}Detalhes do Vendedor - AgroMarketplace{% endblock %}
 
 {% block content %}
+<!-- DEBUG: Template atualizado em {% now "Y-m-d H:i:s" %} -->
 <div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-lg-10">
@@ -63,11 +64,21 @@
                         <div class="col-md-6">
                             <p><strong>Tipo de Documento:</strong> {{ seller.usuario.get_tipo_documento_display }}</p>
                             <p><strong>Número do Documento:</strong> {{ seller.usuario.numero_documento }}</p>
-                            {% if seller.usuario.documento %}
+                            
+                            <!-- Documentos -->
+                            {% if seller.rg %}
                                 <p>
-                                    <strong>Documento:</strong>
-                                    <a href="{{ seller.usuario.documento.url }}" target="_blank" class="btn btn-sm btn-outline-primary ms-2">
-                                        <i class="fas fa-file-alt me-1"></i>Visualizar
+                                    <strong>RG:</strong>
+                                    <a href="{{ seller.rg.url }}" target="_blank" class="btn btn-sm btn-outline-primary ms-2">
+                                        <i class="fas fa-file-alt me-1"></i>Visualizar RG
+                                    </a>
+                                </p>
+                            {% endif %}
+                            {% if seller.cnh %}
+                                <p>
+                                    <strong>CNH:</strong>
+                                    <a href="{{ seller.cnh.url }}" target="_blank" class="btn btn-sm btn-outline-primary ms-2">
+                                        <i class="fas fa-file-alt me-1"></i>Visualizar CNH
                                     </a>
                                 </p>
                             {% endif %}
@@ -111,19 +122,13 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
-                            {% if seller.rg or seller.usuario.documento %}
+                            {% if seller.rg %}
                                 <div class="mb-3">
                                     <p class="mb-2"><strong>RG:</strong></p>
                                     <div class="d-flex align-items-center">
-                                        {% if seller.rg %}
-                                            <a href="{{ seller.rg.url }}" target="_blank" class="btn btn-outline-primary me-2">
-                                                <i class="fas fa-file-alt me-2"></i>Visualizar RG
-                                            </a>
-                                        {% elif seller.usuario.documento %}
-                                            <a href="{{ seller.usuario.documento.url }}" target="_blank" class="btn btn-outline-primary me-2">
-                                                <i class="fas fa-file-alt me-2"></i>Visualizar Documento
-                                            </a>
-                                        {% endif %}
+                                        <a href="{{ seller.rg.url }}" target="_blank" class="btn btn-outline-primary me-2">
+                                            <i class="fas fa-file-alt me-2"></i>Visualizar RG
+                                        </a>
                                         <span class="badge bg-success">Documento enviado</span>
                                     </div>
                                 </div>
@@ -135,19 +140,13 @@
                             {% endif %}
                         </div>
                         <div class="col-md-6">
-                            {% if seller.cnh or seller.usuario.documento %}
+                            {% if seller.cnh %}
                                 <div class="mb-3">
                                     <p class="mb-2"><strong>CNH:</strong></p>
                                     <div class="d-flex align-items-center">
-                                        {% if seller.cnh %}
-                                            <a href="{{ seller.cnh.url }}" target="_blank" class="btn btn-outline-primary me-2">
-                                                <i class="fas fa-file-alt me-2"></i>Visualizar CNH
-                                            </a>
-                                        {% elif seller.usuario.documento %}
-                                            <a href="{{ seller.usuario.documento.url }}" target="_blank" class="btn btn-outline-primary me-2">
-                                                <i class="fas fa-file-alt me-2"></i>Visualizar Documento
-                                            </a>
-                                        {% endif %}
+                                        <a href="{{ seller.cnh.url }}" target="_blank" class="btn btn-outline-primary me-2">
+                                            <i class="fas fa-file-alt me-2"></i>Visualizar CNH
+                                        </a>
                                         <span class="badge bg-success">Documento enviado</span>
                                     </div>
                                 </div>
@@ -199,33 +198,6 @@
                                                     <iframe src="{{ seller.cnh.url }}" width="100%" height="300" frameborder="0"></iframe>
                                                 {% else %}
                                                     <img src="{{ seller.cnh.url }}" alt="CNH" class="img-fluid">
-                                                {% endif %}
-                                            {% else %}
-                                                <div class="text-center p-3">
-                                                    <p class="text-muted">Documento não disponível</p>
-                                                </div>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                </div>
-                            {% endif %}
-                        </div>
-                    </div>
-
-                    <div class="row mt-4">
-                        <div class="col-md-12">
-                            {% if seller.usuario.documento %}
-                                <div class="card mb-4">
-                                    <div class="card-header bg-light">
-                                        <h6 class="mb-0">Visualização do Documento Principal</h6>
-                                    </div>
-                                    <div class="card-body p-0">
-                                        <div class="document-preview text-center p-3">
-                                            {% if seller.usuario.documento.url %}
-                                                {% if seller.usuario.documento.name|slice:"-4:" == '.pdf' %}
-                                                    <iframe src="{{ seller.usuario.documento.url }}" width="100%" height="400" frameborder="0"></iframe>
-                                                {% else %}
-                                                    <img src="{{ seller.usuario.documento.url }}" alt="Documento do Vendedor" class="img-fluid" style="max-width:300px; max-height:400px;">
                                                 {% endif %}
                                             {% else %}
                                                 <div class="text-center p-3">
@@ -297,6 +269,60 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Aprovação do Vendedor -->
+            {% if seller.justificativa_recusa %}
+            <div class="alert alert-warning mt-4">
+                <strong>Justificativa da Recusa:</strong><br>
+                {{ seller.justificativa_recusa }}
+            </div>
+            {% endif %}
+
+            {% if request.user.is_superuser and seller.status_aprovacao in 'PENDENTE RECUSADO' %}
+            <div class="card shadow-sm mb-4 mt-5">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-user-check text-primary me-2"></i>
+                        Aprovação do Vendedor
+                    </h5>
+                </div>
+                <div class="card-body text-center">
+                    <form method="post" action="{% url 'core:aprovar_vendedor' seller.id %}" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-success btn-lg mx-2">Aprovar</button>
+                    </form>
+                    <!-- Botão para abrir modal de recusa -->
+                    <button type="button" class="btn btn-danger btn-lg mx-2" data-bs-toggle="modal" data-bs-target="#modalRecusarVendedor">
+                        Reprovar
+                    </button>
+                </div>
+            </div>
+
+            <!-- Modal de justificativa de recusa -->
+            <div class="modal fade" id="modalRecusarVendedor" tabindex="-1" aria-labelledby="modalRecusarVendedorLabel" aria-hidden="true">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <form method="post" action="{% url 'core:reprovar_vendedor' seller.id %}">
+                    {% csrf_token %}
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="modalRecusarVendedorLabel">Justificar Recusa</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                    </div>
+                    <div class="modal-body">
+                      <div class="mb-3">
+                        <label for="justificativa_recusa" class="form-label">Justificativa da recusa <span class="text-danger">*</span></label>
+                        <textarea class="form-control" id="justificativa_recusa" name="justificativa_recusa" rows="4" required></textarea>
+                      </div>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                      <button type="submit" class="btn btn-danger">Confirmar Recusa</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+            {% endif %}
         </div>
     </div>
 </div>

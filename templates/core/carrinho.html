@@ -71,7 +71,7 @@
                                         <h3 class="h5 mb-0">Finalizar Compra</h3>
                                     </div>
                                     <div class="card-body">
-                                        <form method="post" action="{% url 'core:carrinho' %}" id="finalizar-compra-form">
+                                        <form method="post" action="{% url 'core:checkout' %}" id="finalizar-compra-form">
                                             {% csrf_token %}
                                             <div class="mb-3">
                                                 <label for="tipo_venda" class="form-label">Tipo de Venda</label>
@@ -83,7 +83,7 @@
                                             </div>
 
                                             <div id="venda_prazo_form" style="display: none;">
-                                                {{ venda_prazo_form.as_p }}
+                                                {{ form.as_p }}
                                             </div>
 
                                             <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-3">
@@ -117,84 +117,209 @@
 
 {% block extra_js %}
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        var tipoVendaSelect = document.getElementById('tipo_venda');
-        var prazoForm = document.getElementById('venda_prazo_form');
-        var form = document.getElementById('finalizar-compra-form');
+    // Função para validar Inscrição Estadual
+    function validarInscricaoEstadual(inscricao) {
+        // Remove caracteres não numéricos
+        inscricao = inscricao.replace(/[^\d]/g, '');
+        // Verifica se tem pelo menos 8 dígitos e no máximo 14
+        return inscricao.length >= 8 && inscricao.length <= 14;
+    }
 
-        function toggleFormFields() {
-            var inputs = prazoForm.getElementsByTagName('input');
-            var selects = prazoForm.getElementsByTagName('select');
-            var textareas = prazoForm.getElementsByTagName('textarea');
-            
-            if (tipoVendaSelect.value === 'prazo') {
-                prazoForm.style.display = 'block';
-                for (var i = 0; i < inputs.length; i++) {
-                    inputs[i].disabled = false;
-                }
-                for (var i = 0; i < selects.length; i++) {
-                    selects[i].disabled = false;
-                }
-                for (var i = 0; i < textareas.length; i++) {
-                    textareas[i].disabled = false;
-                }
-            } else {
-                prazoForm.style.display = 'none';
-                for (var i = 0; i < inputs.length; i++) {
-                    inputs[i].disabled = true;
-                }
-                for (var i = 0; i < selects.length; i++) {
-                    selects[i].disabled = true;
-                }
-                for (var i = 0; i < textareas.length; i++) {
-                    textareas[i].disabled = true;
-                }
-            }
+    // Função para validar tamanho e extensão do arquivo
+    function validarArquivo(arquivo) {
+        const maxSize = 5 * 1024 * 1024; // 5MB em bytes
+        const extensoesPermitidas = ['pdf', 'jpg', 'jpeg', 'png'];
+        const extensao = arquivo.name.split('.').pop().toLowerCase();
+        
+        if (!extensoesPermitidas.includes(extensao)) {
+            return { valido: false, mensagem: 'Formato de arquivo inválido. Use PDF, JPG ou PNG.' };
         }
+        if (arquivo.size > maxSize) {
+            return { valido: false, mensagem: 'O arquivo deve ter no máximo 5MB.' };
+        }
+        return { valido: true };
+    }
 
+    // Função para mostrar mensagem de erro com animação
+    function mostrarErro(campo, mensagem) {
+        limparErro(campo); // Limpa erro anterior
+        
+        const divFeedback = document.createElement('div');
+        divFeedback.className = 'invalid-feedback d-block';
+        divFeedback.textContent = mensagem;
+        campo.classList.add('is-invalid');
+        
+        // Adiciona classe para animação
+        divFeedback.style.opacity = '0';
+        campo.parentElement.appendChild(divFeedback);
+        
+        // Força reflow para animação funcionar
+        divFeedback.offsetHeight;
+        divFeedback.style.transition = 'opacity 0.3s ease-in-out';
+        divFeedback.style.opacity = '1';
+    }
+
+    // Função para limpar erro
+    function limparErro(campo) {
+        campo.classList.remove('is-invalid');
+        const divFeedback = campo.parentElement.querySelector('.invalid-feedback');
+        if (divFeedback) {
+            divFeedback.remove();
+        }
+    }
+
+    // Função para alternar campos do formulário de venda a prazo
+    function toggleFormFields() {
+        const tipoVenda = document.getElementById('tipo_venda').value;
+        const formPrazo = document.getElementById('venda_prazo_form');
+        const isArrendatario = document.getElementById('id_is_arrendatario');
+        const docArrendamento = document.getElementById('id_documento_arrendamento');
+        const inscricaoEstadual = document.getElementById('id_inscricao_estadual');
+        const documentoMatricula = document.getElementById('id_documento_matricula');
+
+        if (tipoVenda === 'prazo') {
+            formPrazo.style.display = 'block';
+            formPrazo.style.opacity = '0';
+            setTimeout(() => {
+                formPrazo.style.transition = 'opacity 0.3s ease-in-out';
+                formPrazo.style.opacity = '1';
+            }, 10);
+            if (inscricaoEstadual) inscricaoEstadual.required = true;
+            if (documentoMatricula) documentoMatricula.required = true;
+            if (isArrendatario && isArrendatario.checked && docArrendamento) {
+                docArrendamento.required = true;
+            }
+        } else {
+            formPrazo.style.opacity = '0';
+            setTimeout(() => {
+                formPrazo.style.display = 'none';
+            }, 300);
+            if (inscricaoEstadual) inscricaoEstadual.required = false;
+            if (documentoMatricula) documentoMatricula.required = false;
+            if (docArrendamento) docArrendamento.required = false;
+        }
+    }
+
+    // Inicializar ao carregar a página
+    document.addEventListener('DOMContentLoaded', function() {
+        const tipoVendaSelect = document.getElementById('tipo_venda');
+        const form = document.getElementById('finalizar-compra-form');
+        const isArrendatario = document.getElementById('id_is_arrendatario');
+        const btnSubmit = document.getElementById('btn-finalizar-compra');
+        
+        // Configurar evento de mudança no tipo de venda
         tipoVendaSelect.addEventListener('change', toggleFormFields);
-        toggleFormFields(); // Executa uma vez ao carregar a página
-
+        
+        // Configurar evento de mudança no checkbox de arrendatário
+        if (isArrendatario) {
+            isArrendatario.addEventListener('change', function() {
+                const docArrendamento = document.getElementById('id_documento_arrendamento');
+                if (docArrendamento) {
+                    docArrendamento.required = this.checked;
+                    if (!this.checked) {
+                        limparErro(docArrendamento);
+                    }
+                }
+            });
+        }
+        
+        // Configurar validação do formulário
         form.addEventListener('submit', function(e) {
-            var tipoVenda = tipoVendaSelect.value;
+            const tipoVenda = tipoVendaSelect.value;
+            let temErro = false;
+            
+            // Limpar erros anteriores
+            form.querySelectorAll('.is-invalid').forEach(campo => limparErro(campo));
+            
             if (!tipoVenda) {
                 e.preventDefault();
-                alert('Por favor, selecione o tipo de venda.');
-                return false;
+                mostrarErro(tipoVendaSelect, 'Por favor, selecione o tipo de venda.');
+                temErro = true;
             }
             
             if (tipoVenda === 'prazo') {
-                var inputs = prazoForm.getElementsByTagName('input');
-                var isArrendatario = document.querySelector('input[name="is_arrendatario"]').checked;
+                const inscricaoEstadual = document.getElementById('id_inscricao_estadual');
+                const docMatricula = document.getElementById('id_documento_matricula');
+                const docArrendamento = document.getElementById('id_documento_arrendamento');
                 
-                // Verifica se a inscrição estadual está preenchida
-                var inscricaoEstadual = document.querySelector('input[name="inscricao_estadual"]');
-                if (!inscricaoEstadual.value) {
-                    e.preventDefault();
-                    alert('Por favor, preencha a Inscrição Estadual.');
-                    return false;
+                // Validar Inscrição Estadual
+                if (!inscricaoEstadual.value.trim() || !validarInscricaoEstadual(inscricaoEstadual.value)) {
+                    mostrarErro(inscricaoEstadual, 'Inscrição Estadual deve ter entre 8 e 14 dígitos.');
+                    temErro = true;
                 }
                 
-                // Verifica se o documento de matrícula está preenchido
-                var documentoMatricula = document.querySelector('input[name="documento_matricula"]');
-                if (!documentoMatricula.value) {
-                    e.preventDefault();
-                    alert('Por favor, anexe o Documento de Matrícula.');
-                    return false;
+                // Validar Documento de Matrícula
+                if (!docMatricula.files.length) {
+                    mostrarErro(docMatricula, 'Por favor, anexe o Documento de Matrícula.');
+                    temErro = true;
+                } else {
+                    const validacao = validarArquivo(docMatricula.files[0]);
+                    if (!validacao.valido) {
+                        mostrarErro(docMatricula, validacao.mensagem);
+                        temErro = true;
+                    }
                 }
                 
-                // Verifica se o documento de arrendamento está preenchido quando o usuário é arrendatário
-                if (isArrendatario) {
-                    var documentoArrendamento = document.querySelector('input[name="documento_arrendamento"]');
-                    if (!documentoArrendamento.value) {
-                        e.preventDefault();
-                        alert('Por favor, anexe o Documento de Arrendamento.');
-                        return false;
+                // Validar Documento de Arrendamento se for arrendatário
+                if (isArrendatario && isArrendatario.checked) {
+                    if (!docArrendamento.files.length) {
+                        mostrarErro(docArrendamento, 'Por favor, anexe o Documento de Arrendamento.');
+                        temErro = true;
+                    } else {
+                        const validacao = validarArquivo(docArrendamento.files[0]);
+                        if (!validacao.valido) {
+                            mostrarErro(docArrendamento, validacao.mensagem);
+                            temErro = true;
+                        }
                     }
                 }
             }
+            
+            if (temErro) {
+                e.preventDefault();
+                // Rolar até o primeiro erro com animação suave
+                const primeiroErro = form.querySelector('.is-invalid');
+                if (primeiroErro) {
+                    primeiroErro.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            } else {
+                // Desabilitar botão e mostrar loading
+                btnSubmit.disabled = true;
+                btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processando...';
+            }
         });
+        
+        // Adicionar preview de arquivos
+        const camposArquivo = form.querySelectorAll('input[type="file"]');
+        camposArquivo.forEach(campo => {
+            campo.addEventListener('change', function() {
+                if (this.files.length > 0) {
+                    const arquivo = this.files[0];
+                    const validacao = validarArquivo(arquivo);
+                    
+                    if (!validacao.valido) {
+                        mostrarErro(this, validacao.mensagem);
+                        this.value = ''; // Limpa o campo
+                    } else {
+                        limparErro(this);
+                        // Mostrar nome do arquivo selecionado
+                        const label = this.parentElement.querySelector('label');
+                        if (label) {
+                            label.textContent = `Arquivo selecionado: ${arquivo.name}`;
+                        }
+                    }
+                }
+            });
+        });
+
+        // Adicionar evento de mudança no select
+        if (tipoVendaSelect) {
+            tipoVendaSelect.addEventListener('change', toggleFormFields);
+            // Executar uma vez para garantir o estado inicial correto
+            toggleFormFields();
+        }
     });
 </script>
 {% endblock %}
+
 {% endblock %} 

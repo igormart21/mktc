@@ -10,4 +10,10 @@ class EmailBackend(ModelBackend):
             if user.check_password(password) and self.user_can_authenticate(user):
                 return user
         except Usuario.DoesNotExist:
+            return None
+            
+    def get_user(self, user_id):
+        try:
+            return Usuario.objects.get(pk=user_id)
+        except Usuario.DoesNotExist:
             return None 
