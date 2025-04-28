@@ -71,7 +71,7 @@
                                         <h3 class="h5 mb-0">Finalizar Compra</h3>
                                     </div>
                                     <div class="card-body">
-                                        <form method="post" action="{% url 'core:checkout' %}" id="finalizar-compra-form">
+                                        <form method="post" action="{% url 'core:checkout' %}" id="finalizar-compra-form" enctype="multipart/form-data">
                                             {% csrf_token %}
                                             <div class="mb-3">
                                                 <label for="tipo_venda" class="form-label">Tipo de Venda</label>
@@ -83,7 +83,28 @@
                                             </div>
 
                                             <div id="venda_prazo_form" style="display: none;">
-                                                {{ form.as_p }}
+                                                <div class="mb-3">
+                                                    <label for="id_inscricao_estadual" class="form-label">Inscrição Estadual</label>
+                                                    <input type="text" name="inscricao_estadual" id="id_inscricao_estadual" class="form-control" required>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="id_documento_ir" class="form-label">Imposto de Renda do Produtor</label>
+                                                    <input type="file" name="documento_ir" id="id_documento_ir" class="form-control" accept=".pdf,.jpg,.jpeg,.png" required>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="id_documento_matricula" class="form-label">Matrícula</label>
+                                                    <input type="file" name="documento_matricula" id="id_documento_matricula" class="form-control" accept=".pdf,.jpg,.jpeg,.png" required>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <div class="form-check">
+                                                        <input type="checkbox" name="is_arrendatario" id="id_is_arrendatario" class="form-check-input">
+                                                        <label class="form-check-label" for="id_is_arrendatario">Você é arrendatário?</label>
+                                                    </div>
+                                                </div>
+                                                <div class="mb-3" id="doc_arrendamento_container" style="display: none;">
+                                                    <label for="id_documento_arrendamento" class="form-label">Documento de Arrendamento</label>
+                                                    <input type="file" name="documento_arrendamento" id="id_documento_arrendamento" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
+                                                </div>
                                             </div>
 
                                             <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-3">
@@ -119,15 +140,13 @@
 <script>
     // Função para validar Inscrição Estadual
     function validarInscricaoEstadual(inscricao) {
-        // Remove caracteres não numéricos
         inscricao = inscricao.replace(/[^\d]/g, '');
-        // Verifica se tem pelo menos 8 dígitos e no máximo 14
         return inscricao.length >= 8 && inscricao.length <= 14;
     }
 
-    // Função para validar tamanho e extensão do arquivo
+    // Função para validar arquivo
     function validarArquivo(arquivo) {
-        const maxSize = 5 * 1024 * 1024; // 5MB em bytes
+        const maxSize = 5 * 1024 * 1024;
         const extensoesPermitidas = ['pdf', 'jpg', 'jpeg', 'png'];
         const extensao = arquivo.name.split('.').pop().toLowerCase();
         
@@ -140,184 +159,83 @@
         return { valido: true };
     }
 
-    // Função para mostrar mensagem de erro com animação
-    function mostrarErro(campo, mensagem) {
-        limparErro(campo); // Limpa erro anterior
-        
-        const divFeedback = document.createElement('div');
-        divFeedback.className = 'invalid-feedback d-block';
-        divFeedback.textContent = mensagem;
-        campo.classList.add('is-invalid');
-        
-        // Adiciona classe para animação
-        divFeedback.style.opacity = '0';
-        campo.parentElement.appendChild(divFeedback);
-        
-        // Força reflow para animação funcionar
-        divFeedback.offsetHeight;
-        divFeedback.style.transition = 'opacity 0.3s ease-in-out';
-        divFeedback.style.opacity = '1';
-    }
-
-    // Função para limpar erro
-    function limparErro(campo) {
-        campo.classList.remove('is-invalid');
-        const divFeedback = campo.parentElement.querySelector('.invalid-feedback');
-        if (divFeedback) {
-            divFeedback.remove();
-        }
-    }
-
-    // Função para alternar campos do formulário de venda a prazo
-    function toggleFormFields() {
-        const tipoVenda = document.getElementById('tipo_venda').value;
-        const formPrazo = document.getElementById('venda_prazo_form');
-        const isArrendatario = document.getElementById('id_is_arrendatario');
-        const docArrendamento = document.getElementById('id_documento_arrendamento');
-        const inscricaoEstadual = document.getElementById('id_inscricao_estadual');
-        const documentoMatricula = document.getElementById('id_documento_matricula');
-
-        if (tipoVenda === 'prazo') {
-            formPrazo.style.display = 'block';
-            formPrazo.style.opacity = '0';
-            setTimeout(() => {
-                formPrazo.style.transition = 'opacity 0.3s ease-in-out';
-                formPrazo.style.opacity = '1';
-            }, 10);
-            if (inscricaoEstadual) inscricaoEstadual.required = true;
-            if (documentoMatricula) documentoMatricula.required = true;
-            if (isArrendatario && isArrendatario.checked && docArrendamento) {
-                docArrendamento.required = true;
-            }
-        } else {
-            formPrazo.style.opacity = '0';
-            setTimeout(() => {
-                formPrazo.style.display = 'none';
-            }, 300);
-            if (inscricaoEstadual) inscricaoEstadual.required = false;
-            if (documentoMatricula) documentoMatricula.required = false;
-            if (docArrendamento) docArrendamento.required = false;
-        }
-    }
-
-    // Inicializar ao carregar a página
     document.addEventListener('DOMContentLoaded', function() {
         const tipoVendaSelect = document.getElementById('tipo_venda');
-        const form = document.getElementById('finalizar-compra-form');
+        const vendaPrazoForm = document.getElementById('venda_prazo_form');
         const isArrendatario = document.getElementById('id_is_arrendatario');
-        const btnSubmit = document.getElementById('btn-finalizar-compra');
-        
-        // Configurar evento de mudança no tipo de venda
-        tipoVendaSelect.addEventListener('change', toggleFormFields);
-        
-        // Configurar evento de mudança no checkbox de arrendatário
-        if (isArrendatario) {
-            isArrendatario.addEventListener('change', function() {
-                const docArrendamento = document.getElementById('id_documento_arrendamento');
-                if (docArrendamento) {
-                    docArrendamento.required = this.checked;
-                    if (!this.checked) {
-                        limparErro(docArrendamento);
+        const docArrendamentoContainer = document.getElementById('doc_arrendamento_container');
+        const docArrendamento = document.getElementById('id_documento_arrendamento');
+        const form = document.getElementById('finalizar-compra-form');
+
+        // Função para mostrar/ocultar formulário de venda a prazo
+        tipoVendaSelect.addEventListener('change', function() {
+            vendaPrazoForm.style.display = this.value === 'prazo' ? 'block' : 'none';
+            
+            const campos = ['inscricao_estadual', 'documento_ir', 'documento_matricula'];
+            campos.forEach(campo => {
+                const element = document.getElementById(`id_${campo}`);
+                if (element) {
+                    element.required = this.value === 'prazo';
+                    if (this.value !== 'prazo') {
+                        element.value = '';
                     }
                 }
             });
-        }
-        
-        // Configurar validação do formulário
-        form.addEventListener('submit', function(e) {
-            const tipoVenda = tipoVendaSelect.value;
-            let temErro = false;
-            
-            // Limpar erros anteriores
-            form.querySelectorAll('.is-invalid').forEach(campo => limparErro(campo));
-            
-            if (!tipoVenda) {
-                e.preventDefault();
-                mostrarErro(tipoVendaSelect, 'Por favor, selecione o tipo de venda.');
-                temErro = true;
+
+            if (this.value !== 'prazo') {
+                isArrendatario.checked = false;
+                docArrendamento.value = '';
+                docArrendamentoContainer.style.display = 'none';
             }
-            
-            if (tipoVenda === 'prazo') {
-                const inscricaoEstadual = document.getElementById('id_inscricao_estadual');
-                const docMatricula = document.getElementById('id_documento_matricula');
-                const docArrendamento = document.getElementById('id_documento_arrendamento');
-                
-                // Validar Inscrição Estadual
-                if (!inscricaoEstadual.value.trim() || !validarInscricaoEstadual(inscricaoEstadual.value)) {
-                    mostrarErro(inscricaoEstadual, 'Inscrição Estadual deve ter entre 8 e 14 dígitos.');
-                    temErro = true;
-                }
-                
-                // Validar Documento de Matrícula
-                if (!docMatricula.files.length) {
-                    mostrarErro(docMatricula, 'Por favor, anexe o Documento de Matrícula.');
-                    temErro = true;
-                } else {
-                    const validacao = validarArquivo(docMatricula.files[0]);
-                    if (!validacao.valido) {
-                        mostrarErro(docMatricula, validacao.mensagem);
-                        temErro = true;
-                    }
-                }
-                
-                // Validar Documento de Arrendamento se for arrendatário
-                if (isArrendatario && isArrendatario.checked) {
-                    if (!docArrendamento.files.length) {
-                        mostrarErro(docArrendamento, 'Por favor, anexe o Documento de Arrendamento.');
-                        temErro = true;
-                    } else {
-                        const validacao = validarArquivo(docArrendamento.files[0]);
-                        if (!validacao.valido) {
-                            mostrarErro(docArrendamento, validacao.mensagem);
-                            temErro = true;
-                        }
-                    }
-                }
-            }
-            
-            if (temErro) {
-                e.preventDefault();
-                // Rolar até o primeiro erro com animação suave
-                const primeiroErro = form.querySelector('.is-invalid');
-                if (primeiroErro) {
-                    primeiroErro.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }
-            } else {
-                // Desabilitar botão e mostrar loading
-                btnSubmit.disabled = true;
-                btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processando...';
-            }
-        });
-        
-        // Adicionar preview de arquivos
-        const camposArquivo = form.querySelectorAll('input[type="file"]');
-        camposArquivo.forEach(campo => {
-            campo.addEventListener('change', function() {
-                if (this.files.length > 0) {
-                    const arquivo = this.files[0];
-                    const validacao = validarArquivo(arquivo);
-                    
-                    if (!validacao.valido) {
-                        mostrarErro(this, validacao.mensagem);
-                        this.value = ''; // Limpa o campo
-                    } else {
-                        limparErro(this);
-                        // Mostrar nome do arquivo selecionado
-                        const label = this.parentElement.querySelector('label');
-                        if (label) {
-                            label.textContent = `Arquivo selecionado: ${arquivo.name}`;
-                        }
-                    }
-                }
-            });
         });
 
-        // Adicionar evento de mudança no select
-        if (tipoVendaSelect) {
-            tipoVendaSelect.addEventListener('change', toggleFormFields);
-            // Executar uma vez para garantir o estado inicial correto
-            toggleFormFields();
-        }
+        // Função para mostrar/ocultar campo de documento de arrendamento
+        isArrendatario.addEventListener('change', function() {
+            docArrendamentoContainer.style.display = this.checked ? 'block' : 'none';
+            docArrendamento.required = this.checked;
+            if (!this.checked) {
+                docArrendamento.value = '';
+            }
+        });
+
+        // Validação do formulário antes do envio
+        form.addEventListener('submit', function(e) {
+            if (tipoVendaSelect.value === 'prazo') {
+                const inscricaoEstadual = document.getElementById('id_inscricao_estadual').value;
+                const documentoIr = document.getElementById('id_documento_ir').files.length;
+                const documentoMatricula = document.getElementById('id_documento_matricula').files.length;
+
+                if (!inscricaoEstadual || !documentoIr || !documentoMatricula) {
+                    e.preventDefault();
+                    alert('Por favor, preencha todos os campos obrigatórios para venda a prazo.');
+                    return;
+                }
+
+                if (isArrendatario.checked && !docArrendamento.files.length) {
+                    e.preventDefault();
+                    alert('Como você é arrendatário, é necessário enviar o documento de arrendamento.');
+                    return;
+                }
+
+                // Validar arquivos
+                const arquivos = ['documento_ir', 'documento_matricula'];
+                if (isArrendatario.checked) {
+                    arquivos.push('documento_arrendamento');
+                }
+
+                for (const arquivo of arquivos) {
+                    const input = document.getElementById(`id_${arquivo}`);
+                    if (input.files.length) {
+                        const validacao = validarArquivo(input.files[0]);
+                        if (!validacao.valido) {
+                            e.preventDefault();
+                            alert(`${input.previousElementSibling.textContent}: ${validacao.mensagem}`);
+                            return;
+                        }
+                    }
+                }
+            }
+        });
     });
 </script>
 {% endblock %}

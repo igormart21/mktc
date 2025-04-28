@@ -432,7 +432,7 @@ $(document).ready(function() {
             if (confirmed) {
                 button.prop('disabled', true);
                 $.ajax({
-                    url: `/produtos/produtos/${productId}/toggle_status/`,
+                    url: `/api/produtos/produtos/${productId}/toggle_status/`,
                     type: 'POST',
                     headers: {
                         'X-CSRFToken': getCookie('csrftoken'),

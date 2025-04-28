@@ -122,9 +122,9 @@
                                             <span>{{ item.quantidade }} x R$ {{ item.preco_unitario|floatformat:2 }} = <b>R$ {{ item.total|floatformat:2 }}</b></span>
                                             <ul class="mb-2">
                                                 <li><b>Categoria:</b> {{ item.produto.get_categoria_display|default:item.produto.categoria|default:"-" }}</li>
-                                                <li><b>Unidade:</b> {{ item.produto.get_unit_display|default:item.produto.unidade_medida|default:"-" }}</li>
-                                                {% if item.produto.description %}
-                                                    <li><b>Descrição:</b> {{ item.produto.description }}</li>
+                                                <li><b>Unidade:</b> {{ item.produto.get_unidade_medida_display|default:"-" }}</li>
+                                                {% if item.produto.descricao %}
+                                                    <li><b>Descrição:</b> {{ item.produto.descricao }}</li>
                                                 {% endif %}
                                             </ul>
                                         </li>
@@ -229,36 +229,156 @@
             <div class="modal-body">
                 <h6>Comprador</h6>
                 <p>
-                    {% if pedido.comprador.get_full_name %}
-                        {{ pedido.comprador.get_full_name }}
-                    {% else %}
-                        {{ pedido.comprador.nome }} {{ pedido.comprador.sobrenome }}
-                    {% endif %}
-                    <br>Email: {{ pedido.comprador.email }}
+                    {{ pedido.comprador.nome|default:"-" }} {{ pedido.comprador.sobrenome|default:"" }}
+                    <br>Email: {{ pedido.comprador.email|default:"-" }}
                 </p>
                 <h6>Vendedor</h6>
-                <p>{{ pedido.vendedor.get_full_name }}<br>Email: {{ pedido.vendedor.email }}</p>
-                <h6>Produtos</h6>
-                <ul>
-                    {% for item in pedido.itens.all %}
-                        <li>
-                            <h6 class="mb-1 text-primary"><i class="fas fa-box"></i> {{ item.produto.nome }}</h6>
-                            <span>{{ item.quantidade }} x R$ {{ item.preco_unitario|floatformat:2 }} = <b>R$ {{ item.total|floatformat:2 }}</b></span>
-                            <ul class="mb-2">
-                                <li><b>Categoria:</b> {{ item.produto.get_categoria_display|default:item.produto.categoria|default:"-" }}</li>
-                                <li><b>Unidade:</b> {{ item.produto.get_unit_display|default:item.produto.unidade_medida|default:"-" }}</li>
-                                {% if item.produto.description %}
-                                    <li><b>Descrição:</b> {{ item.produto.description }}</li>
-                                {% endif %}
-                            </ul>
-                        </li>
-                    {% endfor %}
-                </ul>
-                <h6>Totais</h6>
-                <p><b>Total:</b> R$ {{ pedido.total|floatformat:2 }}</p>
-                <p><b>Status:</b> {{ pedido.get_status_display }}</p>
-                <p><b>Tipo de Venda:</b> {{ pedido.get_tipo_venda_display }}</p>
-                <p><b>Data:</b> {{ pedido.data_criacao|date:"d/m/Y H:i" }}</p>
+                <p>
+                    {% if pedido.vendedor %}
+                        {{ pedido.vendedor.nome|default:"-" }} {{ pedido.vendedor.sobrenome|default:"" }}
+                        <br>Email: {{ pedido.vendedor.email|default:"-" }}
+                    {% else %}
+                        -
+                    {% endif %}
+                </p>
+                
+                <div class="mt-4">
+                    <h6 class="border-bottom pb-2">Produtos do Pedido</h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Produto</th>
+                                    <th class="text-center">Qtd</th>
+                                    <th class="text-end">Preço Unit.</th>
+                                    <th class="text-end">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in pedido.itens.all %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex flex-column">
+                                            <strong>{{ item.produto.nome }}</strong>
+                                            <small class="text-muted">
+                                                <i class="fas fa-tag me-1"></i>{{ item.produto.get_categoria_display|default:"-" }}
+                                                <br>
+                                                <i class="fas fa-box me-1"></i>{{ item.produto.get_unidade_medida_display|default:"-" }}
+                                            </small>
+                                            {% if item.produto.descricao %}
+                                            <small class="text-muted mt-1">
+                                                <i class="fas fa-info-circle me-1"></i>{{ item.produto.descricao }}
+                                            </small>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                    <td class="text-center align-middle">{{ item.quantidade }}</td>
+                                    <td class="text-end align-middle">R$ {{ item.preco_unitario|floatformat:2 }}</td>
+                                    <td class="text-end align-middle">R$ {{ item.total|floatformat:2 }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center">Nenhum produto encontrado</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="3" class="text-end"><strong>Total do Pedido:</strong></td>
+                                    <td class="text-end"><strong>R$ {{ pedido.total|floatformat:2 }}</strong></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <h6 class="border-bottom pb-2">Informações do Pedido</h6>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <p class="mb-2"><b>Status:</b></p>
+                            <p class="text-muted">{{ pedido.get_status_display }}</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <p class="mb-2"><b>Tipo de Venda:</b></p>
+                            <p class="text-muted">{{ pedido.get_tipo_venda_display }}</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <p class="mb-2"><b>Data do Pedido:</b></p>
+                            <p class="text-muted">{{ pedido.data_criacao|date:"d/m/Y H:i" }}</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <p class="mb-2"><b>Valor Total:</b></p>
+                            <p class="text-muted">R$ {{ pedido.total|floatformat:2 }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                {% if pedido.tipo_venda == 'prazo' %}
+                <div class="mt-4">
+                    <h6 class="border-bottom pb-2">Informações de Venda a Prazo</h6>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <p class="mb-2"><b>Inscrição Estadual:</b></p>
+                            <p class="text-muted">{{ pedido.inscricao_estadual|default:'-' }}</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <p class="mb-2"><b>É arrendatário?</b></p>
+                            <p class="text-muted">{{ pedido.is_arrendatario|yesno:"Sim,Não" }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-3">
+                        <h6 class="mb-3">Documentos</h6>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="card h-100">
+                                    <div class="card-body">
+                                        <h6 class="card-title">Imposto de Renda</h6>
+                                        {% if pedido.documento_ir %}
+                                            <a href="{{ pedido.documento_ir.url }}" target="_blank" class="btn btn-outline-primary w-100">
+                                                <i class="fas fa-file-pdf me-2"></i>Baixar Documento
+                                            </a>
+                                        {% else %}
+                                            <p class="text-muted mb-0">Não enviado</p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card h-100">
+                                    <div class="card-body">
+                                        <h6 class="card-title">Matrícula</h6>
+                                        {% if pedido.documento_matricula %}
+                                            <a href="{{ pedido.documento_matricula.url }}" target="_blank" class="btn btn-outline-primary w-100">
+                                                <i class="fas fa-file-pdf me-2"></i>Baixar Documento
+                                            </a>
+                                        {% else %}
+                                            <p class="text-muted mb-0">Não enviado</p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% if pedido.is_arrendatario %}
+                            <div class="col-md-6">
+                                <div class="card h-100">
+                                    <div class="card-body">
+                                        <h6 class="card-title">Documento de Arrendamento</h6>
+                                        {% if pedido.documento_arrendamento %}
+                                            <a href="{{ pedido.documento_arrendamento.url }}" target="_blank" class="btn btn-outline-primary w-100">
+                                                <i class="fas fa-file-pdf me-2"></i>Baixar Documento
+                                            </a>
+                                        {% else %}
+                                            <p class="text-muted mb-0">Não enviado</p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
             </div>
         </div>
     </div>

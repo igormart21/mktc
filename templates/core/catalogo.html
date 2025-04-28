@@ -180,11 +180,11 @@
                             </div>
                             <div class="mb-3">
                                 <h6 class="text-muted mb-2">Preço</h6>
-                                <p class="mb-0">R$ {{ produto.preco|default:"0.00" }}</p>
+                                <p class="mb-0">R$ {{ produto.preco|floatformat:2|default:'0.00' }}</p>
                             </div>
                             <div class="mb-3">
                                 <label for="quantidade" class="form-label">Quantidade</label>
-                                <input type="number" class="form-control" id="quantidade" name="quantidade" min="1" value="1" required>
+                                <input type="number" name="quantidade" id="quantidade{{ produto.id }}" value="1" min="1" class="form-control" data-preco="{{ produto.preco|floatformat:2|default:'0.00'|cut:',' }}">
                             </div>
                             <div class="mb-3">
                                 <label for="observacoes" class="form-label">Observações</label>
@@ -197,7 +197,7 @@
                                     </div>
                                     <div class="flex-grow-1 ms-3">
                                         <h6 class="alert-heading mb-1">Valor Total</h6>
-                                        <p class="mb-0" id="valorTotal">R$ {{ produto.preco|default:"0.00" }}</p>
+                                        <p class="mb-0" id="valorTotal{{ produto.id }}">R$ {{ produto.preco|floatformat:2|default:'0.00' }}</p>
                                     </div>
                                 </div>
                             </div>
@@ -273,16 +273,31 @@
         return new bootstrap.Tooltip(tooltipTriggerEl)
     });
 
-    // Atualizar valor total ao mudar a quantidade
+    // Função para atualizar o valor total
+    function atualizarValorTotal(input) {
+        const produtoId = input.id.replace('quantidade', '');
+        const preco = parseFloat(input.getAttribute('data-preco').replace(',', '.'));
+        const quantidade = parseInt(input.value) || 0;
+        const valorTotal = preco * quantidade;
+        document.getElementById('valorTotal' + produtoId).textContent = `R$ ${valorTotal.toFixed(2)}`;
+    }
+
+    // Atualizar valor total ao mudar a quantidade em cada modal
     document.querySelectorAll('input[name="quantidade"]').forEach(input => {
         input.addEventListener('input', function() {
-            const modalBody = this.closest('.modal-body');
-            const precoTexto = modalBody.querySelector('p.mb-0').textContent;
-            const preco = parseFloat(precoTexto.replace(/[^0-9,]/g, '').replace(',', '.'));
-            const quantidade = parseInt(this.value) || 0;
-            const valorTotal = preco * quantidade;
-            const moeda = precoTexto.match(/[R$€$]/)[0];
-            modalBody.querySelector('#valorTotal').textContent = `${moeda} ${valorTotal.toFixed(2)}`;
+            atualizarValorTotal(this);
+        });
+        // Atualiza o valor total inicial ao carregar a página
+        atualizarValorTotal(input);
+    });
+
+    // Atualizar valor total ao abrir o modal (caso o valor inicial mude)
+    document.querySelectorAll('.modal').forEach(modal => {
+        modal.addEventListener('shown.bs.modal', function() {
+            const input = modal.querySelector('input[name="quantidade"]');
+            if (input) {
+                atualizarValorTotal(input);
+            }
         });
     });
 </script>
