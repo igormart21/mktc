@@ -30,7 +30,7 @@ class ProdutoAdmin(admin.ModelAdmin):
             'fields': ('ativo',)
         }),
         ('Metadados', {
-            'fields': ('vendedor', 'created_at', 'updated_at'),
+            'fields': ('created_at', 'updated_at'),
             'classes': ('collapse',)
         })
     )
@@ -53,4 +53,4 @@ class ProdutoAdmin(admin.ModelAdmin):
         return queryset, use_distinct
 
     def get_queryset(self, request):
-        return super().get_queryset(request).select_related('vendedor')
+        return super().get_queryset(request)

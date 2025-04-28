@@ -15,8 +15,6 @@ from pathlib import Path
 from dotenv import load_dotenv
 from django.core.cache import cache
 from decouple import config, Csv
-import pymysql
-pymysql.install_as_MySQLdb()
 
 # Carrega as variáveis de ambiente do arquivo .env
 load_dotenv()
@@ -197,9 +195,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
     {
         'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
 
