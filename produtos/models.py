@@ -30,7 +30,7 @@ class Produto(models.Model):
         ('HERBICIDA', 'Herbicida'),
         ('INSETICIDA', 'Inseticida'),
         ('FUNGICIDA', 'Fungicida'),
-        ('OLEO_MINERAL', 'Óleo mineral'),
+        ('OLEO_MINERAL', 'Óleo Mineral'),
         ('SEMENTE', 'Semente'),
     ]
 

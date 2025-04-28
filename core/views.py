@@ -6,7 +6,7 @@ from django.contrib.auth import login, authenticate, logout, update_session_auth
 from django.contrib import messages
 from django.db.models import Count, Sum, F
 from django.utils import timezone
-from datetime import timedelta
+from datetime import timedelta, datetime
 from django.contrib.auth.forms import AuthenticationForm
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
@@ -1419,7 +1419,21 @@ def superadmin_product_create(request):
     if request.method == 'POST':
         form = ProductForm(request.POST, request.FILES)
         if form.is_valid():
-            form.save()
+            produto = form.save(commit=False)
+            # Garantir que os campos de semente sejam salvos corretamente
+            produto.peneira = request.POST.get('peneira', produto.peneira)
+            produto.variedade = request.POST.get('variedade', produto.variedade)
+            produto.tipo_da_semente = request.POST.get('tipo_da_semente', produto.tipo_da_semente)
+            produto.tratamento_da_semente = request.POST.get('tratamento_da_semente', produto.tratamento_da_semente)
+            produto.tratamento = request.POST.get('tratamento_da_semente', produto.tratamento)
+            # Garantir que a validade seja salva corretamente
+            data_validade = request.POST.get('data_validade')
+            if data_validade:
+                try:
+                    produto.validade = datetime.strptime(data_validade, '%Y-%m-%d').date()
+                except Exception:
+                    pass
+            produto.save()
             messages.success(request, 'Produto criado com sucesso!')
             return redirect('core:superadmin_products')
     else:
