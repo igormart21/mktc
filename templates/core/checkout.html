@@ -39,7 +39,7 @@
                         </div>
                     </div>
 
-                    <form method="post" action="{% url 'core:checkout' %}">
+                    <form method="post" action="{% url 'core:checkout' %}" enctype="multipart/form-data">
                         {% csrf_token %}
                         
                         <div class="mb-4">
@@ -117,6 +117,39 @@
                             </div>
                         </div>
 
+                        <div class="mb-3">
+                            <label for="tipo_venda" class="form-label">Tipo de Venda</label>
+                            <select name="tipo_venda" id="tipo_venda" class="form-select" required>
+                                <option value="">Selecione o tipo de venda</option>
+                                <option value="avista">À Vista</option>
+                                <option value="prazo">A Prazo</option>
+                            </select>
+                        </div>
+                        <div id="venda_prazo_form" style="display: none;">
+                            <div class="mb-3">
+                                <label for="id_inscricao_estadual" class="form-label">Inscrição Estadual</label>
+                                {{ form.inscricao_estadual }}
+                            </div>
+                            <div class="mb-3">
+                                <label for="id_documento_ir" class="form-label">Imposto de Renda do Produtor</label>
+                                {{ form.documento_ir }}
+                            </div>
+                            <div class="mb-3">
+                                <label for="id_documento_matricula" class="form-label">Matrícula</label>
+                                {{ form.documento_matricula }}
+                            </div>
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    {{ form.is_arrendatario }}
+                                    <label class="form-check-label" for="id_is_arrendatario">Você é arrendatário?</label>
+                                </div>
+                            </div>
+                            <div class="mb-3" id="doc_arrendamento_container" style="display: none;">
+                                <label for="id_documento_arrendamento" class="form-label">Documento de Arrendamento</label>
+                                {{ form.documento_arrendamento }}
+                            </div>
+                        </div>
+
                         <div class="d-grid gap-2">
                             <button type="submit" class="btn btn-primary btn-lg">
                                 <i class="fas fa-lock"></i> Confirmar Pedido
@@ -131,4 +164,59 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Função para alternar campos do formulário de venda a prazo
+function toggleFormFields() {
+    const tipoVenda = document.getElementById('tipo_venda').value;
+    const formPrazo = document.getElementById('venda_prazo_form');
+    const isArrendatario = document.getElementById('id_is_arrendatario');
+    const docArrendamento = document.getElementById('id_documento_arrendamento');
+    const inscricaoEstadual = document.getElementById('id_inscricao_estadual');
+    const documentoMatricula = document.getElementById('id_documento_matricula');
+    const docArrendamentoContainer = document.getElementById('doc_arrendamento_container');
+
+    if (tipoVenda === 'prazo') {
+        formPrazo.style.display = 'block';
+        formPrazo.style.opacity = '0';
+        setTimeout(() => {
+            formPrazo.style.transition = 'opacity 0.3s ease-in-out';
+            formPrazo.style.opacity = '1';
+        }, 10);
+        if (inscricaoEstadual) inscricaoEstadual.required = true;
+        if (documentoMatricula) documentoMatricula.required = true;
+        if (isArrendatario && isArrendatario.checked && docArrendamento) {
+            docArrendamento.required = true;
+            docArrendamentoContainer.style.display = 'block';
+        }
+    } else {
+        formPrazo.style.opacity = '0';
+        setTimeout(() => {
+            formPrazo.style.display = 'none';
+        }, 300);
+        if (inscricaoEstadual) inscricaoEstadual.required = false;
+        if (documentoMatricula) documentoMatricula.required = false;
+        if (docArrendamento) docArrendamento.required = false;
+        docArrendamentoContainer.style.display = 'none';
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const tipoVendaSelect = document.getElementById('tipo_venda');
+    const isArrendatario = document.getElementById('id_is_arrendatario');
+    const docArrendamentoContainer = document.getElementById('doc_arrendamento_container');
+    tipoVendaSelect.addEventListener('change', toggleFormFields);
+    if (isArrendatario) {
+        isArrendatario.addEventListener('change', function() {
+            if (this.checked) {
+                docArrendamentoContainer.style.display = 'block';
+            } else {
+                docArrendamentoContainer.style.display = 'none';
+            }
+        });
+    }
+});
+</script>
 {% endblock %} 

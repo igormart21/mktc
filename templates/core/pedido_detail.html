@@ -85,6 +85,80 @@
                     </div>
 
                     <div class="mb-4">
+                        <h6 class="text-muted mb-2">Informações do Comprador</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p class="mb-1"><strong>Nome:</strong></p>
+                                <p class="mb-0">{{ pedido.comprador.nome|default:"-" }} {{ pedido.comprador.sobrenome|default:"" }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p class="mb-1"><strong>Email:</strong></p>
+                                <p class="mb-0">{{ pedido.comprador.email|default:"-" }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% if pedido.vendedor %}
+                    <div class="mb-4">
+                        <h6 class="text-muted mb-2">Informações do Vendedor</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p class="mb-1"><strong>Nome:</strong></p>
+                                <p class="mb-0">{{ pedido.vendedor.nome|default:"-" }} {{ pedido.vendedor.sobrenome|default:"" }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p class="mb-1"><strong>Email:</strong></p>
+                                <p class="mb-0">{{ pedido.vendedor.email|default:"-" }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% if pedido.tipo_venda == 'prazo' %}
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">Informações da Venda a Prazo</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>Inscrição Estadual:</strong> {{ pedido.inscricao_estadual }}</p>
+                                    <p><strong>Documento IR:</strong> 
+                                        {% if pedido.documento_ir %}
+                                            <a href="{{ pedido.documento_ir.url }}" class="btn btn-sm btn-primary" download>
+                                                <i class="fas fa-download"></i> Baixar
+                                            </a>
+                                        {% else %}
+                                            Não fornecido
+                                        {% endif %}
+                                    </p>
+                                    <p><strong>Documento Matrícula:</strong> 
+                                        {% if pedido.documento_matricula %}
+                                            <a href="{{ pedido.documento_matricula.url }}" class="btn btn-sm btn-primary" download>
+                                                <i class="fas fa-download"></i> Baixar
+                                            </a>
+                                        {% else %}
+                                            Não fornecido
+                                        {% endif %}
+                                    </p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong>Arrendatário:</strong> {{ pedido.is_arrendatario|yesno:"Sim,Não" }}</p>
+                                    {% if pedido.is_arrendatario %}
+                                        <p><strong>Documento de Arrendamento:</strong> 
+                                            {% if pedido.documento_arrendamento %}
+                                                <a href="{{ pedido.documento_arrendamento.url }}" class="btn btn-sm btn-primary" download>
+                                                    <i class="fas fa-download"></i> Baixar
+                                                </a>
+                                            {% else %}
+                                                Não fornecido
+                                            {% endif %}
+                                        </p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    <div class="mb-4">
                         <h6 class="text-muted mb-2">Localização:</h6>
                         <p class="mb-0">{{ pedido.endereco }}{% if pedido.referencia %}, {{ pedido.referencia }}{% endif %}, {{ pedido.cidade }}/{{ pedido.estado }}</p>
                         <p class="mb-0">CEP: {{ pedido.cep|format_cep }}</p>
