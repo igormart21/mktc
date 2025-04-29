@@ -90,6 +90,7 @@ urlpatterns = [
     path('superadmin/vendas/<int:venda_id>/aprovar/', views.aprovar_venda, name='aprovar_venda'),
     path('superadmin/vendas/<int:venda_id>/rejeitar/', views.rejeitar_venda, name='rejeitar_venda'),
     path('superadmin/compras-vendedores/', views.superadmin_compras_vendedores, name='superadmin_compras_vendedores'),
+    path('superadmin/compras-vendedores/exportar-pdf/', views.exportar_compras_pdf, name='exportar_compras_pdf'),
     path('vendedores/aprovar/<int:vendedor_id>/', views.aprovar_vendedor, name='aprovar_vendedor'),
     path('vendedores/reprovar/<int:vendedor_id>/', views.reprovar_vendedor, name='reprovar_vendedor'),
     path('historico-pedidos/', views.historico_pedidos_vendedor, name='historico_pedidos'),

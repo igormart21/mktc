@@ -176,11 +176,44 @@
                         {% if pedido.tipo_venda == 'prazo' %}
                         <div class="mb-3">
                             <strong>Venda a Prazo:</strong><br>
-                            Inscrição Estadual: {{ pedido.inscricao_estadual|default:'-' }}<br>
-                            IR: {% if pedido.documento_ir %}<a href="{{ pedido.documento_ir.url }}" target="_blank">Baixar IR</a>{% else %}Não enviado{% endif %}<br>
-                            Matrícula: {% if pedido.documento_matricula %}<a href="{{ pedido.documento_matricula.url }}" target="_blank">Baixar Matrícula</a>{% else %}Não enviado{% endif %}<br>
-                            Arrendatário: {{ pedido.is_arrendatario|yesno:"Sim,Não" }}<br>
-                            Documento Arrendamento: {% if pedido.documento_arrendamento %}<a href="{{ pedido.documento_arrendamento.url }}" target="_blank">Baixar</a>{% else %}Não enviado{% endif %}
+                            <div class="d-flex gap-2 flex-wrap mb-2">
+                                {% if pedido.inscricao_estadual %}
+                                    <a href="{{ pedido.inscricao_estadual.url }}" class="btn btn-sm btn-primary" download>
+                                        <i class="fas fa-download"></i> Inscrição Estadual
+                                    </a>
+                                {% endif %}
+                                {% if pedido.documento_ir %}
+                                    <a href="{{ pedido.documento_ir.url }}" class="btn btn-sm btn-primary" download>
+                                        <i class="fas fa-download"></i> IR
+                                    </a>
+                                {% endif %}
+                                {% if pedido.documento_matricula %}
+                                    <a href="{{ pedido.documento_matricula.url }}" class="btn btn-sm btn-primary" download>
+                                        <i class="fas fa-download"></i> Matrícula
+                                    </a>
+                                {% endif %}
+                                {% if pedido.is_arrendatario and pedido.documento_arrendamento %}
+                                    <a href="{{ pedido.documento_arrendamento.url }}" class="btn btn-sm btn-primary" download>
+                                        <i class="fas fa-download"></i> Arrendamento
+                                    </a>
+                                {% endif %}
+                            </div>
+                            {% if not pedido.inscricao_estadual or not pedido.documento_ir or not pedido.documento_matricula or pedido.is_arrendatario and not pedido.documento_arrendamento %}
+                                <div class="small text-muted">
+                                    {% if not pedido.inscricao_estadual %}Inscrição Estadual: Não enviado. {% endif %}
+                                    {% if not pedido.documento_ir %}IR: Não enviado. {% endif %}
+                                    {% if not pedido.documento_matricula %}Matrícula: Não enviado. {% endif %}
+                                    {% if pedido.is_arrendatario and not pedido.documento_arrendamento %}Arrendamento: Não enviado. {% endif %}
+                                </div>
+                            {% endif %}
+                            <div>
+                                Arrendatário:
+                                {% if pedido.is_arrendatario %}
+                                    <span class="fw-bold fs-4 text-success">Sim</span>
+                                {% else %}
+                                    <span class="text-muted">Não</span>
+                                {% endif %}
+                            </div>
                         </div>
                         {% endif %}
                     </div>

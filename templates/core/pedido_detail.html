@@ -126,7 +126,15 @@
                         <div class="card-body">
                             <div class="row">
                                 <div class="col-md-6">
-                                    <p><strong>Inscrição Estadual:</strong> {{ pedido.inscricao_estadual }}</p>
+                                    <p><strong>Inscrição Estadual:</strong>
+                                        {% if pedido.inscricao_estadual %}
+                                            <a href="{{ pedido.inscricao_estadual.url }}" class="btn btn-sm btn-primary" download>
+                                                <i class="fas fa-download"></i> Baixar
+                                            </a>
+                                        {% else %}
+                                            Não fornecido
+                                        {% endif %}
+                                    </p>
                                     <p><strong>Documento IR:</strong> 
                                         {% if pedido.documento_ir %}
                                             <a href="{{ pedido.documento_ir.url }}" class="btn btn-sm btn-primary" download>

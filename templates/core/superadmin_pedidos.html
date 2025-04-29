@@ -321,12 +321,20 @@
                     <h6 class="border-bottom pb-2">Informações de Venda a Prazo</h6>
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <p class="mb-2"><b>Inscrição Estadual:</b></p>
-                            <p class="text-muted">{{ pedido.inscricao_estadual|default:'-' }}</p>
-                        </div>
-                        <div class="col-md-6 mb-3">
                             <p class="mb-2"><b>É arrendatário?</b></p>
                             <p class="text-muted">{{ pedido.is_arrendatario|yesno:"Sim,Não" }}</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <p class="mb-2"><b>Inscrição Estadual:</b></p>
+                            <p class="text-muted">
+                                {% if pedido.inscricao_estadual %}
+                                    <a href="{{ pedido.inscricao_estadual.url }}" class="btn btn-sm btn-primary" download>
+                                        <i class="fas fa-download"></i> Baixar
+                                    </a>
+                                {% else %}
+                                    Não fornecido
+                                {% endif %}
+                            </p>
                         </div>
                     </div>
                     

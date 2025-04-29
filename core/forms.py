@@ -420,11 +420,10 @@ class VendaPrazoForm(forms.Form):
         required=False,
         widget=forms.FileInput(attrs={'class': 'form-control'})
     )
-    inscricao_estadual = forms.CharField(
+    inscricao_estadual = forms.FileField(
         label='Inscrição Estadual',
-        max_length=20,
         required=False,
-        widget=forms.TextInput(attrs={'class': 'form-control'})
+        widget=forms.FileInput(attrs={'class': 'form-control'})
     )
     documento_matricula = forms.FileField(
         label='Matrícula',

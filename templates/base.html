@@ -121,19 +121,6 @@
             </div>
         {% endif %}
 
-        {% if request.user.is_superuser and not 'superadmin' in request.path %}
-            <div class="alert alert-info alert-dismissible fade show mb-0" role="alert">
-                <div class="d-flex align-items-center">
-                    <i class="fas fa-info-circle me-2"></i>
-                    <div>
-                        Você está logado como superadministrador. 
-                        <a href="{% url 'core:superadmin_dashboard' %}" class="alert-link">Ir para o painel de administração</a>
-                    </div>
-                </div>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
-            </div>
-        {% endif %}
-
         {% block content %}{% endblock %}
     </main>
 

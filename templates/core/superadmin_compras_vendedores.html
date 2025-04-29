@@ -68,6 +68,9 @@
                                 <a href="{% url 'core:superadmin_compras_vendedores' %}" class="btn btn-outline-secondary">
                                     <i class="fas fa-times me-2"></i>Limpar Filtros
                                 </a>
+                                <a href="{% url 'core:exportar_compras_pdf' %}?{% if request.GET.vendedor %}vendedor={{ request.GET.vendedor }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.data_inicio %}&data_inicio={{ request.GET.data_inicio }}{% endif %}{% if request.GET.data_fim %}&data_fim={{ request.GET.data_fim }}{% endif %}" class="btn btn-danger">
+                                    <i class="fas fa-file-pdf me-2"></i>Exportar PDF
+                                </a>
                             </div>
                         </div>
                     </form>

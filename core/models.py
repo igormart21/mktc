@@ -315,7 +315,7 @@ class Pedido(models.Model):
     data_atualizacao = models.DateTimeField(auto_now=True)
     tipo_venda = models.CharField(max_length=10, choices=TIPO_VENDA_CHOICES, default='avista')
     documento_ir = models.FileField(upload_to='documentos/ir/', null=True, blank=True)
-    inscricao_estadual = models.CharField(max_length=20, null=True, blank=True)
+    inscricao_estadual = models.FileField(upload_to='documentos/inscricao_estadual/', null=True, blank=True)
     documento_matricula = models.FileField(upload_to='documentos/matricula/', null=True, blank=True)
     is_arrendatario = models.BooleanField(default=False)
     documento_arrendamento = models.FileField(upload_to='documentos/arrendamento/', null=True, blank=True)

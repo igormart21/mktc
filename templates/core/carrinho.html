@@ -92,16 +92,16 @@
 
                                             <div id="venda_prazo_form" style="display: none;">
                                                 <div class="mb-3">
-                                                    <label for="id_inscricao_estadual" class="form-label">Inscrição Estadual</label>
-                                                    <input type="text" name="inscricao_estadual" id="id_inscricao_estadual" class="form-control" required>
+                                                    <label for="id_inscricao_estadual" class="form-label">Inscrição Estadual (arquivo)</label>
+                                                    {{ form.inscricao_estadual }}
                                                 </div>
                                                 <div class="mb-3">
                                                     <label for="id_documento_ir" class="form-label">Imposto de Renda do Produtor</label>
-                                                    <input type="file" name="documento_ir" id="id_documento_ir" class="form-control" accept=".pdf,.jpg,.jpeg,.png" required>
+                                                    {{ form.documento_ir }}
                                                 </div>
                                                 <div class="mb-3">
                                                     <label for="id_documento_matricula" class="form-label">Matrícula</label>
-                                                    <input type="file" name="documento_matricula" id="id_documento_matricula" class="form-control" accept=".pdf,.jpg,.jpeg,.png" required>
+                                                    {{ form.documento_matricula }}
                                                 </div>
                                                 <div class="mb-3">
                                                     <div class="form-check">
@@ -111,7 +111,7 @@
                                                 </div>
                                                 <div class="mb-3" id="doc_arrendamento_container" style="display: none;">
                                                     <label for="id_documento_arrendamento" class="form-label">Documento de Arrendamento</label>
-                                                    <input type="file" name="documento_arrendamento" id="id_documento_arrendamento" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
+                                                    {{ form.documento_arrendamento }}
                                                 </div>
                                             </div>
 

@@ -33,6 +33,15 @@ from django.contrib.auth.hashers import check_password
 from django.utils.html import strip_tags
 from django.contrib.auth import get_user_model
 from decimal import Decimal
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter
+from reportlab.lib import colors
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
+from reportlab.lib.units import inch
+from io import BytesIO
+from reportlab.platypus import Paragraph
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.enums import TA_CENTER
 
 logger = logging.getLogger(__name__)
 
@@ -156,7 +165,7 @@ def superadmin_dashboard(request):
     ultimos_vendedores = Vendedor.objects.order_by('-created_at')[:5]
 
     # Pedidos pendentes
-    pedidos_pendentes = Pedido.objects.filter(status='AGUARDANDO_APROVACAO').order_by('-data_criacao')[:5]
+    pedidos_pendentes = Pedido.objects.filter(status='PENDENTE').order_by('-data_criacao')[:5]
 
     # Pedidos recentes
     pedidos_recentes = Pedido.objects.order_by('-data_criacao')[:5]
@@ -204,7 +213,7 @@ def seller_dashboard(request):
     # Pedidos do vendedor - usando o objeto Vendedor
     pedidos = Pedido.objects.filter(vendedor=usuario)
     total_pedidos = pedidos.count()
-    pedidos_pendentes = pedidos.filter(status='AGUARDANDO_APROVACAO').count()
+    pedidos_pendentes = pedidos.filter(status='PENDENTE').count()
     pedidos_aprovados = pedidos.filter(status='APROVADO').count()
     pedidos_rejeitados = pedidos.filter(status='REJEITADO').count()
     ultimos_pedidos = pedidos.order_by('-data_criacao')[:5]
@@ -1176,7 +1185,8 @@ def checkout(request):
 
         # Salvar dados de venda a prazo, se aplicável
         if tipo_venda == 'prazo':
-            pedido.inscricao_estadual = request.POST.get('inscricao_estadual', '')
+            if 'inscricao_estadual' in request.FILES:
+                pedido.inscricao_estadual = request.FILES['inscricao_estadual']
             if 'documento_ir' in request.FILES:
                 pedido.documento_ir = request.FILES['documento_ir']
             if 'documento_matricula' in request.FILES:
@@ -1569,3 +1579,142 @@ def editar_solicitacao(request, pk):
         'titulo': 'Editar Solicitação',
         'solicitacao': solicitacao
     })
+
+@login_required
+@user_passes_test(is_superadmin)
+def exportar_compras_pdf(request):
+    """Exporta as compras para PDF"""
+    # Filtros
+    vendedor_id = request.GET.get('vendedor')
+    status = request.GET.get('status')
+    data_inicio = request.GET.get('data_inicio')
+    data_fim = request.GET.get('data_fim')
+    
+    # Query base
+    pedidos = Pedido.objects.all().order_by('-data_criacao')
+    
+    # Aplicar filtros
+    if vendedor_id:
+        pedidos = pedidos.filter(vendedor_id=vendedor_id)
+    if status:
+        pedidos = pedidos.filter(status=status)
+    if data_inicio:
+        pedidos = pedidos.filter(data_criacao__date__gte=data_inicio)
+    if data_fim:
+        pedidos = pedidos.filter(data_criacao__date__lte=data_fim)
+    
+    # Criar o PDF
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=letter, rightMargin=30, leftMargin=30, topMargin=40, bottomMargin=30)
+    elements = []
+
+    # Adicionar logo (opcional, remova se não quiser)
+    # from reportlab.platypus import Image
+    # logo_path = 'static/img/logo.png'  # ajuste o caminho se necessário
+    # try:
+    #     elements.append(Image(logo_path, width=120, height=40))
+    # except Exception:
+    #     pass
+
+    # Título estilizado
+    styles = getSampleStyleSheet()
+    title_style = ParagraphStyle(
+        'CustomTitle',
+        parent=styles['Heading1'],
+        fontSize=20,
+        textColor=colors.HexColor('#1a237e'),
+        spaceAfter=18,
+        alignment=TA_CENTER,
+        leading=26
+    )
+    elements.append(Paragraph("Relatório de Vendas por Vendedor", title_style))
+
+    # Informações do relatório
+    info_style = ParagraphStyle(
+        'InfoStyle',
+        parent=styles['Normal'],
+        fontSize=11,
+        textColor=colors.HexColor('#333'),
+        spaceAfter=12
+    )
+    info_text = f"""
+    <para>
+    <b>Data de geração:</b> {timezone.now().strftime('%d/%m/%Y %H:%M')}<br/>
+    <b>Total de vendas:</b> {pedidos.count()}<br/>
+    <b>Total em vendas:</b> R$ {pedidos.aggregate(total=models.Sum('total'))['total'] or 0:.2f}<br/>
+    </para>
+    """
+    elements.append(Paragraph(info_text, info_style))
+
+    # Tabela de dados
+    data = [['ID', 'Vendedor', 'Cliente', 'Data', 'Total', 'Status']]
+    for pedido in pedidos:
+        # Nome do vendedor
+        vendedor_nome = "Sem vendedor"
+        if pedido.vendedor:
+            vendedor = getattr(pedido.vendedor, 'vendedor', None)
+            if vendedor and hasattr(vendedor, 'nome_fantasia') and vendedor.nome_fantasia:
+                vendedor_nome = vendedor.nome_fantasia
+            else:
+                vendedor_nome = pedido.vendedor.email or str(pedido.vendedor)
+        # Nome do comprador
+        comprador_nome = f"{getattr(pedido.comprador, 'nome', '') or ''} {getattr(pedido.comprador, 'sobrenome', '') or ''}".strip() or pedido.comprador.email or str(pedido.comprador)
+        data.append([
+            str(pedido.id),
+            vendedor_nome,
+            comprador_nome,
+            pedido.data_criacao.strftime("%d/%m/%Y %H:%M"),
+            f"R$ {pedido.total:.2f}",
+            pedido.get_status_display()
+        ])
+
+    # Estilo da tabela
+    table = Table(data, colWidths=[40, 120, 120, 80, 70, 70])
+    table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#1a237e')),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, 0), 12),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 10),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.whitesmoke),
+        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#e3e7f1')]),
+        ('TEXTCOLOR', (0, 1), (-1, -1), colors.HexColor('#222')),
+        ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+        ('FONTSIZE', (0, 1), (-1, -1), 10),
+        ('ALIGN', (0, 1), (0, -1), 'CENTER'),
+        ('ALIGN', (1, 1), (2, -1), 'LEFT'),
+        ('ALIGN', (3, 1), (4, -1), 'RIGHT'),
+        ('ALIGN', (5, 1), (5, -1), 'CENTER'),
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#b0bec5')),
+        ('LEFTPADDING', (0, 0), (-1, -1), 6),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 6),
+        ('TOPPADDING', (0, 0), (-1, -1), 4),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
+    ]))
+    elements.append(table)
+
+    # Rodapé
+    footer_style = ParagraphStyle(
+        'FooterStyle',
+        parent=styles['Normal'],
+        fontSize=9,
+        textColor=colors.HexColor('#888'),
+        spaceBefore=18,
+        alignment=TA_CENTER
+    )
+    footer_text = f"""
+    <para>
+    Relatório gerado automaticamente pelo sistema AgroMarketplace<br/>
+    </para>
+    """
+    elements.append(Paragraph(footer_text, footer_style))
+
+    doc.build(elements)
+    
+    # Configurar a resposta
+    buffer.seek(0)
+    response = HttpResponse(buffer, content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="vendas_vendedores_{timezone.now().strftime("%Y%m%d_%H%M%S")}.pdf"'
+    
+    return response
