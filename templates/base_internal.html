@@ -280,6 +280,12 @@
                         Gerenciar Perfil
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'minhas_solicitacoes' %}active{% endif %}" href="{% url 'core:minhas_solicitacoes' %}">
+                        <i class="fas fa-clipboard-list"></i>
+                        Minhas Solicitações
+                    </a>
+                </li>
                 {% endif %}
                 {% if user.is_superuser %}
                 <li class="nav-item">
