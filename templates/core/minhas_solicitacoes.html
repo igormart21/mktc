@@ -44,7 +44,9 @@
                             <td>{{ solicitacao.categoria_sugerida }}</td>
                             <td>{{ solicitacao.data_solicitacao|date:"d/m/Y" }}</td>
                             <td>
-                                <span class="badge {% if solicitacao.status == 'PENDENTE' %}bg-warning{% else %}bg-success{% endif %}">
+                                <span class="badge {% if solicitacao.status == 'pendente' %}bg-warning
+                                                 {% elif solicitacao.status == 'aprovado' %}bg-success
+                                                 {% else %}bg-danger{% endif %}">
                                     {{ solicitacao.get_status_display }}
                                 </span>
                             </td>
@@ -52,6 +54,11 @@
                                 <a href="{% url 'core:detalhes_solicitacao' solicitacao.id %}" class="btn btn-sm btn-outline-primary">
                                     <i class="fas fa-eye"></i>
                                 </a>
+                                {% if solicitacao.status == 'pendente' %}
+                                <a href="{% url 'core:editar_solicitacao' solicitacao.id %}" class="btn btn-sm btn-success">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                {% endif %}
                             </td>
                         </tr>
                         {% empty %}

@@ -201,7 +201,7 @@ def seller_dashboard(request):
     total_products = Produto.objects.filter(ativo=True).count()
     recent_products = Produto.objects.filter(ativo=True).order_by('-created_at')[:5]
 
-    # Pedidos do vendedor - usando o objeto Usuario ao invés do Vendedor
+    # Pedidos do vendedor - usando o objeto Vendedor
     pedidos = Pedido.objects.filter(vendedor=usuario)
     total_pedidos = pedidos.count()
     pedidos_pendentes = pedidos.filter(status='AGUARDANDO_APROVACAO').count()
@@ -823,7 +823,7 @@ def solicitar_produto(request):
         form = SolicitacaoProdutoForm(request.POST)
         if form.is_valid():
             solicitacao = form.save(commit=False)
-            solicitacao.vendedor = request.user.vendedor
+            solicitacao.vendedor = request.user
             solicitacao.status = 'pendente'
             solicitacao.save()
             messages.success(request, 'Solicitação enviada com sucesso! Aguarde a análise do administrador.')
@@ -844,13 +844,16 @@ def minhas_solicitacoes(request):
     if not hasattr(request.user, 'vendedor'):
         messages.error(request, 'Você precisa ser um vendedor para acessar esta página.')
         return redirect('core:dashboard')
-    solicitacoes = SolicitacaoProduto.objects.filter(vendedor=request.user.vendedor)
+    solicitacoes = SolicitacaoProduto.objects.filter(vendedor=request.user)
     return render(request, 'core/minhas_solicitacoes.html', {'solicitacoes': solicitacoes})
 
 @login_required
 def detalhes_solicitacao(request, pk):
     """Mostra os detalhes de uma solicitação"""
-    solicitacao = get_object_or_404(SolicitacaoProduto, pk=pk)
+    solicitacao = get_object_or_404(
+        SolicitacaoProduto.objects.select_related('vendedor'),
+        pk=pk
+    )
     return render(request, 'core/detalhes_solicitacao.html', {'solicitacao': solicitacao})
 
 @login_required
@@ -901,7 +904,7 @@ def request_product(request):
         form = SolicitacaoProdutoForm(request.POST)
         if form.is_valid():
             solicitacao = form.save(commit=False)
-            solicitacao.vendedor = request.user.vendedor
+            solicitacao.vendedor = request.user
             # Garantir que quantidade tenha um valor padrão se estiver em branco
             if not solicitacao.quantidade:
                 solicitacao.quantidade = 1.0
@@ -1254,7 +1257,6 @@ def superadmin_compras_vendedores(request):
     
     # Query base
     pedidos = Pedido.objects.all().order_by('-data_criacao')
-    pedidos = pedidos.filter(vendedor__isnull=False)
     
     # Aplicar filtros
     if vendedor_id:
@@ -1266,6 +1268,9 @@ def superadmin_compras_vendedores(request):
     if data_fim:
         pedidos = pedidos.filter(data_criacao__date__lte=data_fim)
     
+    # Calcular o total de vendas do período filtrado
+    total_vendas = pedidos.aggregate(total=models.Sum('total'))['total'] or 0
+    
     # Obter lista de vendedores para o filtro
     vendedores = Vendedor.objects.all()
     
@@ -1276,31 +1281,32 @@ def superadmin_compras_vendedores(request):
         'pedidos': pedidos,
         'vendedores': vendedores,
         'status_choices': status_choices,
+        'total_vendas': total_vendas,
     }
     
     return render(request, 'core/superadmin_compras_vendedores.html', context)
 
 def solicitar_compra(request, product_id):
     if request.method == 'POST':
-        produto = get_object_or_404(Product, id=product_id)
+        from produtos.models import Produto
+        produto = get_object_or_404(Produto, id=product_id)
         quantidade = request.POST.get('quantidade', 1)
         observacoes = request.POST.get('observacoes', '')
-        
         try:
             quantidade = int(quantidade)
             if quantidade <= 0:
                 raise ValueError('Quantidade inválida')
-                
             carrinho = Carrinho(request)
             carrinho.adicionar(produto, quantidade)
-            
-            messages.success(request, f'{produto.name} adicionado ao carrinho!')
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({'success': True})
+            messages.success(request, f'{produto.nome} adicionado ao carrinho!')
             return redirect('core:carrinho')
-            
         except ValueError as e:
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({'success': False, 'error': str(e)})
             messages.error(request, str(e))
             return redirect('core:produto_detalhe', produto_id=product_id)
-            
     return redirect('core:produto_detalhe', produto_id=product_id)
 
 @login_required
@@ -1353,18 +1359,18 @@ def encerrar_caso(request, mensagem_id):
 @user_passes_test(is_superadmin)
 def reprovar_pedido(request, pedido_id):
     pedido = get_object_or_404(Pedido, id=pedido_id)
-    if pedido.status != 'AGUARDANDO_APROVACAO':
-        messages.error(request, 'Só é possível reprovar pedidos aguardando aprovação.')
+    if pedido.status != 'PENDENTE':
+        messages.error(request, 'Só é possível reprovar pedidos pendentes.')
         return redirect('core:superadmin_pedidos')
     if request.method == 'POST':
-        justificativa = request.POST.get('justificativa', '').strip()
-        if not justificativa:
+        motivo = request.POST.get('justificativa', '').strip()
+        if not motivo:
             messages.error(request, 'A justificativa é obrigatória para reprovar um pedido.')
             return render(request, 'core/pedido_reprovar.html', {'pedido': pedido})
-        pedido.status = 'REPROVADO'
+        pedido.status = 'REJEITADO'
         pedido.reprovado_por = request.user
         pedido.reprovado_em = timezone.now()
-        pedido.justificativa_reprovacao = justificativa
+        pedido.justificativa_reprovacao = motivo
         pedido.aprovado_por = None
         pedido.aprovado_em = None
         pedido.save()
@@ -1508,21 +1514,26 @@ def aprovar_vendedor(request, vendedor_id):
 @login_required
 @user_passes_test(is_superadmin)
 def aprovar_pedido(request, pedido_id):
+    print(f"Método da requisição: {request.method}")  # Log para debug
     pedido = get_object_or_404(Pedido, id=pedido_id)
-    if pedido.status != 'AGUARDANDO_APROVACAO':
-        messages.error(request, 'Só é possível aprovar pedidos aguardando aprovação.')
+    print(f"Status atual do pedido: {pedido.status}")  # Log para debug
+    
+    # Verificando se o status é 'PENDENTE'
+    if pedido.status != 'PENDENTE':
+        messages.error(request, 'Só é possível aprovar pedidos pendentes.')
         return redirect('core:superadmin_pedidos')
-    if request.method == 'POST':
-        pedido.status = 'APROVADO'
-        pedido.aprovado_por = request.user
-        pedido.aprovado_em = timezone.now()
-        pedido.justificativa_reprovacao = ''
-        pedido.reprovado_por = None
-        pedido.reprovado_em = None
-        pedido.save()
-        messages.success(request, f'Pedido #{pedido.id} aprovado com sucesso!')
-        return redirect('core:superadmin_pedidos')
-    return render(request, 'core/pedido_approve.html', {'pedido': pedido})
+    
+    # Aprovar o pedido
+    pedido.status = 'APROVADO'
+    pedido.aprovado_por = request.user
+    pedido.aprovado_em = timezone.now()
+    pedido.justificativa_reprovacao = ''
+    pedido.reprovado_por = None
+    pedido.reprovado_em = None
+    pedido.save()
+    print(f"Novo status do pedido: {pedido.status}")  # Log para debug
+    messages.success(request, f'Pedido #{pedido.id} aprovado com sucesso!')
+    return redirect('core:superadmin_pedidos')
 
 @login_required
 def diminuir_quantidade(request, product_id):
@@ -1533,3 +1544,28 @@ def diminuir_quantidade(request, product_id):
     carrinho.diminuir_quantidade(produto)
     messages.success(request, 'Quantidade do produto atualizada!')
     return redirect('core:carrinho')
+
+@login_required
+def editar_solicitacao(request, pk):
+    """Edita uma solicitação pendente"""
+    solicitacao = get_object_or_404(SolicitacaoProduto, pk=pk, vendedor=request.user)
+    
+    # Verifica se a solicitação está pendente
+    if solicitacao.status != 'pendente':
+        messages.error(request, 'Apenas solicitações pendentes podem ser editadas.')
+        return redirect('core:minhas_solicitacoes')
+    
+    if request.method == 'POST':
+        form = SolicitacaoProdutoForm(request.POST, instance=solicitacao)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Solicitação atualizada com sucesso!')
+            return redirect('core:minhas_solicitacoes')
+    else:
+        form = SolicitacaoProdutoForm(instance=solicitacao)
+    
+    return render(request, 'core/solicitar_produto.html', {
+        'form': form,
+        'titulo': 'Editar Solicitação',
+        'solicitacao': solicitacao
+    })

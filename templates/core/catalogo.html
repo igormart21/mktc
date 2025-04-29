@@ -171,17 +171,26 @@
                     <form method="post" action="{% url 'vendas:solicitar_compra' produto.id %}">
                         {% csrf_token %}
                         <div class="modal-body">
+                            <div class="text-center mb-3">
+                                {% if produto.imagem %}
+                                    <img src="{{ produto.imagem.url }}" alt="{{ produto.nome }}" class="img-fluid rounded shadow-sm" style="max-height: 100px; object-fit: contain; background: #f8f9fa;">
+                                {% else %}
+                                    <div class="d-flex align-items-center justify-content-center bg-light rounded" style="height: 100px;">
+                                        <i class="fas fa-seedling fa-3x text-success"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
                             <div class="mb-3">
                                 <h6 class="text-muted mb-2">Produto</h6>
-                                <p class="mb-0">{{ produto.nome }}</p>
+                                <p class="mb-0 fw-bold">{{ produto.nome }}</p>
                             </div>
                             <div class="mb-3">
                                 <h6 class="text-muted mb-2">Preço</h6>
-                                <p class="mb-0">R$ {{ produto.preco|floatformat:2|default:'0.00' }}</p>
+                                <p class="mb-0 text-success fs-5">R$ {{ produto.preco|floatformat:2|default:'0.00' }}</p>
                             </div>
                             <div class="mb-3">
                                 <label for="quantidade" class="form-label">Quantidade</label>
-                                <input type="number" name="quantidade" id="quantidade{{ produto.id }}" value="1" min="1" class="form-control" data-preco="{{ produto.preco|floatformat:2|default:'0.00'|cut:',' }}">
+                                <input type="number" name="quantidade" id="quantidade{{ produto.id }}" value="1" min="1" class="form-control" data-preco="{{ produto.preco }}">
                             </div>
                             <div class="mb-3">
                                 <label for="observacoes" class="form-label">Observações</label>
@@ -194,7 +203,7 @@
                                     </div>
                                     <div class="flex-grow-1 ms-3">
                                         <h6 class="alert-heading mb-1">Valor Total</h6>
-                                        <p class="mb-0" id="valorTotal{{ produto.id }}">R$ {{ produto.preco|floatformat:2|default:'0.00' }}</p>
+                                        <p class="mb-0 fw-bold" id="valorTotal{{ produto.id }}">R$ {{ produto.preco|floatformat:2|default:'0.00' }}</p>
                                     </div>
                                 </div>
                             </div>
@@ -277,7 +286,7 @@
         const preco = parseFloat(input.getAttribute('data-preco').replace(',', '.'));
         const quantidade = parseInt(input.value) || 0;
         const valorTotal = preco * quantidade;
-        document.getElementById('valorTotal' + produtoId).textContent = `R$ ${valorTotal.toFixed(2)}`;
+        document.getElementById('valorTotal' + produtoId).textContent = valorTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
     }
 
     // Atualizar valor total ao mudar a quantidade em cada modal
@@ -305,5 +314,53 @@
             }
         });
     });
+
+    // AJAX para adicionar ao carrinho sem sair do catálogo
+    document.querySelectorAll('form[action*="solicitar_compra"]').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const modal = form.closest('.modal');
+            const formData = new FormData(form);
+            fetch(form.action, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const modalInstance = bootstrap.Modal.getInstance(modal);
+                    modalInstance.hide();
+                    mostrarToast('Produto adicionado ao carrinho com sucesso!', 'success');
+                } else {
+                    mostrarToast(data.error || 'Erro ao adicionar ao carrinho.', 'danger');
+                }
+            })
+            .catch(() => {
+                mostrarToast('Erro ao adicionar ao carrinho.', 'danger');
+            });
+        });
+    });
+
+    // Função para mostrar toast Bootstrap
+    function mostrarToast(mensagem, tipo) {
+        let toast = document.createElement('div');
+        toast.className = `toast align-items-center text-bg-${tipo} border-0 position-fixed bottom-0 end-0 m-3`;
+        toast.role = 'alert';
+        toast.ariaLive = 'assertive';
+        toast.ariaAtomic = 'true';
+        toast.innerHTML = `
+            <div class="d-flex">
+                <div class="toast-body">${mensagem}</div>
+                <button type="button" class="btn btn-light btn-sm ms-2" data-bs-dismiss="toast">Continuar comprando</button>
+            </div>
+        `;
+        document.body.appendChild(toast);
+        let bsToast = new bootstrap.Toast(toast, { delay: 4000 });
+        bsToast.show();
+        toast.addEventListener('hidden.bs.toast', () => toast.remove());
+    }
 </script>
 {% endblock %} 

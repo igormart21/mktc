@@ -104,14 +104,9 @@
                             <td>{{ pedido.data_criacao|date:"d/m/Y H:i" }}</td>
                             <td>R$ {{ pedido.total|floatformat:2 }}</td>
                             <td>
-                                <form method="post" action="{% url 'core:superadmin_order_detail' pedido.id %}" class="d-inline">
-                                    {% csrf_token %}
-                                    <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
-                                        {% for value, label in status_choices %}
-                                            <option value="{{ value }}" {% if pedido.status == value %}selected{% endif %}>{{ label }}</option>
-                                        {% endfor %}
-                                    </select>
-                                </form>
+                                <span class="badge {% if pedido.status == 'APROVADO' %}bg-success{% elif pedido.status == 'REJEITADO' %}bg-danger{% elif pedido.status == 'ENTREGUE' %}bg-info{% elif pedido.status == 'ARQUIVADO' %}bg-secondary{% else %}bg-warning text-dark{% endif %}">
+                                    {{ pedido.get_status_display }}
+                                </span>
                             </td>
                             <td>{{ pedido.get_tipo_venda_display }}</td>
                             <td>
@@ -133,38 +128,45 @@
                             </td>
                             <td>
                                 <div class="d-flex flex-wrap gap-1">
-                                    {% if pedido.status == 'AGUARDANDO_APROVACAO' %}
-                                        <a href="{% url 'core:aprovar_pedido' pedido.id %}" class="btn btn-success btn-sm" title="Aprovar">
+                                    {% if pedido.status == 'PENDENTE' %}
+                                    <form method="post" action="{% url 'core:aprovar_pedido' pedido.id %}" style="display:inline;">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-success btn-sm" title="Aprovar">
                                             <i class="fas fa-check"></i> Aprovar
-                                        </a>
-                                        <a href="{% url 'core:reprovar_pedido' pedido.id %}" class="btn btn-danger btn-sm" title="Reprovar">
-                                            <i class="fas fa-times"></i> Reprovar
-                                        </a>
+                                        </button>
+                                    </form>
+                                    <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#modalReprovar{{ pedido.id }}">
+                                        <i class="fas fa-times"></i> Rejeitar
+                                    </button>
                                     {% endif %}
+                                    <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#detalhesPedido{{ pedido.id }}">
+                                        Detalhes
+                                    </button>
+                                    {% if pedido.status == 'APROVADO' %}
                                     <form method="post" action="" style="display:inline;">
                                         {% csrf_token %}
                                         <input type="hidden" name="pedido_id" value="{{ pedido.id }}">
-                                        {% if pedido.status == 'APROVADO' %}
-                                            <button type="submit" name="acao" value="arquivar" class="btn btn-warning btn-sm" title="Arquivar">
-                                                <i class="fas fa-archive"></i> Arquivar
-                                            </button>
-                                        {% elif pedido.status == 'ARQUIVADO' %}
-                                            <button type="submit" name="acao" value="desarquivar" class="btn btn-secondary btn-sm" title="Desarquivar">
-                                                <i class="fas fa-box-open"></i> Desarquivar
-                                            </button>
-                                        {% endif %}
+                                        <button type="submit" name="acao" value="arquivar" class="btn btn-warning btn-sm" title="Arquivar">
+                                            <i class="fas fa-archive"></i> Arquivar
+                                        </button>
                                     </form>
+                                    {% elif pedido.status == 'ARQUIVADO' %}
+                                    <form method="post" action="" style="display:inline;">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="pedido_id" value="{{ pedido.id }}">
+                                        <button type="submit" name="acao" value="desarquivar" class="btn btn-secondary btn-sm" title="Desarquivar">
+                                            <i class="fas fa-box-open"></i> Desarquivar
+                                        </button>
+                                    </form>
+                                    {% endif %}
                                     <form method="post" action="{% url 'core:superadmin_order_delete' pedido.id %}" style="display:inline;" onsubmit="return confirm('Tem certeza que deseja excluir este pedido? Esta ação não pode ser desfeita.');">
                                         {% csrf_token %}
-                                        {% if pedido.status == 'AGUARDANDO_APROVACAO' %}
+                                        {% if pedido.status == 'PENDENTE' %}
                                         <button type="submit" class="btn btn-outline-danger btn-sm" title="Excluir">
                                             <i class="fas fa-trash"></i> Excluir
                                         </button>
                                         {% endif %}
                                     </form>
-                                    <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#detalhesPedido{{ pedido.id }}">
-                                        Detalhes
-                                    </button>
                                 </div>
                             </td>
                         </tr>
@@ -382,6 +384,37 @@
             </div>
         </div>
     </div>
+</div>
+
+<!-- Modal de motivo de reprovação -->
+<div class="modal fade" id="modalReprovar{{ pedido.id }}" tabindex="-1" aria-labelledby="modalReprovarLabel{{ pedido.id }}" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content shadow-lg rounded-4 border-0" style="background: #fff;">
+      <form method="post" action="{% url 'core:reprovar_pedido' pedido.id %}">
+        {% csrf_token %}
+        <div class="modal-header bg-white border-0 rounded-top-4" style="border-bottom: 1px solid #f0fdf4;">
+          <div class="d-flex align-items-center gap-2">
+            <span class="bg-danger bg-gradient text-white rounded-circle d-flex align-items-center justify-content-center" style="width:2.5rem;height:2.5rem;font-size:1.3rem;"><i class="fas fa-times"></i></span>
+            <div>
+              <h5 class="modal-title mb-0 text-danger fw-bold" id="modalReprovarLabel{{ pedido.id }}">Reprovar Pedido #{{ pedido.id }}</h5>
+              <small class="text-muted">Informe o motivo da reprovação</small>
+            </div>
+          </div>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+        </div>
+        <div class="modal-body pb-0">
+          <div class="mb-3">
+            <label for="justificativa{{ pedido.id }}" class="form-label fw-semibold text-dark">Motivo da Reprovação <span class="text-danger">*</span></label>
+            <textarea class="form-control rounded-3 shadow-sm border-1" id="justificativa{{ pedido.id }}" name="justificativa" rows="3" required style="resize: vertical; min-height: 80px; background: #f8fdfc;"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer border-0 pt-0 pb-4 bg-white rounded-bottom-4">
+          <button type="button" class="btn btn-light border me-2 px-4 rounded-3" data-bs-dismiss="modal" style="color: #6c757d;">Cancelar</button>
+          <button type="submit" class="btn btn-danger px-4 rounded-3 shadow-sm fw-bold" style="border: none;">Reprovar Pedido</button>
+        </div>
+      </form>
+    </div>
+  </div>
 </div>
 {% endfor %}
 {% endblock %} 

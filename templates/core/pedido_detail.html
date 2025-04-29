@@ -18,6 +18,12 @@
                             {{ pedido.get_status_display }}
                         </span>
                     </div>
+                    {% if pedido.status == 'REJEITADO' and pedido.justificativa_reprovacao %}
+                    <div class="alert alert-danger rounded-3 shadow-sm mb-4">
+                        <strong>Motivo da Reprovação:</strong><br>
+                        {{ pedido.justificativa_reprovacao }}
+                    </div>
+                    {% endif %}
 
                     <div class="mb-4">
                         <h6 class="text-muted mb-2">Data:</h6>
@@ -80,63 +86,10 @@
                     </div>
 
                     <div class="mb-4">
-<<<<<<< HEAD
                         <h6 class="text-muted mb-2">Propriedade:</h6>
                         <p class="mb-0">{{ pedido.nome_propriedade }} - {{ pedido.cnpj|format_cnpj }}</p>
                     </div>
 
-=======
-                        <h6 class="text-muted mb-2">Informações do Comprador</h6>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <p class="mb-1"><strong>Nome:</strong></p>
-                                <p class="mb-0">{{ pedido.comprador.nome|default:"-" }} {{ pedido.comprador.sobrenome|default:"" }}</p>
-                            </div>
-                            <div class="col-md-6">
-                                <p class="mb-1"><strong>Email:</strong></p>
-                                <p class="mb-0">{{ pedido.comprador.email|default:"-" }}</p>
-                            </div>
-                        </div>
-                    </div>
-                    {% if pedido.vendedor %}
-                    <div class="mb-4">
-                        <h6 class="text-muted mb-2">Informações do Vendedor</h6>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <p class="mb-1"><strong>Nome:</strong></p>
-                                <p class="mb-0">{{ pedido.vendedor.nome|default:"-" }} {{ pedido.vendedor.sobrenome|default:"" }}</p>
-                            </div>
-                            <div class="col-md-6">
-                                <p class="mb-1"><strong>Email:</strong></p>
-                                <p class="mb-0">{{ pedido.vendedor.email|default:"-" }}</p>
-                            </div>
-                        </div>
-                    </div>
-                    {% endif %}
-                    {% if pedido.tipo_venda == 'prazo' %}
-                    <div class="alert alert-info">
-                        <h6 class="mb-3">DEBUG - Valores dos Campos:</h6>
-                        <pre>
-                        tipo_venda: {{ pedido.tipo_venda }}
-                        inscricao_estadual: {{ pedido.inscricao_estadual|default:"None" }}
-                        documento_ir: {{ pedido.documento_ir.path|default:"None" }}
-                        documento_matricula: {{ pedido.documento_matricula.path|default:"None" }}
-                        is_arrendatario: {{ pedido.is_arrendatario|default:"None" }}
-                        documento_arrendamento: {{ pedido.documento_arrendamento.path|default:"None" }}
-                        </pre>
-                    </div>
-                    <div class="mb-4">
-                        <h6 class="text-muted mb-2">Informações de Venda a Prazo</h6>
-                        <ul class="list-unstyled">
-                            <li><b>Inscrição Estadual:</b> {{ pedido.inscricao_estadual|default:'-' }}</li>
-                            <li><b>Imposto de Renda:</b> {% if pedido.documento_ir %}<a href="{{ pedido.documento_ir.url }}" target="_blank" class="btn btn-sm btn-primary">Baixar Documento</a>{% else %}Não enviado{% endif %}</li>
-                            <li><b>Matrícula:</b> {% if pedido.documento_matricula %}<a href="{{ pedido.documento_matricula.url }}" target="_blank" class="btn btn-sm btn-primary">Baixar Documento</a>{% else %}Não enviado{% endif %}</li>
-                            <li><b>É arrendatário?</b> {{ pedido.is_arrendatario|yesno:"Sim,Não" }}</li>
-                            <li><b>Documento de Arrendamento:</b> {% if pedido.documento_arrendamento %}<a href="{{ pedido.documento_arrendamento.url }}" target="_blank" class="btn btn-sm btn-primary">Baixar Documento</a>{% else %}Não enviado{% endif %}</li>
-                        </ul>
-                    </div>
-                    {% endif %}
->>>>>>> 096178b3cd38915894e00be8d56d643de26c264d
                     <div class="mb-4">
                         <h6 class="text-muted mb-2">Informações do Comprador</h6>
                         <div class="row">

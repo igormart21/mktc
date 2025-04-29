@@ -27,8 +27,7 @@
                             <h6 class="text-muted mb-2">Informações do Vendedor</h6>
                             <div class="card bg-light">
                                 <div class="card-body">
-                                    <p class="mb-1"><strong>Nome:</strong> {{ solicitacao.vendedor.get_full_name }}</p>
-                                    <p class="mb-1"><strong>Usuário:</strong> {{ solicitacao.vendedor.username }}</p>
+                                    <p class="mb-1"><strong>Nome:</strong> {{ solicitacao.vendedor.vendedor.nome_fantasia }}</p>
                                     <p class="mb-0"><strong>Email:</strong> {{ solicitacao.vendedor.email }}</p>
                                 </div>
                             </div>

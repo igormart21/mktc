@@ -41,7 +41,7 @@
                         {% for solicitacao in solicitacoes %}
                         <tr>
                             <td>#{{ solicitacao.id }}</td>
-                            <td>{{ solicitacao.vendedor.username }}</td>
+                            <td>{{ solicitacao.vendedor.nome_fantasia }}</td>
                             <td>{{ solicitacao.nome_produto }}</td>
                             <td>{{ solicitacao.categoria_sugerida }}</td>
                             <td>{{ solicitacao.data_solicitacao|date:"d/m/Y" }}</td>
