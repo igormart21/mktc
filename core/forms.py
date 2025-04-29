@@ -120,7 +120,7 @@ class PedidoForm(forms.ModelForm):
 class SellerRegistrationForm(forms.ModelForm):
     class Meta:
         model = Usuario
-        fields = ['email', 'nome', 'sobrenome', 'cpf', 'telefone', 'endereco', 'numero', 'bairro', 'cidade', 'estado', 'cep', 'tipo_documento', 'numero_documento', 'hectares_atendidos']
+        fields = ['email', 'nome', 'sobrenome', 'cpf', 'telefone', 'cep', 'tipo_documento', 'numero_documento']
     
     nome = forms.CharField(
         max_length=100, 
@@ -167,6 +167,12 @@ class SellerRegistrationForm(forms.ModelForm):
         required=False,
         widget=forms.TextInput(attrs={'class': 'form-control'})
     )
+    bairro = forms.CharField(
+        max_length=100, 
+        label='Bairro', 
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control'})
+    )
     cidade = forms.CharField(
         max_length=100, 
         label='Cidade', 
@@ -202,13 +208,13 @@ class SellerRegistrationForm(forms.ModelForm):
         required=False,
         widget=forms.TextInput(attrs={'class': 'form-control'})
     )
-    rg = forms.FileField(
-        label='RG',
+    frente_documento = forms.FileField(
+        label='Frente do Documento',
         required=False,
         widget=forms.FileInput(attrs={'class': 'form-control'})
     )
-    cnh = forms.FileField(
-        label='CNH',
+    verso_documento = forms.FileField(
+        label='Verso do Documento',
         required=False,
         widget=forms.FileInput(attrs={'class': 'form-control'})
     )
@@ -223,17 +229,6 @@ class SellerRegistrationForm(forms.ModelForm):
         required=True,
         widget=forms.CheckboxSelectMultiple(attrs={'class': 'form-check-input'})
     )
-    bairro = forms.CharField(
-        max_length=100, 
-        label='Bairro', 
-        required=False,
-        widget=forms.TextInput(attrs={'class': 'form-control'})
-    )
-    arquivo_documento = forms.FileField(
-        label='Arquivo do Documento',
-        required=False,
-        widget=forms.FileInput(attrs={'class': 'form-control'})
-    )
     
     def clean_cpf(self):
         cpf = self.cleaned_data.get('cpf')
@@ -244,42 +239,21 @@ class SellerRegistrationForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
         tipo_documento = cleaned_data.get('tipo_documento')
-        arquivo_documento = cleaned_data.get('arquivo_documento')
+        frente_documento = cleaned_data.get('frente_documento')
+        verso_documento = cleaned_data.get('verso_documento')
         
-        if tipo_documento == 'RG' and not arquivo_documento:
-            self.add_error('arquivo_documento', 'O arquivo do RG é obrigatório.')
-        elif tipo_documento == 'CNH' and not arquivo_documento:
-            self.add_error('arquivo_documento', 'O arquivo da CNH é obrigatório.')
+        if tipo_documento == 'RG':
+            if not frente_documento:
+                self.add_error('frente_documento', 'A frente do RG é obrigatória.')
+            if not verso_documento:
+                self.add_error('verso_documento', 'O verso do RG é obrigatório.')
+        elif tipo_documento == 'CNH':
+            if not frente_documento:
+                self.add_error('frente_documento', 'A frente da CNH é obrigatória.')
+            if not verso_documento:
+                self.add_error('verso_documento', 'O verso da CNH é obrigatório.')
             
         return cleaned_data
-    
-    def save(self, commit=True):
-        user = super().save(commit=False)
-        user.set_password('123456')  # Senha padrão
-        user.is_active = False  # Usuário começa inativo
-        if commit:
-            user.save()
-            culturas = self.cleaned_data.get('culturas_atendidas', [])
-            vendedor_kwargs = {
-                'usuario': user,
-                'culturas_atendidas': culturas,
-                'hectares_atendidos': self.cleaned_data.get('hectares_atendidos'),
-                'telefone': self.cleaned_data.get('telefone'),
-                'endereco': self.cleaned_data.get('endereco'),
-                'numero': self.cleaned_data.get('numero', ''),
-                'bairro': self.cleaned_data.get('bairro', ''),
-                'cidade': self.cleaned_data.get('cidade'),
-                'estado': self.cleaned_data.get('estado'),
-                'cep': self.cleaned_data.get('cep'),
-            }
-            tipo_documento = self.cleaned_data.get('tipo_documento')
-            arquivo_documento = self.cleaned_data.get('arquivo_documento')
-            if tipo_documento == 'RG' and arquivo_documento:
-                vendedor_kwargs['rg'] = arquivo_documento
-            if tipo_documento == 'CNH' and arquivo_documento:
-                vendedor_kwargs['cnh'] = arquivo_documento
-            Vendedor.objects.create(**vendedor_kwargs)
-        return user
 
 class LoginForm(forms.Form):
     username = forms.EmailField(label='Email')

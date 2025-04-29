@@ -5,9 +5,9 @@
 {% block title %}Cadastrar Vendedor - AgroMarketplace{% endblock %}
 
 {% block content %}
-<div class="container py-2">
-    <div class="row">
-        <div class="col-md-12">
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h1 class="h3">Cadastrar Novo Vendedor</h1>
                 <a href="{% url 'core:listar_vendedores' %}" class="btn btn-secondary">
@@ -42,198 +42,146 @@
                             </div>
                         {% endif %}
 
-                        <div class="row">
+                        <div class="row mb-3">
                             <div class="col-md-6">
-                                <h5 class="mb-3 text-primary">
-                                    <i class="fas fa-user me-2"></i>Informações Pessoais
-                                </h5>
-
-                                <div class="mb-3">
-                                    <label for="{{ form.nome.id_for_label }}" class="form-label">Nome</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text bg-light">
-                                            <i class="fas fa-user"></i>
-                                        </span>
-                                        {{ form.nome }}
-                                    </div>
-                                    {% if form.nome.errors %}
-                                        <div class="invalid-feedback d-block">
-                                            {{ form.nome.errors }}
-                                        </div>
-                                    {% endif %}
+                                <label for="{{ form.nome.id_for_label }}" class="form-label">Nome</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light"><i class="fas fa-user"></i></span>
+                                    {{ form.nome }}
                                 </div>
-
-                                <div class="mb-3">
-                                    <label for="{{ form.sobrenome.id_for_label }}" class="form-label">Sobrenome</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text bg-light">
-                                            <i class="fas fa-user"></i>
-                                        </span>
-                                        {{ form.sobrenome }}
-                                    </div>
-                                    {% if form.sobrenome.errors %}
-                                        <div class="invalid-feedback d-block">
-                                            {{ form.sobrenome.errors }}
-                                        </div>
-                                    {% endif %}
-                                </div>
-
-                                <div class="mb-3">
-                                    <label for="{{ form.cpf.id_for_label }}" class="form-label">CPF</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text bg-light">
-                                            <i class="fas fa-id-card"></i>
-                                        </span>
-                                        {{ form.cpf }}
-                                    </div>
-                                    {% if form.cpf.errors %}
-                                        <div class="invalid-feedback d-block">
-                                            {{ form.cpf.errors }}
-                                        </div>
-                                    {% endif %}
-                                </div>
-
-                                <div class="mb-3">
-                                    <label for="{{ form.telefone.id_for_label }}" class="form-label">Telefone</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text bg-light">
-                                            <i class="fas fa-phone"></i>
-                                        </span>
-                                        {{ form.telefone }}
-                                    </div>
-                                    {% if form.telefone.errors %}
-                                        <div class="invalid-feedback d-block">
-                                            {{ form.telefone.errors }}
-                                        </div>
-                                    {% endif %}
-                                </div>
-
-                                <div class="mb-3">
-                                    <label for="{{ form.email.id_for_label }}" class="form-label">Email</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text bg-light">
-                                            <i class="fas fa-envelope"></i>
-                                        </span>
-                                        {{ form.email }}
-                                    </div>
-                                    {% if form.email.errors %}
-                                        <div class="invalid-feedback d-block">
-                                            {{ form.email.errors }}
-                                        </div>
-                                    {% endif %}
-                                </div>
+                                {% if form.nome.errors %}<div class="invalid-feedback d-block">{{ form.nome.errors }}</div>{% endif %}
                             </div>
-
                             <div class="col-md-6">
-                                <h5 class="mb-3 text-primary">
-                                    <i class="fas fa-store me-2"></i>Informações do Vendedor
-                                </h5>
-
-                                <div class="mb-3">
-                                    <label for="{{ form.tipo_documento.id_for_label }}" class="form-label">Tipo de Documento</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text bg-light">
-                                            <i class="fas fa-file"></i>
-                                        </span>
-                                        {{ form.tipo_documento }}
-                                    </div>
-                                    {% if form.tipo_documento.errors %}
-                                        <div class="invalid-feedback d-block">
-                                            {{ form.tipo_documento.errors }}
-                                        </div>
-                                    {% endif %}
+                                <label for="{{ form.sobrenome.id_for_label }}" class="form-label">Sobrenome</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light"><i class="fas fa-user"></i></span>
+                                    {{ form.sobrenome }}
                                 </div>
-
-                                <div class="mb-3">
-                                    <label for="{{ form.arquivo_documento.id_for_label }}" class="form-label">Arquivo do Documento</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text bg-light">
-                                            <i class="fas fa-upload"></i>
-                                        </span>
-                                        {{ form.arquivo_documento }}
-                                    </div>
-                                    {% if form.arquivo_documento.errors %}
-                                        <div class="invalid-feedback d-block">
-                                            {{ form.arquivo_documento.errors }}
-                                        </div>
-                                    {% endif %}
-                                </div>
-
-                                <div class="mb-3">
-                                    <label for="{{ form.endereco.id_for_label }}" class="form-label">Endereço</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text bg-light">
-                                            <i class="fas fa-map-marker-alt"></i>
-                                        </span>
-                                        {{ form.endereco }}
-                                    </div>
-                                    {% if form.endereco.errors %}
-                                        <div class="invalid-feedback d-block">
-                                            {{ form.endereco.errors }}
-                                        </div>
-                                    {% endif %}
-                                </div>
-
-                                <div class="mb-3">
-                                    <label for="{{ form.cidade.id_for_label }}" class="form-label">Cidade</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text bg-light">
-                                            <i class="fas fa-city"></i>
-                                        </span>
-                                        {{ form.cidade }}
-                                    </div>
-                                    {% if form.cidade.errors %}
-                                        <div class="invalid-feedback d-block">
-                                            {{ form.cidade.errors }}
-                                        </div>
-                                    {% endif %}
-                                </div>
-
-                                <div class="mb-3">
-                                    <label for="{{ form.estado.id_for_label }}" class="form-label">Estado</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text bg-light">
-                                            <i class="fas fa-map"></i>
-                                        </span>
-                                        {{ form.estado }}
-                                    </div>
-                                    {% if form.estado.errors %}
-                                        <div class="invalid-feedback d-block">
-                                            {{ form.estado.errors }}
-                                        </div>
-                                    {% endif %}
-                                </div>
-
-                                <div class="mb-3">
-                                    <label for="{{ form.cep.id_for_label }}" class="form-label">CEP</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text bg-light">
-                                            <i class="fas fa-map-pin"></i>
-                                        </span>
-                                        {{ form.cep }}
-                                    </div>
-                                    {% if form.cep.errors %}
-                                        <div class="invalid-feedback d-block">
-                                            {{ form.cep.errors }}
-                                        </div>
-                                    {% endif %}
-                                </div>
-
-                                <div class="mb-3">
-                                    <label for="{{ form.hectares_atendidos.id_for_label }}" class="form-label">Hectares Atendidos</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text bg-light">
-                                            <i class="fas fa-ruler"></i>
-                                        </span>
-                                        {{ form.hectares_atendidos }}
-                                    </div>
-                                    {% if form.hectares_atendidos.errors %}
-                                        <div class="invalid-feedback d-block">
-                                            {{ form.hectares_atendidos.errors }}
-                                        </div>
-                                    {% endif %}
-                                </div>
+                                {% if form.sobrenome.errors %}<div class="invalid-feedback d-block">{{ form.sobrenome.errors }}</div>{% endif %}
                             </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="{{ form.email.id_for_label }}" class="form-label">E-mail</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="fas fa-envelope"></i></span>
+                                {{ form.email }}
+                            </div>
+                            {% if form.email.errors %}<div class="invalid-feedback d-block">{{ form.email.errors }}</div>{% endif %}
+                        </div>
+                        <div class="mb-3">
+                            <label for="{{ form.cpf.id_for_label }}" class="form-label">CPF</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="fas fa-id-card"></i></span>
+                                {{ form.cpf }}
+                            </div>
+                            <div class="form-text">Digite apenas números</div>
+                            {% if form.cpf.errors %}<div class="invalid-feedback d-block">{{ form.cpf.errors }}</div>{% endif %}
+                        </div>
+                        <div class="mb-3">
+                            <label for="{{ form.telefone.id_for_label }}" class="form-label">Telefone</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="fas fa-phone"></i></span>
+                                {{ form.telefone }}
+                            </div>
+                            {% if form.telefone.errors %}<div class="invalid-feedback d-block">{{ form.telefone.errors }}</div>{% endif %}
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="{{ form.tipo_documento.id_for_label }}" class="form-label">Tipo de Documento</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light"><i class="fas fa-file"></i></span>
+                                    {{ form.tipo_documento }}
+                                </div>
+                                {% if form.tipo_documento.errors %}<div class="invalid-feedback d-block">{{ form.tipo_documento.errors }}</div>{% endif %}
+                            </div>
+                        </div>
+                        <div class="row mb-3" id="documento-container">
+                            <div class="col-md-6">
+                                <label for="frente_documento" class="form-label">Frente do Documento (PDF, JPG, PNG)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light"><i class="fas fa-upload"></i></span>
+                                    <input type="file" name="frente_documento" id="frente_documento" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
+                                </div>
+                                <small class="form-text text-muted">Tamanho máximo: 5MB</small>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="verso_documento" class="form-label">Verso do Documento (PDF, JPG, PNG)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light"><i class="fas fa-upload"></i></span>
+                                    <input type="file" name="verso_documento" id="verso_documento" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
+                                </div>
+                                <small class="form-text text-muted">Tamanho máximo: 5MB</small>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="{{ form.numero_documento.id_for_label }}" class="form-label">Número do Documento</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="fas fa-hashtag"></i></span>
+                                {{ form.numero_documento }}
+                            </div>
+                            {% if form.numero_documento.errors %}<div class="invalid-feedback d-block">{{ form.numero_documento.errors }}</div>{% endif %}
+                        </div>
+                        <div class="mb-3">
+                            <label for="{{ form.cep.id_for_label }}" class="form-label">CEP</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="fas fa-map-pin"></i></span>
+                                {{ form.cep }}
+                                <button type="button" class="btn btn-outline-secondary" id="buscarCep">
+                                    <i class="fas fa-search"></i> Buscar
+                                </button>
+                            </div>
+                            <div class="form-text">Digite o CEP para preencher automaticamente o endereço</div>
+                            {% if form.cep.errors %}<div class="invalid-feedback d-block">{{ form.cep.errors }}</div>{% endif %}
+                        </div>
+                        <div class="mb-3">
+                            <label for="{{ form.endereco.id_for_label }}" class="form-label">Endereço</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="fas fa-map-marker-alt"></i></span>
+                                {{ form.endereco }}
+                            </div>
+                            {% if form.endereco.errors %}<div class="invalid-feedback d-block">{{ form.endereco.errors }}</div>{% endif %}
+                        </div>
+                        <div class="mb-3">
+                            <label for="{{ form.numero.id_for_label }}" class="form-label">Número</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="fas fa-hashtag"></i></span>
+                                {{ form.numero }}
+                            </div>
+                            {% if form.numero.errors %}<div class="invalid-feedback d-block">{{ form.numero.errors }}</div>{% endif %}
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="{{ form.cidade.id_for_label }}" class="form-label">Cidade</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light"><i class="fas fa-city"></i></span>
+                                    {{ form.cidade }}
+                                </div>
+                                {% if form.cidade.errors %}<div class="invalid-feedback d-block">{{ form.cidade.errors }}</div>{% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="{{ form.estado.id_for_label }}" class="form-label">Estado</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light"><i class="fas fa-map"></i></span>
+                                    {{ form.estado }}
+                                </div>
+                                {% if form.estado.errors %}<div class="invalid-feedback d-block">{{ form.estado.errors }}</div>{% endif %}
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="{{ form.bairro.id_for_label }}" class="form-label">Bairro</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="fas fa-map"></i></span>
+                                {{ form.bairro }}
+                            </div>
+                            {% if form.bairro.errors %}<div class="invalid-feedback d-block">{{ form.bairro.errors }}</div>{% endif %}
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="{{ form.hectares_atendidos.id_for_label }}" class="form-label">Quantidade de Hectares Atendidos</label>
+                            <div class="input-group">
+                                {{ form.hectares_atendidos }}
+                                <span class="input-group-text">ha</span>
+                            </div>
+                            {% if form.hectares_atendidos.errors %}<div class="invalid-feedback d-block">{{ form.hectares_atendidos.errors }}</div>{% endif %}
                         </div>
 
                         <div class="mt-4">
@@ -253,9 +201,80 @@
         border-color: #198754;
         box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.25);
     }
-    
+    .form-control {
+        background: #f8f9fa;
+        border-radius: 0.5rem;
+        border: 1px solid #e0e0e0;
+        padding: 0.75rem 1rem;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
     .input-group-text {
         color: #198754;
+        background: #f4f6f8;
+        border-radius: 0.5rem 0 0 0.5rem;
+        border: 1px solid #e0e0e0;
+    }
+    .card {
+        max-width: 1000px;
+        margin: 0 auto;
+        border-radius: 1rem;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.08), 0 1.5px 4px rgba(25,135,84,0.08);
+        border: none;
+    }
+    .btn-primary, .btn-success {
+        border-radius: 0.5rem;
+        font-weight: 600;
+        box-shadow: 0 2px 8px rgba(25,135,84,0.08);
+        transition: background 0.2s, box-shadow 0.2s;
+    }
+    .btn-primary:hover, .btn-success:hover {
+        background: #157347;
+        box-shadow: 0 4px 16px rgba(25,135,84,0.15);
+    }
+    .mb-3, .mb-4 {
+        margin-bottom: 1.5rem !important;
+    }
+    .card-header, h1.h3 {
+        text-align: center;
+    }
+    .invalid-feedback.d-block {
+        font-size: 0.95em;
+    }
+    label.form-label .text-danger {
+        font-size: 1em;
+        margin-left: 2px;
+    }
+    @media (max-width: 768px) {
+        .card { max-width: 100%; }
     }
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const tipoDocumentoSelect = document.querySelector('select[name="tipo_documento"]');
+    const documentoContainer = document.getElementById('documento-container');
+    const arquivoDocumentoLabel = documentoContainer.querySelector('label');
+    const arquivoDocumentoInput = documentoContainer.querySelector('input[type="file"]');
+
+    function atualizarCampoDocumento() {
+        const tipoDocumento = tipoDocumentoSelect.value;
+        if (tipoDocumento === 'RG') {
+            arquivoDocumentoLabel.textContent = 'Arquivo do RG (PDF, JPG, PNG)';
+            arquivoDocumentoInput.required = true;
+            documentoContainer.style.display = 'block';
+        } else if (tipoDocumento === 'CNH') {
+            arquivoDocumentoLabel.textContent = 'Arquivo da CNH (PDF, JPG, PNG)';
+            arquivoDocumentoInput.required = true;
+            documentoContainer.style.display = 'block';
+        } else {
+            arquivoDocumentoLabel.textContent = 'Arquivo do Documento (PDF, JPG, PNG)';
+            arquivoDocumentoInput.required = false;
+            documentoContainer.style.display = 'none';
+        }
+    }
+
+    tipoDocumentoSelect.addEventListener('change', atualizarCampoDocumento);
+    atualizarCampoDocumento(); // Executa ao carregar a página
+});
+</script>
 {% endblock %} 

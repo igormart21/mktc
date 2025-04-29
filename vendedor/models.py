@@ -37,7 +37,9 @@ class Vendedor(models.Model):
         ]
     )
     rg = models.FileField(upload_to='documentos/rg/', blank=True, null=True)
+    rg_verso = models.FileField(upload_to='documentos/rg/', blank=True, null=True)
     cnh = models.FileField(upload_to='documentos/cnh/', blank=True, null=True)
+    cnh_verso = models.FileField(upload_to='documentos/cnh/', blank=True, null=True)
     data_aprovacao = models.DateTimeField(null=True, blank=True)
     status_aprovacao = models.CharField(
         max_length=10,

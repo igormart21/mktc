@@ -23,26 +23,34 @@ class UsuarioAdminForm(forms.ModelForm):
 @admin.register(Usuario)
 class UsuarioAdmin(UserAdmin):
     form = UsuarioAdminForm
-    list_display = ('nome', 'email', 'cpf', 'telefone', 'tipo_documento', 'is_active', 'is_staff', 'is_superuser', 'aprovado')
-    list_filter = ('is_active', 'is_staff', 'is_superuser', 'aprovado', 'tipo_documento')
-    search_fields = ('nome', 'email', 'cpf', 'numero_documento')
-    ordering = ('nome',)
-    readonly_fields = ('date_joined',)
-    
+    list_display = ['email', 'nome', 'cpf', 'telefone', 'is_active', 'aprovado', 'is_staff']
+    list_filter = ['is_active', 'aprovado', 'is_staff', 'is_superuser']
+    search_fields = ['email', 'nome', 'cpf', 'telefone']
+    ordering = ['email']
     fieldsets = (
-        (None, {'fields': ('email', 'password')}),
-        ('Informações Pessoais', {'fields': ('nome', 'cpf', 'telefone', 'cep', 'rua', 'numero', 'complemento', 'hectares_atendidos')}),
-        ('Documentos', {'fields': ('tipo_documento', 'numero_documento', 'documento', 'uf_documento')}),
-        ('Permissões', {'fields': ('is_active', 'is_staff', 'is_superuser', 'aprovado', 'groups', 'user_permissions')}),
-        ('Datas Importantes', {'fields': ('last_login', 'date_joined')}),
+        ('Informações de Login', {
+            'fields': ('email', 'password')
+        }),
+        ('Informações Pessoais', {
+            'fields': ('nome', 'cpf', 'telefone', 'cep', 'rua', 'numero', 'complemento', 'hectares_atendidos')
+        }),
+        ('Documentos', {
+            'fields': ('tipo_documento', 'numero_documento', 'documento', 'uf_documento')
+        }),
+        ('Status', {
+            'fields': ('is_active', 'aprovado', 'is_staff', 'is_superuser')
+        }),
+        ('Permissões', {
+            'fields': ('groups', 'user_permissions')
+        }),
+        ('Datas Importantes', {
+            'fields': ('last_login', 'date_joined')
+        })
     )
-    
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('email', 'nome', 'cpf', 'telefone', 'cep', 'rua', 'numero', 'complemento', 'hectares_atendidos', 
-                      'tipo_documento', 'numero_documento', 'documento', 'uf_documento',
-                      'password1', 'password2', 'is_active', 'is_staff', 'is_superuser', 'aprovado'),
+            'fields': ('email', 'password1', 'password2', 'nome', 'cpf', 'telefone')
         }),
     )
 

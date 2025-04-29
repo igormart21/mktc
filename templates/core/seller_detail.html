@@ -66,21 +66,40 @@
                             <p><strong>Número do Documento:</strong> {{ seller.usuario.numero_documento }}</p>
                             
                             <!-- Documentos -->
-                            {% if seller.rg %}
-                                <p>
-                                    <strong>RG:</strong>
-                                    <a href="{{ seller.rg.url }}" target="_blank" class="btn btn-sm btn-outline-primary ms-2">
-                                        <i class="fas fa-file-alt me-1"></i>Visualizar RG
-                                    </a>
-                                </p>
-                            {% endif %}
-                            {% if seller.cnh %}
-                                <p>
-                                    <strong>CNH:</strong>
-                                    <a href="{{ seller.cnh.url }}" target="_blank" class="btn btn-sm btn-outline-primary ms-2">
-                                        <i class="fas fa-file-alt me-1"></i>Visualizar CNH
-                                    </a>
-                                </p>
+                            {% if seller.usuario.tipo_documento == 'RG' %}
+                                {% if seller.rg %}
+                                    <p>
+                                        <strong>RG:</strong>
+                                        <a href="{{ seller.rg.url }}" target="_blank" class="btn btn-sm btn-outline-primary ms-2">
+                                            <i class="fas fa-file-alt me-1"></i>Visualizar RG
+                                        </a>
+                                    </p>
+                                {% endif %}
+                                {% if seller.rg_verso %}
+                                    <p>
+                                        <strong>RG (Verso):</strong>
+                                        <a href="{{ seller.rg_verso.url }}" target="_blank" class="btn btn-sm btn-outline-primary ms-2">
+                                            <i class="fas fa-file-alt me-1"></i>Visualizar RG (Verso)
+                                        </a>
+                                    </p>
+                                {% endif %}
+                            {% elif seller.usuario.tipo_documento == 'CNH' %}
+                                {% if seller.cnh %}
+                                    <p>
+                                        <strong>CNH:</strong>
+                                        <a href="{{ seller.cnh.url }}" target="_blank" class="btn btn-sm btn-outline-primary ms-2">
+                                            <i class="fas fa-file-alt me-1"></i>Visualizar CNH
+                                        </a>
+                                    </p>
+                                {% endif %}
+                                {% if seller.cnh_verso %}
+                                    <p>
+                                        <strong>CNH (Verso):</strong>
+                                        <a href="{{ seller.cnh_verso.url }}" target="_blank" class="btn btn-sm btn-outline-primary ms-2">
+                                            <i class="fas fa-file-alt me-1"></i>Visualizar CNH (Verso)
+                                        </a>
+                                    </p>
+                                {% endif %}
                             {% endif %}
                         </div>
                     </div>
@@ -120,96 +139,123 @@
                     </h5>
                 </div>
                 <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            {% if seller.rg %}
-                                <div class="mb-3">
-                                    <p class="mb-2"><strong>RG:</strong></p>
-                                    <div class="d-flex align-items-center">
-                                        <a href="{{ seller.rg.url }}" target="_blank" class="btn btn-outline-primary me-2">
-                                            <i class="fas fa-file-alt me-2"></i>Visualizar RG
-                                        </a>
-                                        <span class="badge bg-success">Documento enviado</span>
-                                    </div>
-                                </div>
-                            {% else %}
-                                <div class="mb-3">
-                                    <p class="mb-2"><strong>RG:</strong></p>
-                                    <span class="badge bg-warning">Documento não enviado</span>
-                                </div>
-                            {% endif %}
+                    {% if seller.usuario.tipo_documento == 'RG' %}
+                        <div class="row mb-3 justify-content-center text-center">
+                            <div class="col-md-6">
+                                <strong>Frente do RG:</strong>
+                                {% if seller.rg %}
+                                    <span class="badge bg-success ms-2">Enviado</span>
+                                {% else %}
+                                    <span class="badge bg-warning ms-2">Não enviado</span>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Verso do RG:</strong>
+                                {% if seller.rg_verso %}
+                                    <span class="badge bg-success ms-2">Enviado</span>
+                                {% else %}
+                                    <span class="badge bg-warning ms-2">Não enviado</span>
+                                {% endif %}
+                            </div>
                         </div>
-                        <div class="col-md-6">
-                            {% if seller.cnh %}
-                                <div class="mb-3">
-                                    <p class="mb-2"><strong>CNH:</strong></p>
-                                    <div class="d-flex align-items-center">
-                                        <a href="{{ seller.cnh.url }}" target="_blank" class="btn btn-outline-primary me-2">
-                                            <i class="fas fa-file-alt me-2"></i>Visualizar CNH
-                                        </a>
-                                        <span class="badge bg-success">Documento enviado</span>
-                                    </div>
-                                </div>
-                            {% else %}
-                                <div class="mb-3">
-                                    <p class="mb-2"><strong>CNH:</strong></p>
-                                    <span class="badge bg-warning">Documento não enviado</span>
-                                </div>
-                            {% endif %}
-                        </div>
-                    </div>
-                    
-                    <!-- Visualização dos documentos -->
-                    <div class="row mt-4">
-                        <div class="col-md-6">
-                            {% if seller.rg %}
-                                <div class="card">
-                                    <div class="card-header bg-light">
-                                        <h6 class="mb-0">Visualização do RG</h6>
-                                    </div>
-                                    <div class="card-body p-0">
-                                        <div class="document-preview">
-                                            {% if seller.rg.url %}
-                                                {% if seller.rg.name|slice:"-4:" == '.pdf' %}
-                                                    <iframe src="{{ seller.rg.url }}" width="100%" height="300" frameborder="0"></iframe>
+                        <div class="row mt-2 justify-content-center text-center">
+                            <div class="col-md-6 d-flex flex-column align-items-center">
+                                {% if seller.rg %}
+                                    <div class="card flex-fill mb-3 me-2" style="min-width: 180px; max-width: 220px; display: inline-block;">
+                                        <div class="card-header bg-light py-2">
+                                            <h6 class="mb-0 small">Pré-visualização</h6>
+                                        </div>
+                                        <div class="card-body p-0">
+                                            <div class="document-preview">
+                                                {% if seller.rg.url %}
+                                                    {% if seller.rg.name|slice:"-4:" == '.pdf' %}
+                                                        <iframe src="{{ seller.rg.url }}" width="100%" height="120" frameborder="0"></iframe>
+                                                    {% else %}
+                                                        <img src="{{ seller.rg.url }}" alt="RG" class="img-fluid">
+                                                    {% endif %}
                                                 {% else %}
-                                                    <img src="{{ seller.rg.url }}" alt="RG" class="img-fluid">
+                                                    <div class="text-center p-3">
+                                                        <p class="text-muted">Documento não disponível</p>
+                                                    </div>
                                                 {% endif %}
-                                            {% else %}
-                                                <div class="text-center p-3">
-                                                    <p class="text-muted">Documento não disponível</p>
-                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="card-footer bg-white py-2 text-center">
+                                            {% if seller.rg %}
+                                                <a href="{{ seller.rg.url }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-file-alt me-1"></i>Visualizar RG
+                                                </a>
                                             {% endif %}
                                         </div>
                                     </div>
-                                </div>
-                            {% endif %}
-                        </div>
-                        <div class="col-md-6">
-                            {% if seller.cnh %}
-                                <div class="card">
-                                    <div class="card-header bg-light">
-                                        <h6 class="mb-0">Visualização da CNH</h6>
-                                    </div>
-                                    <div class="card-body p-0">
-                                        <div class="document-preview">
-                                            {% if seller.cnh.url %}
-                                                {% if seller.cnh.name|slice:"-4:" == '.pdf' %}
-                                                    <iframe src="{{ seller.cnh.url }}" width="100%" height="300" frameborder="0"></iframe>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 d-flex flex-column align-items-center">
+                                {% if seller.rg_verso %}
+                                    <div class="card flex-fill mb-3" style="min-width: 180px; max-width: 220px; display: inline-block;">
+                                        <div class="card-header bg-light py-2">
+                                            <h6 class="mb-0 small">Pré-visualização</h6>
+                                        </div>
+                                        <div class="card-body p-0">
+                                            <div class="document-preview">
+                                                {% if seller.rg_verso.url %}
+                                                    {% if seller.rg_verso.name|slice:"-4:" == '.pdf' %}
+                                                        <iframe src="{{ seller.rg_verso.url }}" width="100%" height="120" frameborder="0"></iframe>
+                                                    {% else %}
+                                                        <img src="{{ seller.rg_verso.url }}" alt="RG Verso" class="img-fluid">
+                                                    {% endif %}
                                                 {% else %}
-                                                    <img src="{{ seller.cnh.url }}" alt="CNH" class="img-fluid">
+                                                    <div class="text-center p-3">
+                                                        <p class="text-muted">Documento não disponível</p>
+                                                    </div>
                                                 {% endif %}
-                                            {% else %}
-                                                <div class="text-center p-3">
-                                                    <p class="text-muted">Documento não disponível</p>
-                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="card-footer bg-white py-2 text-center">
+                                            {% if seller.rg_verso %}
+                                                <a href="{{ seller.rg_verso.url }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-file-alt me-1"></i>Visualizar RG (Verso)
+                                                </a>
                                             {% endif %}
                                         </div>
                                     </div>
-                                </div>
-                            {% endif %}
+                                {% endif %}
+                            </div>
                         </div>
-                    </div>
+                    {% elif seller.usuario.tipo_documento == 'CNH' %}
+                        {% if seller.cnh %}
+                            <div class="mb-3">
+                                <p class="mb-2"><strong>CNH:</strong></p>
+                                <div class="d-flex align-items-center">
+                                    <a href="{{ seller.cnh.url }}" target="_blank" class="btn btn-outline-primary me-2">
+                                        <i class="fas fa-file-alt me-2"></i>Visualizar CNH
+                                    </a>
+                                    <span class="badge bg-success">Documento enviado</span>
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="mb-3">
+                                <p class="mb-2"><strong>CNH:</strong></p>
+                                <span class="badge bg-warning">Documento não enviado</span>
+                            </div>
+                        {% endif %}
+                        {% if seller.cnh_verso %}
+                            <div class="mb-3">
+                                <p class="mb-2"><strong>CNH (Verso):</strong></p>
+                                <div class="d-flex align-items-center">
+                                    <a href="{{ seller.cnh_verso.url }}" target="_blank" class="btn btn-outline-primary me-2">
+                                        <i class="fas fa-file-alt me-2"></i>Visualizar CNH (Verso)
+                                    </a>
+                                    <span class="badge bg-success">Documento enviado</span>
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="mb-3">
+                                <p class="mb-2"><strong>CNH (Verso):</strong></p>
+                                <span class="badge bg-warning">Documento não enviado</span>
+                            </div>
+                        {% endif %}
+                    {% endif %}
                 </div>
             </div>
 
@@ -330,7 +376,7 @@
 
 <style>
     .document-preview {
-        max-height: 300px;
+        max-height: 120px;
         overflow: auto;
         background-color: #f8f9fa;
         border: 1px solid #dee2e6;
@@ -340,8 +386,13 @@
     .document-preview img {
         max-width: 100%;
         height: auto;
+        max-height: 120px;
     }
-
+    .document-preview iframe {
+        width: 100%;
+        height: 120px;
+        border: none;
+    }
     .form-check-input:checked {
         background-color: #198754;
         border-color: #198754;

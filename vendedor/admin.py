@@ -47,12 +47,19 @@ class VendedorAdminForm(forms.ModelForm):
         # Salva como lista no JSONField
         instance.culturas_atendidas = self.cleaned_data['culturas_atendidas']
         # Se for criação, cria o usuário e define a senha
+        usuario = instance.usuario
         if not instance.pk:
-            usuario = instance.usuario
             senha = self.cleaned_data.get('senha')
             if senha:
                 usuario.set_password(senha)
                 usuario.save()
+        # Sincroniza dados do vendedor para o usuário
+        usuario.telefone = instance.telefone
+        usuario.endereco = instance.endereco
+        usuario.cidade = instance.cidade
+        usuario.estado = instance.estado
+        usuario.cep = instance.cep
+        usuario.save()
         if commit:
             instance.save()
         return instance
@@ -88,7 +95,9 @@ class VendedorAdmin(admin.ModelAdmin):
         ('Documentos', {
             'fields': (
                 'rg',
+                'rg_verso',
                 'cnh',
+                'cnh_verso',
                 'hectares_atendidos'
             )
         }),
