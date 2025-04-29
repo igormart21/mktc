@@ -151,7 +151,7 @@ class VendorApplication(models.Model):
         ('rejected', 'Rejeitado'),
     ]
 
-    user = models.OneToOneField(Usuario, on_delete=models.CASCADE)
+    user = models.OneToOneField(Usuario, on_delete=models.CASCADE, null=True, blank=True)
     company_name = models.CharField(max_length=200, default='')
     cnpj = models.CharField(max_length=14, unique=True, default='00000000000000')
     address = models.TextField(default='')
@@ -165,7 +165,7 @@ class VendorApplication(models.Model):
         return f'Aplicação de {self.company_name}'
 
 class MensagemSuporte(models.Model):
-    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    usuario = models.ForeignKey('usuarios.Usuario', on_delete=models.CASCADE, null=True, blank=True, default=None)
     assunto = models.CharField(max_length=200)
     mensagem = models.TextField()
     data_envio = models.DateTimeField(auto_now_add=True)
@@ -298,8 +298,8 @@ class Pedido(models.Model):
         ('prazo', 'A Prazo'),
     ]
 
-    comprador = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='pedidos')
-    vendedor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, related_name='pedidos_como_vendedor', null=True, blank=True)
+    comprador = models.ForeignKey('usuarios.Usuario', on_delete=models.CASCADE, related_name='pedidos', null=True, blank=True)
+    vendedor = models.ForeignKey('usuarios.Usuario', on_delete=models.SET_NULL, related_name='pedidos_como_vendedor', null=True, blank=True)
     nome_propriedade = models.CharField(max_length=100)
     cnpj = models.CharField(max_length=18)
     hectares = models.DecimalField(max_digits=10, decimal_places=2)
@@ -340,7 +340,7 @@ class Pedido(models.Model):
         return self.total
 
 class ItemPedido(models.Model):
-    pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE, related_name='itens')
+    pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE, related_name='itens', null=True, blank=True)
     produto = models.ForeignKey(Produto, on_delete=models.PROTECT)
     quantidade = models.PositiveIntegerField(default=1)
     preco_unitario = models.DecimalField(max_digits=10, decimal_places=2)
@@ -363,9 +363,9 @@ class Venda(models.Model):
         ('ENTREGUE', 'Entregue'),
     ]
 
-    vendedor = models.ForeignKey(Vendedor, on_delete=models.CASCADE, related_name='vendas')
-    comprador = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='compras')
-    produto = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='vendas')
+    vendedor = models.ForeignKey(Vendedor, on_delete=models.CASCADE, related_name='vendas', null=True, blank=True)
+    comprador = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='compras', null=True, blank=True)
+    produto = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='vendas', null=True, blank=True)
     quantidade = models.PositiveIntegerField(default=1)
     preco_unitario = models.DecimalField(max_digits=10, decimal_places=2)
     total = models.DecimalField(max_digits=10, decimal_places=2, default=0)

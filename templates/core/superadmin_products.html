@@ -109,6 +109,18 @@
                                         <a href="{% url 'core:superadmin_product_update' pk=produto.id %}" class="btn btn-primary btn-sm">
                                             <i class="fas fa-edit"></i>
                                         </a>
+                                        <form method="post" action="{% url 'core:superadmin_product_toggle' produto.id %}" class="d-inline">
+                                            {% csrf_token %}
+                                            {% if produto.ativo %}
+                                                <button type="submit" class="btn btn-warning btn-sm" title="Desativar" onclick="return confirm('Tem certeza que deseja desativar este produto?')">
+                                                    <i class="fas fa-ban"></i>
+                                                </button>
+                                            {% else %}
+                                                <button type="submit" class="btn btn-success btn-sm" title="Ativar" onclick="return confirm('Tem certeza que deseja ativar este produto?')">
+                                                    <i class="fas fa-check"></i>
+                                                </button>
+                                            {% endif %}
+                                        </form>
                                         <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal{{ produto.id }}">
                                             <i class="fas fa-trash"></i>
                                         </button>

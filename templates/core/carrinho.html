@@ -47,6 +47,12 @@
                                                     </button>
                                                 </form>
                                                 {{ item.quantidade }}
+                                                <form action="{% url 'core:aumentar_quantidade' item.produto.id %}" method="post" class="d-inline">
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="btn btn-success btn-sm ms-1" title="Aumentar quantidade">
+                                                        <i class="fas fa-plus"></i>
+                                                    </button>
+                                                </form>
                                             </td>
                                             <td class="text-end">R$ {{ item.preco|floatformat:2 }}</td>
                                             <td class="text-end">R$ {{ item.preco_total|floatformat:2 }}</td>
@@ -92,26 +98,31 @@
 
                                             <div id="venda_prazo_form" style="display: none;">
                                                 <div class="mb-3">
+                                                    <label class="form-label">Tipo de Cliente <span class="text-danger">*</span></label><br>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="tipo_cliente" id="proprietario" value="proprietario" required>
+                                                        <label class="form-check-label" for="proprietario">Cliente é proprietário</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="tipo_cliente" id="arrendatario" value="arrendatario" required>
+                                                        <label class="form-check-label" for="arrendatario">Cliente é arrendatário</label>
+                                                    </div>
+                                                </div>
+                                                <div class="mb-3" id="matricula_container">
+                                                    <label for="id_documento_matricula" class="form-label">Matrícula</label>
+                                                    {{ form.documento_matricula }}
+                                                </div>
+                                                <div class="mb-3" id="arrendamento_container" style="display: none;">
+                                                    <label for="id_documento_arrendamento" class="form-label">Documento de Arrendamento</label>
+                                                    {{ form.documento_arrendamento }}
+                                                </div>
+                                                <div class="mb-3">
                                                     <label for="id_inscricao_estadual" class="form-label">Inscrição Estadual (arquivo)</label>
                                                     {{ form.inscricao_estadual }}
                                                 </div>
                                                 <div class="mb-3">
                                                     <label for="id_documento_ir" class="form-label">Imposto de Renda do Produtor</label>
                                                     {{ form.documento_ir }}
-                                                </div>
-                                                <div class="mb-3">
-                                                    <label for="id_documento_matricula" class="form-label">Matrícula</label>
-                                                    {{ form.documento_matricula }}
-                                                </div>
-                                                <div class="mb-3">
-                                                    <div class="form-check">
-                                                        <input type="checkbox" name="is_arrendatario" id="id_is_arrendatario" class="form-check-input">
-                                                        <label class="form-check-label" for="id_is_arrendatario">Você é arrendatário?</label>
-                                                    </div>
-                                                </div>
-                                                <div class="mb-3" id="doc_arrendamento_container" style="display: none;">
-                                                    <label for="id_documento_arrendamento" class="form-label">Documento de Arrendamento</label>
-                                                    {{ form.documento_arrendamento }}
                                                 </div>
                                             </div>
 
@@ -170,16 +181,18 @@
     document.addEventListener('DOMContentLoaded', function() {
         const tipoVendaSelect = document.getElementById('tipo_venda');
         const vendaPrazoForm = document.getElementById('venda_prazo_form');
-        const isArrendatario = document.getElementById('id_is_arrendatario');
-        const docArrendamentoContainer = document.getElementById('doc_arrendamento_container');
-        const docArrendamento = document.getElementById('id_documento_arrendamento');
+        const tipoClienteRadios = document.getElementsByName('tipo_cliente');
+        const matriculaContainer = document.getElementById('matricula_container');
+        const arrendamentoContainer = document.getElementById('arrendamento_container');
+        const matriculaInput = document.getElementById('id_documento_matricula');
+        const arrendamentoInput = document.getElementById('id_documento_arrendamento');
         const form = document.getElementById('finalizar-compra-form');
 
         // Função para mostrar/ocultar formulário de venda a prazo
         tipoVendaSelect.addEventListener('change', function() {
             vendaPrazoForm.style.display = this.value === 'prazo' ? 'block' : 'none';
             
-            const campos = ['inscricao_estadual', 'documento_ir', 'documento_matricula'];
+            const campos = ['inscricao_estadual', 'documento_ir'];
             campos.forEach(campo => {
                 const element = document.getElementById(`id_${campo}`);
                 if (element) {
@@ -191,23 +204,60 @@
             });
 
             if (this.value !== 'prazo') {
-                isArrendatario.checked = false;
-                docArrendamento.value = '';
-                docArrendamentoContainer.style.display = 'none';
+                tipoClienteRadios.forEach(radio => {
+                    radio.checked = false;
+                });
+                matriculaContainer.style.display = 'none';
+                arrendamentoContainer.style.display = 'none';
+                matriculaInput.required = false;
+                arrendamentoInput.required = false;
+                matriculaInput.value = '';
+                arrendamentoInput.value = '';
             }
         });
 
-        // Função para mostrar/ocultar campo de documento de arrendamento
-        isArrendatario.addEventListener('change', function() {
-            docArrendamentoContainer.style.display = this.checked ? 'block' : 'none';
-            docArrendamento.required = this.checked;
-            if (!this.checked) {
-                docArrendamento.value = '';
+        function atualizarCamposTipoCliente() {
+            if (document.getElementById('proprietario').checked) {
+                matriculaContainer.style.display = 'block';
+                arrendamentoContainer.style.display = 'none';
+                matriculaInput.required = true;
+                arrendamentoInput.required = false;
+                arrendamentoInput.value = '';
+            } else {
+                matriculaContainer.style.display = 'none';
+                arrendamentoContainer.style.display = 'block';
+                matriculaInput.required = false;
+                arrendamentoInput.required = true;
+                matriculaInput.value = '';
             }
+        }
+        tipoClienteRadios.forEach(radio => {
+            radio.addEventListener('change', atualizarCamposTipoCliente);
         });
+        atualizarCamposTipoCliente();
 
         // Validação do formulário antes do envio
         form.addEventListener('submit', function(e) {
+            if (tipoVendaSelect.value === 'prazo') {
+                // Garante que uma opção foi selecionada
+                const tipoSelecionado = document.querySelector('input[name="tipo_cliente"]:checked');
+                if (!tipoSelecionado) {
+                    e.preventDefault();
+                    alert('Por favor, selecione se o cliente é proprietário ou arrendatário.');
+                    return;
+                }
+                // Garante que o campo correto está preenchido
+                if (tipoSelecionado.value === 'proprietario' && !matriculaInput.value) {
+                    e.preventDefault();
+                    alert('Por favor, envie o arquivo de matrícula.');
+                    return;
+                }
+                if (tipoSelecionado.value === 'arrendatario' && !arrendamentoInput.value) {
+                    e.preventDefault();
+                    alert('Por favor, envie o documento de arrendamento.');
+                    return;
+                }
+            }
             if (tipoVendaSelect.value === 'prazo') {
                 const inscricaoEstadual = document.getElementById('id_inscricao_estadual').value;
                 const documentoIr = document.getElementById('id_documento_ir').files.length;
@@ -219,15 +269,15 @@
                     return;
                 }
 
-                if (isArrendatario.checked && !docArrendamento.files.length) {
+                if (arrendamentoInput.files.length) {
                     e.preventDefault();
                     alert('Como você é arrendatário, é necessário enviar o documento de arrendamento.');
                     return;
                 }
 
                 // Validar arquivos
-                const arquivos = ['documento_ir', 'documento_matricula'];
-                if (isArrendatario.checked) {
+                const arquivos = ['documento_ir'];
+                if (arrendamentoInput.files.length) {
                     arquivos.push('documento_arrendamento');
                 }
 

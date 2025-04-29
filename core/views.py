@@ -13,7 +13,7 @@ from django.utils.encoding import force_bytes, force_str
 from django.template.loader import render_to_string
 from django.core.mail import send_mail
 from django.conf import settings
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError, PermissionDenied
 from .models import Product, VendorApplication, SellerRegistration, MensagemSuporte, SolicitacaoProduto, Pedido, Venda, Vendedor, ItemPedido
 from .forms import ProductForm, SellerRegistrationForm, LoginForm, SolicitacaoProdutoForm, SellerProfileForm, AdminProfileForm, VendaPrazoForm
 from .utils import validate_file_upload, validate_cpf, is_superadmin, is_vendedor
@@ -33,15 +33,16 @@ from django.contrib.auth.hashers import check_password
 from django.utils.html import strip_tags
 from django.contrib.auth import get_user_model
 from decimal import Decimal
-from reportlab.pdfgen import canvas
-from reportlab.lib.pagesizes import letter
-from reportlab.lib import colors
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
-from reportlab.lib.units import inch
+from reportlab.pdfgen import canvas # type: ignore
+from reportlab.lib.pagesizes import letter # type: ignore
+from reportlab.lib import colors # type: ignore
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle # type: ignore
+from reportlab.lib.units import inch # type: ignore
 from io import BytesIO
-from reportlab.platypus import Paragraph
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.enums import TA_CENTER
+from reportlab.platypus import Paragraph # type: ignore
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle # type: ignore
+from reportlab.lib.enums import TA_CENTER # type: ignore
+from django.views.defaults import page_not_found, server_error, permission_denied, bad_request
 
 logger = logging.getLogger(__name__)
 
@@ -1480,6 +1481,11 @@ def carrinho(request):
     from .forms import VendaPrazoForm
     carrinho = Carrinho(request)
     form = VendaPrazoForm()
+    
+    # Log para debug
+    print("Carrinho:", carrinho.carrinho)
+    print("Itens no carrinho:", list(carrinho))
+    
     return render(request, 'core/carrinho.html', {'carrinho': carrinho, 'form': form})
 
 @login_required
@@ -1553,6 +1559,16 @@ def diminuir_quantidade(request, product_id):
     produto = get_object_or_404(Produto, id=product_id)
     carrinho.diminuir_quantidade(produto)
     messages.success(request, 'Quantidade do produto atualizada!')
+    return redirect('core:carrinho')
+
+@login_required
+def aumentar_quantidade(request, product_id):
+    """Aumenta a quantidade de um produto no carrinho"""
+    from .models import Produto
+    carrinho = Carrinho(request)
+    produto = get_object_or_404(Produto, id=product_id)
+    carrinho.adicionar(produto, 1)
+    messages.success(request, 'Quantidade do produto aumentada!')
     return redirect('core:carrinho')
 
 @login_required
@@ -1718,3 +1734,31 @@ def exportar_compras_pdf(request):
     response['Content-Disposition'] = f'attachment; filename="vendas_vendedores_{timezone.now().strftime("%Y%m%d_%H%M%S")}.pdf"'
     
     return response
+
+def handler404(request, exception):
+    """Handler para erro 404 - Página não encontrada"""
+    return render(request, 'core/404.html', status=404)
+
+def handler500(request):
+    """Handler para erro 500 - Erro interno do servidor"""
+    return render(request, 'core/500.html', status=500)
+
+def handler403(request, exception):
+    """Handler para erro 403 - Acesso negado"""
+    return render(request, 'core/403.html', status=403)
+
+def handler400(request, exception):
+    """Handler para erro 400 - Requisição inválida"""
+    return render(request, 'core/400.html', status=400)
+
+@login_required
+@user_passes_test(is_superadmin)
+def toggle_produto_status(request, produto_id):
+    produto = get_object_or_404(Produto, id=produto_id)
+    produto.ativo = not produto.ativo
+    produto.save()
+    if produto.ativo:
+        messages.success(request, 'Produto ativado com sucesso!')
+    else:
+        messages.success(request, 'Produto desativado com sucesso!')
+    return redirect('core:superadmin_products')

@@ -23,6 +23,13 @@ from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
 )
+from core.views import handler404, handler500, handler403, handler400
+
+# Configuração dos handlers de erro
+handler404 = 'core.views.handler404'
+handler500 = 'core.views.handler500'
+handler403 = 'core.views.handler403'
+handler400 = 'core.views.handler400'
 
 urlpatterns = [
     path('admin/', admin.site.urls),

@@ -44,6 +44,7 @@ urlpatterns = [
     path('superadmin/products/create/', views.superadmin_product_create, name='superadmin_product_create'),
     path('superadmin/products/<int:pk>/update/', views.superadmin_product_update, name='superadmin_product_update'),
     path('superadmin/products/<int:produto_id>/delete/', views.superadmin_product_delete, name='superadmin_product_delete'),
+    path('superadmin/products/<int:produto_id>/toggle/', views.toggle_produto_status, name='superadmin_product_toggle'),
 
     # URLs de produtos do vendedor
     path('vendedor/produtos/', views.seller_products, name='seller_products'),
@@ -97,4 +98,5 @@ urlpatterns = [
     path('vendedores/<int:vendedor_id>/historico-pedidos/', views.historico_pedidos_vendedor_admin, name='historico_pedidos_admin'),
     path('suporte/encerrar/<int:mensagem_id>/', views.encerrar_caso, name='encerrar_caso'),
     path('diminuir-quantidade/<int:product_id>/', views.diminuir_quantidade, name='diminuir_quantidade'),
+    path('aumentar-quantidade/<int:product_id>/', views.aumentar_quantidade, name='aumentar_quantidade'),
 ] 

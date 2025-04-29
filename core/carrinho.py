@@ -38,14 +38,18 @@ class Carrinho:
 
     def __iter__(self):
         produto_ids = self.carrinho.keys()
-        produtos = Produto.objects.filter(id__in=produto_ids)
+        print("IDs dos produtos no carrinho:", list(produto_ids))
+        
+        produtos = Produto.objects.filter(id__in=produto_ids, ativo=True)
+        print("Produtos encontrados:", list(produtos))
+        
         carrinho = self.carrinho.copy()
         for produto in produtos:
-            carrinho[str(produto.id)]['produto'] = produto
-        for item in carrinho.values():
-            item['preco'] = Decimal(item['preco'])
-            item['preco_total'] = item['preco'] * item['quantidade']
-            yield item
+            if str(produto.id) in carrinho:
+                carrinho[str(produto.id)]['produto'] = produto
+                carrinho[str(produto.id)]['preco'] = Decimal(carrinho[str(produto.id)]['preco'])
+                carrinho[str(produto.id)]['preco_total'] = carrinho[str(produto.id)]['preco'] * carrinho[str(produto.id)]['quantidade']
+                yield carrinho[str(produto.id)]
 
     def __len__(self):
         return sum(item['quantidade'] for item in self.carrinho.values())
