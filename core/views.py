@@ -639,14 +639,21 @@ def cadastrar_vendedor(request):
                     hectares_atendidos=form.cleaned_data['hectares_atendidos']
                 )
 
-                # Salvar o documento
-                if 'arquivo_documento' in request.FILES:
-                    documento = request.FILES['arquivo_documento']
-                    if form.cleaned_data['tipo_documento'] == 'RG':
-                        vendedor.rg = documento
-                    else:
-                        vendedor.cnh = documento
-                    vendedor.save()
+                # Salvar os documentos de frente e verso
+                tipo_doc = form.cleaned_data.get('tipo_documento')
+                frente = request.FILES.get('frente_documento')
+                verso = request.FILES.get('verso_documento')
+                if tipo_doc == 'RG':
+                    if frente:
+                        vendedor.rg = frente
+                    if verso:
+                        vendedor.rg_verso = verso
+                elif tipo_doc == 'CNH':
+                    if frente:
+                        vendedor.cnh = frente
+                    if verso:
+                        vendedor.cnh_verso = verso
+                vendedor.save()
 
                 messages.success(request, 'Vendedor cadastrado com sucesso!')
                 return redirect('core:listar_vendedores')
@@ -655,7 +662,6 @@ def cadastrar_vendedor(request):
                 return redirect('core:cadastrar_vendedor')
     else:
         form = SellerRegistrationForm()
-    
     return render(request, 'core/cadastrar_vendedor.html', {'form': form})
 
 @login_required

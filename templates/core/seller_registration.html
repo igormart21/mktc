@@ -133,18 +133,23 @@
                     {% endif %}
                 </div>
 
-                <!-- Campo de upload dinâmico -->
-                <div class="mb-3" id="upload-arquivo-documento" style="display:none;">
-                    <label id="label-arquivo-documento" for="{{ form.arquivo_documento.id_for_label }}" class="form-label">Documento (PDF, JPG, PNG)</label>
-                    <div class="input-group">
-                        <span class="input-group-text bg-light"><i class="fas fa-file-upload"></i></span>
-                        {{ form.arquivo_documento }}
-                    </div>
-                    {% if form.arquivo_documento.errors %}
-                        <div class="invalid-feedback d-block">
-                            {{ form.arquivo_documento.errors }}
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="frente_documento" class="form-label">Frente do Documento (PDF, JPG, PNG)</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="fas fa-upload"></i></span>
+                            <input type="file" name="frente_documento" id="frente_documento" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
                         </div>
-                    {% endif %}
+                        <small class="form-text text-muted">Tamanho máximo: 5MB</small>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="verso_documento" class="form-label">Verso do Documento (PDF, JPG, PNG)</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="fas fa-upload"></i></span>
+                            <input type="file" name="verso_documento" id="verso_documento" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
+                        </div>
+                        <small class="form-text text-muted">Tamanho máximo: 5MB</small>
+                    </div>
                 </div>
 
                 <div class="mb-3">

@@ -17,9 +17,8 @@
 <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
         <div class="container">
-            <a class="navbar-brand" href="{% url 'core:home' %}">
-                <i class="fas fa-leaf text-success me-1"></i>
-                <span>AgroMais</span>
+            <a class="navbar-brand d-flex align-items-center gap-2" href="{% url 'core:home' %}">
+                <img src="{% static 'img/SVG/Fundo Branco - Logo V5.svg' %}" alt="Logo AgroMais" height="100" style="max-width:220px;width:auto;object-fit:contain;">
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
@@ -130,8 +129,7 @@
             <div class="row">
                 <div class="col-md-4 mb-4 mb-md-0">
                     <div class="d-flex align-items-center mb-3">
-                        <i class="fas fa-leaf text-success me-2" style="font-size: 1.5rem;"></i>
-                        <h5 class="text-white mb-0">AgroMais</h5>
+                        <img src="{% static 'img/PNG/Logotipo Verde.png' %}" alt="Logo AgroMais" height="90" style="max-width:240px;object-fit:contain;">
                     </div>
                     <p class="text-muted mb-0">Conectando produtores e consumidores de produtos agrícolas.</p>
                 </div>

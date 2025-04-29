@@ -139,9 +139,9 @@
                                         <i class="fas fa-times"></i> Rejeitar
                                     </button>
                                     {% endif %}
-                                    <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#detalhesPedido{{ pedido.id }}">
-                                        Detalhes
-                                    </button>
+                                <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#detalhesPedido{{ pedido.id }}">
+                                    Detalhes
+                                </button>
                                     {% if pedido.status == 'APROVADO' %}
                                     <form method="post" action="" style="display:inline;">
                                         {% csrf_token %}
@@ -257,7 +257,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for item in pedido.itens.all %}
+                    {% for item in pedido.itens.all %}
                                 <tr>
                                     <td>
                                         <div class="d-flex flex-column">
@@ -421,8 +421,8 @@
           <button type="submit" class="btn btn-danger px-4 rounded-3 shadow-sm fw-bold" style="border: none;">Reprovar Pedido</button>
         </div>
       </form>
+        </div>
     </div>
-  </div>
 </div>
 {% endfor %}
 {% endblock %} 
