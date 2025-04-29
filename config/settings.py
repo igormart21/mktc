@@ -95,18 +95,18 @@ if DEBUG:
 # Configurações de CSRF
 if DEBUG:
     CSRF_COOKIE_SECURE = False
-    CSRF_COOKIE_HTTPONLY = False
+    CSRF_COOKIE_HTTPONLY = True
     CSRF_COOKIE_SAMESITE = 'Lax'
-    CSRF_USE_SESSIONS = False
+    CSRF_USE_SESSIONS = True
     SESSION_COOKIE_SECURE = False
     SESSION_COOKIE_SAMESITE = 'Lax'
 else:
     CSRF_COOKIE_SECURE = True
-    CSRF_COOKIE_HTTPONLY = False
-    CSRF_COOKIE_SAMESITE = None
+    CSRF_COOKIE_HTTPONLY = True
+    CSRF_COOKIE_SAMESITE = 'Lax'
     CSRF_USE_SESSIONS = True
     SESSION_COOKIE_SECURE = True
-    SESSION_COOKIE_SAMESITE = None
+    SESSION_COOKIE_SAMESITE = 'Lax'
 
 CSRF_TRUSTED_ORIGINS = ['http://localhost:8000', 'http://127.0.0.1:8000']
 CSRF_COOKIE_NAME = 'csrftoken'
@@ -120,6 +120,8 @@ SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = 'Lax'
 SESSION_COOKIE_DOMAIN = None
 SESSION_COOKIE_NAME = 'sessionid'
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+SESSION_COOKIE_AGE = 1209600  # 2 semanas em segundos
 
 # Configurações de Segurança
 SECURE_BROWSER_XSS_FILTER = True
@@ -179,7 +181,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'mktc',
-        'USER': 'root',
+        'USER': 'mktc_user',
         'PASSWORD': 'Agro12345@',
         'HOST': 'localhost',
         'PORT': '3306',

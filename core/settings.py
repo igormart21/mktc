@@ -74,10 +74,10 @@ AUTH_USER_MODEL = 'usuarios.Usuario'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'agromarketplace',
-        'USER': 'root',
-        'PASSWORD': 'root123',
-        'HOST': '127.0.0.1',
+        'NAME': 'mktc',
+        'USER': 'mktc_user',
+        'PASSWORD': 'Agro12345@',
+        'HOST': 'localhost',
         'PORT': '3306',
         'OPTIONS': {
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
