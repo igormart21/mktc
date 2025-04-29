@@ -18,6 +18,13 @@ class Produto(models.Model):
         ('milho', 'Milho'),
         ('pastagem', 'Pastagem'),
         ('sorgo', 'Sorgo'),
+        ('algodao', 'Algodão'),
+        ('feijao', 'Feijão'),
+        ('gergelim', 'Gergelim'),
+        ('girasol', 'Girasol'),
+        ('milho_pipoca', 'Milho Pipoca'),
+        ('arros', 'Arroz'),
+        ('pecuaria', 'Pecuária'),
     ]
 
     MOEDA_CHOICES = [

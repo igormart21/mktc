@@ -103,7 +103,7 @@
                         </div>
 
                         <div class="row g-3 mb-3">
-                            <div class="col-md-6">
+                            <div class="col-md-6" id="tipo-produto-group" style="display:none;">
                                 <label for="id_tipo" class="form-label">Tipo do Produto*</label>
                                 {{ form.tipo }}
                                 {% if form.tipo.errors %}
@@ -280,6 +280,20 @@ $(document).ready(function() {
     });
     // Inicialização
     toggleSementeFields();
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    const categoriaSelect = document.getElementById('id_categoria');
+    const tipoProdutoGroup = document.getElementById('tipo-produto-group');
+    function toggleTipoProduto() {
+        if (categoriaSelect.value === 'SEMENTE') {
+            tipoProdutoGroup.style.display = 'block';
+        } else {
+            tipoProdutoGroup.style.display = 'none';
+        }
+    }
+    categoriaSelect.addEventListener('change', toggleTipoProduto);
+    toggleTipoProduto(); // Executa ao carregar a página
 });
 </script>
 {% endblock %} 
