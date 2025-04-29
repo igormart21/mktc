@@ -76,9 +76,12 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'agromarketplace',
         'USER': 'root',
-        'PASSWORD': 'Agro12345@',
-        'HOST': 'localhost',
+        'PASSWORD': 'root123',
+        'HOST': '127.0.0.1',
         'PORT': '3306',
+        'OPTIONS': {
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+        }
     }
 }
 
