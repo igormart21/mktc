@@ -133,22 +133,6 @@
                     {% endif %}
                 </div>
 
-                <div class="mb-3">
-                    <label for="{{ form.arquivo_documento.id_for_label }}" class="form-label">Arquivo do Documento</label>
-                    <div class="input-group">
-                        <span class="input-group-text bg-light">
-                            <i class="fas fa-upload"></i>
-                        </span>
-                        {{ form.arquivo_documento }}
-                    </div>
-                    <div class="form-text">Envie o arquivo do documento selecionado (PDF, JPG ou PNG)</div>
-                    {% if form.arquivo_documento.errors %}
-                        <div class="invalid-feedback d-block">
-                            {{ form.arquivo_documento.errors }}
-                        </div>
-                    {% endif %}
-                </div>
-
                 <!-- Campo de upload dinâmico -->
                 <div class="mb-3" id="upload-rg" style="display:none;">
                     <label for="{{ form.rg.id_for_label }}" class="form-label">RG (PDF, JPG, PNG)</label>
