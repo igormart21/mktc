@@ -134,27 +134,15 @@
                 </div>
 
                 <!-- Campo de upload dinâmico -->
-                <div class="mb-3" id="upload-rg" style="display:none;">
-                    <label for="{{ form.rg.id_for_label }}" class="form-label">RG (PDF, JPG, PNG)</label>
+                <div class="mb-3" id="upload-arquivo-documento" style="display:none;">
+                    <label id="label-arquivo-documento" for="{{ form.arquivo_documento.id_for_label }}" class="form-label">Documento (PDF, JPG, PNG)</label>
                     <div class="input-group">
                         <span class="input-group-text bg-light"><i class="fas fa-file-upload"></i></span>
-                        {{ form.rg }}
+                        {{ form.arquivo_documento }}
                     </div>
-                    {% if form.rg.errors %}
+                    {% if form.arquivo_documento.errors %}
                         <div class="invalid-feedback d-block">
-                            {{ form.rg.errors }}
-                        </div>
-                    {% endif %}
-                </div>
-                <div class="mb-3" id="upload-cnh" style="display:none;">
-                    <label for="{{ form.cnh.id_for_label }}" class="form-label">CNH (PDF, JPG, PNG)</label>
-                    <div class="input-group">
-                        <span class="input-group-text bg-light"><i class="fas fa-file-upload"></i></span>
-                        {{ form.cnh }}
-                    </div>
-                    {% if form.cnh.errors %}
-                        <div class="invalid-feedback d-block">
-                            {{ form.cnh.errors }}
+                            {{ form.arquivo_documento.errors }}
                         </div>
                     {% endif %}
                 </div>
@@ -426,23 +414,24 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Lógica para mostrar o campo correto de upload de documento
     const tipoDocumentoSelect = document.getElementById('{{ form.tipo_documento.id_for_label }}');
-    const uploadRG = document.getElementById('upload-rg');
-    const uploadCNH = document.getElementById('upload-cnh');
+    const uploadArquivo = document.getElementById('upload-arquivo-documento');
+    const labelArquivo = document.getElementById('label-arquivo-documento');
 
     function atualizarCampoDocumento() {
         if (tipoDocumentoSelect.value === 'RG') {
-            uploadRG.style.display = 'block';
-            uploadCNH.style.display = 'none';
+            uploadArquivo.style.display = 'block';
+            labelArquivo.textContent = 'RG (PDF, JPG, PNG)';
         } else if (tipoDocumentoSelect.value === 'CNH') {
-            uploadRG.style.display = 'none';
-            uploadCNH.style.display = 'block';
+            uploadArquivo.style.display = 'block';
+            labelArquivo.textContent = 'CNH (PDF, JPG, PNG)';
         } else {
-            uploadRG.style.display = 'none';
-            uploadCNH.style.display = 'none';
+            uploadArquivo.style.display = 'none';
         }
     }
-    tipoDocumentoSelect.addEventListener('change', atualizarCampoDocumento);
-    atualizarCampoDocumento(); // Executa ao carregar a página
+    if (tipoDocumentoSelect) {
+        tipoDocumentoSelect.addEventListener('change', atualizarCampoDocumento);
+        atualizarCampoDocumento(); // Executa ao carregar a página
+    }
 });
 </script>
 {% endblock %} 

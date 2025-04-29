@@ -65,6 +65,7 @@
                                 <div class="accordion-body">
                                     <h6>Mensagem</h6>
                                     <p>{{ msg.mensagem }}</p>
+                                    <a href="{% url 'core:suporte_thread' msg.id %}" class="btn btn-outline-primary btn-sm mb-2">Abrir Chat</a>
                                     {% if msg.respondido %}
                                     <div class="alert alert-success mb-0">
                                         <strong>Resposta:</strong>

@@ -172,6 +172,8 @@ class MensagemSuporte(models.Model):
     respondido = models.BooleanField(default=False)
     resposta = models.TextField(blank=True, null=True)
     data_resposta = models.DateTimeField(null=True, blank=True)
+    encerrado = models.BooleanField(default=False)
+    data_encerramento = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         verbose_name = 'Mensagem de Suporte'
@@ -180,6 +182,15 @@ class MensagemSuporte(models.Model):
 
     def __str__(self):
         return f"Mensagem de {self.usuario.get_full_name()} - {self.assunto}"
+
+class MensagemSuporteThread(models.Model):
+    suporte = models.ForeignKey(MensagemSuporte, on_delete=models.CASCADE, related_name='threads')
+    usuario = models.ForeignKey('usuarios.Usuario', on_delete=models.CASCADE)
+    texto = models.TextField()
+    data_envio = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.usuario} - {self.data_envio.strftime('%d/%m/%Y %H:%M')}"
 
 class SolicitacaoProduto(models.Model):
     UNIDADE_MEDIDA_CHOICES = [

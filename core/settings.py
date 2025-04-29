@@ -75,8 +75,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'mktc',
-        'USER': 'mktc_user',
-        'PASSWORD': 'Agro12345@',
+        'USER': 'root',
+        'PASSWORD': 'root123',
         'HOST': 'localhost',
         'PORT': '3306',
         'OPTIONS': {

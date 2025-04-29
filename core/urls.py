@@ -81,7 +81,6 @@ urlpatterns = [
     path('superadmin/suporte/', views.superadmin_suporte, name='superadmin_suporte'),
     path('superadmin/solicitacoes/', views.superadmin_solicitacoes, name='superadmin_solicitacoes'),
     path('superadmin/solicitacoes/<int:pk>/', views.superadmin_detalhes_solicitacao, name='superadmin_detalhes_solicitacao'),
-    path('solicitar-produto/', views.solicitar_produto, name='solicitar_produto'),
     path('editar-solicitacao/<int:pk>/', views.editar_solicitacao, name='editar_solicitacao'),
     path('minhas-solicitacoes/', views.minhas_solicitacoes, name='minhas_solicitacoes'),
     path('detalhes-solicitacao/<int:pk>/', views.detalhes_solicitacao, name='detalhes_solicitacao'),
@@ -99,4 +98,8 @@ urlpatterns = [
     path('suporte/encerrar/<int:mensagem_id>/', views.encerrar_caso, name='encerrar_caso'),
     path('diminuir-quantidade/<int:product_id>/', views.diminuir_quantidade, name='diminuir_quantidade'),
     path('aumentar-quantidade/<int:product_id>/', views.aumentar_quantidade, name='aumentar_quantidade'),
+    path('suporte/<int:suporte_id>/thread/', views.suporte_thread, name='suporte_thread'),
+    path('superadmin/suporte/<int:suporte_id>/thread/', views.superadmin_suporte_thread, name='superadmin_suporte_thread'),
+    path('suporte/<int:suporte_id>/encerrar/', views.encerrar_caso_usuario, name='encerrar_caso_usuario'),
+    path('superadmin/suporte/<int:suporte_id>/excluir/', views.excluir_caso_suporte, name='excluir_caso_suporte'),
 ] 

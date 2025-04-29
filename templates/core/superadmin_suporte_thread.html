@@ -1,0 +1,43 @@
+{% extends "base_internal.html" %}
+{% load static %}
+
+{% block title %}Chat do Suporte (Admin){% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h2>Chat do Suporte (Admin)</h2>
+    <div class="card mb-4">
+        <div class="card-header">
+            <b>Assunto:</b> {{ suporte.get_assunto_display }}<br>
+            <b>Usuário:</b> {{ suporte.usuario.nome|default:suporte.usuario.email }}<br>
+            <b>Aberto em:</b> {{ suporte.data_envio|date:"d/m/Y H:i" }}
+        </div>
+        <div class="card-body" style="max-height: 400px; overflow-y: auto;">
+            {% for msg in threads %}
+                <div class="mb-3">
+                    <b>{{ msg.usuario.nome|default:msg.usuario.email }}</b> <span class="text-muted">{{ msg.data_envio|date:"d/m/Y H:i" }}</span><br>
+                    <div class="border rounded p-2 bg-light">{{ msg.texto }}</div>
+                </div>
+            {% empty %}
+                <p class="text-muted">Nenhuma mensagem ainda.</p>
+            {% endfor %}
+        </div>
+        <div class="card-footer">
+            {% if not suporte.encerrado %}
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-2">
+                    <textarea name="texto" class="form-control" rows="2" placeholder="Digite sua mensagem..." required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Enviar</button>
+                <a href="{% url 'core:superadmin_suporte' %}" class="btn btn-secondary ms-2">Voltar</a>
+            </form>
+            <a href="{% url 'core:excluir_caso_suporte' suporte.id %}" class="btn btn-danger mt-2">Excluir Caso</a>
+            {% else %}
+            <div class="alert alert-info">Este caso foi encerrado em {{ suporte.data_encerramento|date:"d/m/Y H:i" }}.</div>
+            <a href="{% url 'core:superadmin_suporte' %}" class="btn btn-secondary mt-2">Voltar</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

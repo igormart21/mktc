@@ -319,61 +319,19 @@ class SolicitacaoProdutoForm(forms.ModelForm):
             'observacoes': 'Observações'
         }
         widgets = {
-            'nome_produto': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Ex: Semente de Soja, Fertilizante NPK',
-                'required': 'required'
-            }),
-            'categoria_sugerida': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Ex: Sementes, Fertilizantes, Defensivos',
-                'required': 'required'
-            }),
-            'descricao': forms.Textarea(attrs={
-                'class': 'form-control',
-                'rows': 3,
-                'placeholder': 'Descreva as características específicas do produto que você precisa',
-                'required': 'required'
-            }),
-            'quantidade': forms.NumberInput(attrs={
-                'class': 'form-control',
-                'min': '0.01',
-                'step': '0.01',
-                'placeholder': 'Digite o volume',
-                'required': 'required',
-                'value': '1.00'  # Valor padrão
-            }),
-            'unidade_medida': forms.Select(attrs={
-                'class': 'form-select',
-                'required': 'required'
-            }),
-            'fabricante': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Não especificado'
-            }),
-            'tipo_produto': forms.Select(attrs={
-                'class': 'form-select'
-            }),
-            'lote': forms.TextInput(attrs={
-                'class': 'form-control'
-            }),
-            'peneira': forms.TextInput(attrs={
-                'class': 'form-control'
-            }),
-            'variedade': forms.TextInput(attrs={
-                'class': 'form-control'
-            }),
-            'embalagem': forms.Select(attrs={
-                'class': 'form-select'
-            }),
-            'data_validade': forms.DateInput(attrs={
-                'class': 'form-control',
-                'type': 'date'
-            }),
-            'observacoes': forms.Textarea(attrs={
-                'class': 'form-control',
-                'rows': 2
-            })
+            'nome_produto': forms.TextInput(attrs={'class': 'form-control'}),
+            'categoria_sugerida': forms.TextInput(attrs={'class': 'form-control'}),
+            'descricao': forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
+            'quantidade': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
+            'unidade_medida': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ex: kg, l, un, cx, etc.'}),
+            'fabricante': forms.TextInput(attrs={'class': 'form-control'}),
+            'tipo_produto': forms.Select(attrs={'class': 'form-select'}),
+            'lote': forms.TextInput(attrs={'class': 'form-control'}),
+            'peneira': forms.TextInput(attrs={'class': 'form-control'}),
+            'variedade': forms.TextInput(attrs={'class': 'form-control'}),
+            'embalagem': forms.Select(attrs={'class': 'form-select'}),
+            'data_validade': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'observacoes': forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
         }
 
     def __init__(self, *args, **kwargs):

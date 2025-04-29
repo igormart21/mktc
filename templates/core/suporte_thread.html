@@ -1,0 +1,44 @@
+{% extends "base_internal.html" %}
+{% load static %}
+
+{% block title %}Chat do Suporte{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h2>Chat do Suporte</h2>
+    <div class="card mb-4">
+        <div class="card-header">
+            <b>Assunto:</b> {{ suporte.get_assunto_display }}<br>
+            <b>Aberto em:</b> {{ suporte.data_envio|date:"d/m/Y H:i" }}
+        </div>
+        <div class="card-body" style="max-height: 400px; overflow-y: auto;">
+            {% for msg in threads %}
+                <div class="mb-3">
+                    <b>{{ msg.usuario.nome|default:msg.usuario.email }}</b> <span class="text-muted">{{ msg.data_envio|date:"d/m/Y H:i" }}</span><br>
+                    <div class="border rounded p-2 bg-light">{{ msg.texto }}</div>
+                </div>
+            {% empty %}
+                <p class="text-muted">Nenhuma mensagem ainda.</p>
+            {% endfor %}
+        </div>
+        <div class="card-footer">
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-2">
+                    <textarea name="texto" class="form-control" rows="2" placeholder="Digite sua mensagem..." required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Enviar</button>
+                <a href="{% url 'core:suporte' %}" class="btn btn-secondary ms-2">Voltar</a>
+            </form>
+            {% if not suporte.encerrado %}
+            <form method="post" action="{% url 'core:encerrar_caso_usuario' suporte.id %}" class="mt-2">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">Encerrar Caso</button>
+            </form>
+            {% else %}
+            <div class="alert alert-info mt-2">Este caso foi encerrado em {{ suporte.data_encerramento|date:"d/m/Y H:i" }}.</div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

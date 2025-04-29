@@ -1,0 +1,20 @@
+{% extends "base_internal.html" %}
+{% load static %}
+
+{% block title %}Excluir Caso de Suporte{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="alert alert-danger">
+        <h4>Tem certeza que deseja excluir este caso de suporte?</h4>
+        <p><b>Assunto:</b> {{ suporte.get_assunto_display }}<br>
+        <b>Usuário:</b> {{ suporte.usuario.nome|default:suporte.usuario.email }}<br>
+        <b>Mensagem:</b> {{ suporte.mensagem }}</p>
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Sim, excluir definitivamente</button>
+            <a href="{% url 'core:superadmin_suporte_thread' suporte.id %}" class="btn btn-secondary ms-2">Cancelar</a>
+        </form>
+    </div>
+</div>
+{% endblock %} 

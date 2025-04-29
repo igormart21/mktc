@@ -43,6 +43,7 @@ from reportlab.platypus import Paragraph # type: ignore
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle # type: ignore
 from reportlab.lib.enums import TA_CENTER # type: ignore
 from django.views.defaults import page_not_found, server_error, permission_denied, bad_request
+from .models import MensagemSuporteThread
 
 logger = logging.getLogger(__name__)
 
@@ -453,6 +454,7 @@ def seller_disable(request, seller_id):
 @login_required
 @user_passes_test(is_superadmin)
 def seller_enable(request, seller_id):
+    """Ativa um vendedor (apenas se aprovado)"""
     seller = get_object_or_404(Vendedor, id=seller_id)
     if seller.status_aprovacao == 'APROVADO':
         seller.usuario.is_active = True
@@ -799,27 +801,48 @@ def suporte(request):
         )
         messages.success(request, 'Mensagem enviada com sucesso!')
         return redirect('core:suporte')
-    # Buscar as mensagens do usuário autenticado
-    mensagens = MensagemSuporte.objects.filter(usuario=request.user).order_by('-data_envio')
+    # Buscar as mensagens do usuário autenticado, apenas não encerradas
+    mensagens = MensagemSuporte.objects.filter(usuario=request.user, encerrado=False).order_by('-data_envio')
     return render(request, 'core/suporte.html', {'mensagens': mensagens})
 
 @login_required
 @user_passes_test(is_superadmin)
 def superadmin_suporte(request):
     """Página de suporte para superadmin"""
-    if request.method == 'POST' and 'encerrar_id' in request.POST:
-        encerrar_id = request.POST.get('encerrar_id')
-        mensagem = MensagemSuporte.objects.filter(id=encerrar_id).first()
-        if mensagem:
-            mensagem.respondido = True
-            if not mensagem.resposta:
-                mensagem.resposta = 'Caso encerrado pelo administrador.'
-            mensagem.data_resposta = timezone.now()
-            mensagem.save()
-            messages.success(request, 'Caso encerrado com sucesso!')
-        return redirect('core:superadmin_suporte')
-    mensagens = MensagemSuporte.objects.all()
+    if request.method == 'POST':
+        if 'encerrar_id' in request.POST:
+            encerrar_id = request.POST.get('encerrar_id')
+            mensagem = MensagemSuporte.objects.filter(id=encerrar_id).first()
+            if mensagem and not mensagem.encerrado:
+                mensagem.encerrado = True
+                mensagem.data_encerramento = timezone.now()
+                mensagem.save()
+                messages.success(request, 'Caso encerrado com sucesso!')
+            return redirect('core:superadmin_suporte')
+        elif 'mensagem_id' in request.POST and 'resposta' in request.POST:
+            mensagem_id = request.POST.get('mensagem_id')
+            resposta = request.POST.get('resposta')
+            mensagem = MensagemSuporte.objects.filter(id=mensagem_id).first()
+            if mensagem and resposta:
+                mensagem.resposta = resposta
+                mensagem.respondido = True
+                mensagem.data_resposta = timezone.now()
+                mensagem.save()
+                messages.success(request, 'Resposta enviada com sucesso!')
+            return redirect('core:superadmin_suporte')
+    # Mostrar apenas casos não encerrados
+    mensagens = MensagemSuporte.objects.filter(encerrado=False)
     return render(request, 'core/superadmin_suporte.html', {'mensagens': mensagens})
+
+@login_required
+def encerrar_caso_usuario(request, suporte_id):
+    suporte = get_object_or_404(MensagemSuporte, id=suporte_id, usuario=request.user)
+    if not suporte.encerrado:
+        suporte.encerrado = True
+        suporte.data_encerramento = timezone.now()
+        suporte.save()
+        messages.success(request, 'Caso encerrado com sucesso!')
+    return redirect('core:suporte')
 
 @login_required
 def solicitar_produto(request):
@@ -1762,3 +1785,38 @@ def toggle_produto_status(request, produto_id):
     else:
         messages.success(request, 'Produto desativado com sucesso!')
     return redirect('core:superadmin_products')
+
+@login_required
+def suporte_thread(request, suporte_id):
+    suporte = get_object_or_404(MensagemSuporte, id=suporte_id, usuario=request.user)
+    threads = suporte.threads.order_by('data_envio')
+    if request.method == 'POST':
+        texto = request.POST.get('texto')
+        if texto:
+            MensagemSuporteThread.objects.create(suporte=suporte, usuario=request.user, texto=texto)
+            messages.success(request, 'Mensagem enviada!')
+            return redirect('core:suporte_thread', suporte_id=suporte.id)
+    return render(request, 'core/suporte_thread.html', {'suporte': suporte, 'threads': threads})
+
+@login_required
+@user_passes_test(is_superadmin)
+def superadmin_suporte_thread(request, suporte_id):
+    suporte = get_object_or_404(MensagemSuporte, id=suporte_id)
+    threads = suporte.threads.order_by('data_envio')
+    if request.method == 'POST':
+        texto = request.POST.get('texto')
+        if texto:
+            MensagemSuporteThread.objects.create(suporte=suporte, usuario=request.user, texto=texto)
+            messages.success(request, 'Mensagem enviada!')
+            return redirect('core:superadmin_suporte_thread', suporte_id=suporte.id)
+    return render(request, 'core/superadmin_suporte_thread.html', {'suporte': suporte, 'threads': threads})
+
+@login_required
+@user_passes_test(is_superadmin)
+def excluir_caso_suporte(request, suporte_id):
+    suporte = get_object_or_404(MensagemSuporte, id=suporte_id)
+    if request.method == 'POST':
+        suporte.delete()
+        messages.success(request, 'Caso excluído com sucesso!')
+        return redirect('core:superadmin_suporte')
+    return render(request, 'core/confirmar_exclusao_caso.html', {'suporte': suporte})

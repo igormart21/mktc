@@ -203,10 +203,15 @@
                 }
             });
 
-            if (this.value !== 'prazo') {
-                tipoClienteRadios.forEach(radio => {
+            // Corrigir required dos radios tipo_cliente
+            tipoClienteRadios.forEach(radio => {
+                radio.required = this.value === 'prazo';
+                if (this.value !== 'prazo') {
                     radio.checked = false;
-                });
+                }
+            });
+
+            if (this.value !== 'prazo') {
                 matriculaContainer.style.display = 'none';
                 arrendamentoContainer.style.display = 'none';
                 matriculaInput.required = false;
