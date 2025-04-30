@@ -1,4 +1,4 @@
-bind = 'unix:/run/gunicorn.sock'
+bind = 'unix:/run/gunicorn/gunicorn.sock'
 workers = 3
 user = 'www-data'
 group = 'www-data'

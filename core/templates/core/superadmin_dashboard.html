@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'base_internal.html' %}
 {% load static %}
 
 {% block title %}Dashboard do Administrador - AgroMarketplace{% endblock %}
@@ -17,7 +17,7 @@
             <div class="card h-100 border-0 shadow-sm">
                 <div class="card-body text-center">
                     <i class="fas fa-users text-primary mb-3" style="font-size: 2rem;"></i>
-                    <h3 class="display-6">{{ total_sellers }}</h3>
+                    <h3 class="display-6">{{ total_vendedores }}</h3>
                     <p class="text-muted mb-0">Total de Vendedores</p>
                 </div>
             </div>
@@ -26,7 +26,7 @@
             <div class="card h-100 border-0 shadow-sm">
                 <div class="card-body text-center">
                     <i class="fas fa-store text-success mb-3" style="font-size: 2rem;"></i>
-                    <h3 class="display-6">{{ active_sellers }}</h3>
+                    <h3 class="display-6">{{ vendedores_ativos }}</h3>
                     <p class="text-muted mb-0">Vendedores Ativos</p>
                 </div>
             </div>
@@ -35,7 +35,7 @@
             <div class="card h-100 border-0 shadow-sm">
                 <div class="card-body text-center">
                     <i class="fas fa-box text-info mb-3" style="font-size: 2rem;"></i>
-                    <h3 class="display-6">{{ total_products }}</h3>
+                    <h3 class="display-6">{{ total_produtos }}</h3>
                     <p class="text-muted mb-0">Produtos Cadastrados</p>
                 </div>
             </div>
@@ -44,7 +44,7 @@
             <div class="card h-100 border-0 shadow-sm">
                 <div class="card-body text-center">
                     <i class="fas fa-shopping-cart text-warning mb-3" style="font-size: 2rem;"></i>
-                    <h3 class="display-6">{{ total_orders }}</h3>
+                    <h3 class="display-6">{{ total_pedidos }}</h3>
                     <p class="text-muted mb-0">Total de Pedidos</p>
                 </div>
             </div>
@@ -72,96 +72,37 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for vendedor in vendedores_pendentes %}
+                        {% for vendedor in ultimos_vendedores %}
                         <tr>
-                            <td>{{ vendedor.usuario.nome }}</td>
+                            <td>{{ vendedor.usuario.get_full_name }}</td>
                             <td>{{ vendedor.cpf }}</td>
                             <td>{{ vendedor.telefone }}</td>
                             <td>{{ vendedor.usuario.email }}</td>
                             <td>{{ vendedor.endereco }}</td>
-                            <td>{{ vendedor.hectares_atendidos }}</td>
+                            <td>{{ vendedor.hectares }}</td>
                             <td>
-                                {% if vendedor.rg %}
-                                <a href="{{ vendedor.rg.url }}" target="_blank" class="btn btn-sm btn-info">
-                                    <i class="fas fa-id-card"></i> RG
+                                {% if vendedor.documentos %}
+                                <a href="{{ vendedor.documentos.url }}" target="_blank" class="btn btn-sm btn-info">
+                                    <i class="fas fa-file-alt"></i> Ver
                                 </a>
-                                {% endif %}
-                                {% if vendedor.cnh %}
-                                <a href="{{ vendedor.cnh.url }}" target="_blank" class="btn btn-sm btn-info">
-                                    <i class="fas fa-id-card"></i> CNH
-                                </a>
+                                {% else %}
+                                <span class="badge bg-warning">Não enviado</span>
                                 {% endif %}
                             </td>
                             <td>
-                                <form method="post" action="{% url 'core:aprovar_vendedor' vendedor.id %}" class="d-inline">
-                                    {% csrf_token %}
-                                    <button type="submit" class="btn btn-sm btn-success">
-                                        <i class="fas fa-check"></i> Aprovar
-                                    </button>
-                                </form>
-                                <form method="post" action="{% url 'core:reprovar_vendedor' vendedor.id %}" class="d-inline">
-                                    {% csrf_token %}
-                                    <button type="submit" class="btn btn-sm btn-danger">
-                                        <i class="fas fa-times"></i> Reprovar
-                                    </button>
-                                </form>
+                                <div class="btn-group">
+                                    <a href="{% url 'core:aprovar_vendedor' vendedor.id %}" class="btn btn-sm btn-success">
+                                        <i class="fas fa-check"></i>
+                                    </a>
+                                    <a href="{% url 'core:reprovar_vendedor' vendedor.id %}" class="btn btn-sm btn-danger">
+                                        <i class="fas fa-times"></i>
+                                    </a>
+                                </div>
                             </td>
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="8" class="text-center">Nenhum vendedor pendente de aprovação</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <!-- Tabela de Vendedores Aprovados -->
-    <div class="card shadow-sm">
-        <div class="card-header bg-success text-white">
-            <h5 class="mb-0">Vendedores Aprovados</h5>
-        </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th>Nome</th>
-                            <th>CPF</th>
-                            <th>Telefone</th>
-                            <th>Email</th>
-                            <th>Endereço</th>
-                            <th>Hectares</th>
-                            <th>Status</th>
-                            <th>Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for vendedor in vendedores_aprovados %}
-                        <tr>
-                            <td>{{ vendedor.usuario.nome }}</td>
-                            <td>{{ vendedor.cpf }}</td>
-                            <td>{{ vendedor.telefone }}</td>
-                            <td>{{ vendedor.usuario.email }}</td>
-                            <td>{{ vendedor.endereco }}</td>
-                            <td>{{ vendedor.hectares_atendidos }}</td>
-                            <td>
-                                <span class="badge bg-success">Aprovado</span>
-                            </td>
-                            <td>
-                                <form method="post" action="{% url 'core:reprovar_vendedor' vendedor.id %}" class="d-inline">
-                                    {% csrf_token %}
-                                    <button type="submit" class="btn btn-sm btn-danger">
-                                        <i class="fas fa-times"></i> Desaprovar
-                                    </button>
-                                </form>
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="8" class="text-center">Nenhum vendedor aprovado</td>
+                            <td colspan="8" class="text-center">Nenhum vendedor pendente de aprovação.</td>
                         </tr>
                         {% endfor %}
                     </tbody>

@@ -11,9 +11,25 @@ import pymysql
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Quick-start development settings - unsuitable for production
-SECRET_KEY = 'django-insecure-1234567890abcdefghijklmnopqrstuvwxyz'
-DEBUG = True
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+SECRET_KEY = 'django-insecure-1234567890abcdefghijklmnopqrstuvwxyz'  # TODO: Change this in production
+DEBUG = False
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'agromaisdigital.com.br', 'www.agromaisdigital.com.br']
+
+# Security settings
+SECURE_SSL_REDIRECT = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_HSTS_SECONDS = 31536000  # 1 year
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
+
+# CSRF settings
+CSRF_TRUSTED_ORIGINS = [
+    'https://agromaisdigital.com.br',
+    'https://www.agromaisdigital.com.br'
+]
 
 # Application definition
 INSTALLED_APPS = [
@@ -75,8 +91,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'mktc',
-        'USER': 'root',
-        'PASSWORD': 'root123',
+        'USER': 'django',
+        'PASSWORD': 'Django@123',
         'HOST': 'localhost',
         'PORT': '3306',
         'OPTIONS': {
