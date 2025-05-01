@@ -12,9 +12,105 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/style.css' %}?v={% now 'U' %}">
+    <style>
+        .watermark {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.1;
+            background: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 10px,
+                rgba(0,0,0,0.1) 10px,
+                rgba(0,0,0,0.1) 20px
+            );
+        }
+        .watermark-text {
+            position: absolute;
+            color: red;
+            font-size: 12px;
+            transform: rotate(-45deg);
+            white-space: nowrap;
+            pointer-events: none;
+        }
+    </style>
     {% block extra_css %}{% endblock %}
 </head>
 <body>
+    <div id="watermark" class="watermark"></div>
+    <script>
+        // Proteção contra prints de tela
+        document.addEventListener('keydown', function(e) {
+            // Bloqueia PrintScreen
+            if (e.key === 'PrintScreen') {
+                e.preventDefault();
+                alert('Captura de tela não permitida neste sistema.');
+            }
+            // Bloqueia Alt + PrintScreen
+            if (e.altKey && e.key === 'PrintScreen') {
+                e.preventDefault();
+                alert('Captura de tela não permitida neste sistema.');
+            }
+            // Bloqueia Windows + Shift + S
+            if (e.key === 's' && e.shiftKey && (e.metaKey || e.ctrlKey)) {
+                e.preventDefault();
+                alert('Captura de tela não permitida neste sistema.');
+            }
+        });
+
+        // Bloqueia o menu de contexto (botão direito)
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+        });
+
+        // Bloqueia a captura de tela via DevTools
+        Object.defineProperty(navigator, 'clipboard', {
+            get: function() {
+                return {
+                    writeText: function() {
+                        return Promise.reject(new Error('Acesso negado'));
+                    }
+                };
+            }
+        });
+
+        // Adiciona watermark dinâmico
+        function createWatermark() {
+            const watermark = document.getElementById('watermark');
+            const userInfo = '{{ user.email }} - {{ user.get_full_name }}';
+            const timestamp = new Date().toLocaleString();
+            const text = `${userInfo} - ${timestamp}`;
+            
+            // Remove watermarks antigos
+            watermark.innerHTML = '';
+            
+            // Cria novos watermarks
+            for (let i = 0; i < 20; i++) {
+                const watermarkText = document.createElement('div');
+                watermarkText.className = 'watermark-text';
+                watermarkText.textContent = text;
+                watermarkText.style.top = `${Math.random() * 100}%`;
+                watermarkText.style.left = `${Math.random() * 100}%`;
+                watermark.appendChild(watermarkText);
+            }
+        }
+
+        // Atualiza watermark a cada 5 segundos
+        createWatermark();
+        setInterval(createWatermark, 5000);
+
+        // Detecta tentativas de screenshot
+        document.addEventListener('keyup', function(e) {
+            if (e.key === 'PrintScreen' || (e.altKey && e.key === 'PrintScreen')) {
+                alert('Captura de tela detectada. Esta ação será registrada.');
+            }
+        });
+    </script>
     <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
         <div class="container">
             <a class="navbar-brand" href="{% url 'core:home' %}">

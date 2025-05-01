@@ -70,7 +70,7 @@
                     <div class="flex-grow-1">
                         <div class="d-flex align-items-center mb-2">
                             <span class="fw-bold text-primary me-3">#{{ pedido.id }}</span>
-                            <span class="badge {% if pedido.status == 'APROVADO' %}bg-success{% elif pedido.status == 'REJEITADO' %}bg-danger{% elif pedido.status == 'ENTREGUE' %}bg-info{% else %}bg-warning text-dark{% endif %}">
+                            <span class="badge {% if pedido.status == 'APROVADO' %}bg-success{% elif pedido.status == 'REPROVADO' or pedido.status == 'REJEITADO' %}bg-danger{% elif pedido.status == 'ENTREGUE' %}bg-info{% else %}bg-warning text-dark{% endif %}">
                                 {{ pedido.get_status_display }}
                             </span>
                         </div>
@@ -113,7 +113,7 @@
                     </div>
                     <div class="modal-body">
                         <div class="mb-3">
-                            <span class="badge {% if pedido.status == 'APROVADO' %}bg-success{% elif pedido.status == 'REJEITADO' %}bg-danger{% elif pedido.status == 'ENTREGUE' %}bg-info{% else %}bg-warning text-dark{% endif %}">
+                            <span class="badge {% if pedido.status == 'APROVADO' %}bg-success{% elif pedido.status == 'REPROVADO' or pedido.status == 'REJEITADO' %}bg-danger{% elif pedido.status == 'ENTREGUE' %}bg-info{% else %}bg-warning text-dark{% endif %}">
                                 {{ pedido.get_status_display }}
                             </span>
                             <span class="ms-3 text-muted">{{ pedido.data_criacao|date:"d/m/Y H:i" }}</span>

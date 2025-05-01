@@ -79,7 +79,7 @@ class Produto(models.Model):
     ativo = models.BooleanField(default=True)
     
     # Metadados
-    created_at = models.DateTimeField(auto_now_add=True)
+    data_criacao = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     tipo_da_semente = models.CharField(
@@ -99,7 +99,7 @@ class Produto(models.Model):
     class Meta:
         verbose_name = 'Produto'
         verbose_name_plural = 'Produtos'
-        ordering = ['-created_at']
+        ordering = ['-data_criacao']
 
     def __str__(self):
         return self.nome

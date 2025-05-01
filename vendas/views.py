@@ -137,23 +137,17 @@ def meus_pedidos(request):
 def cancelar_pedido(request, pedido_id):
     try:
         try:
-            # Primeiro tenta buscar o pedido do app vendas
             pedido = get_object_or_404(Pedido, id=pedido_id, comprador=request.user)
         except (ImportError, OperationalError):
-            # Se não encontrar, busca do core
             pedido = get_object_or_404(Pedido, id=pedido_id, comprador=request.user)
-        
-        # Verifica se o pedido pode ser cancelado
         if pedido.status not in ['PROCESSANDO', 'PENDENTE']:
             messages.error(request, 'Não é possível cancelar um pedido que não está em processamento.')
         else:
-            pedido.status = 'REJEITADO' if hasattr(pedido, 'REJEITADO') else 'CANCELADO'
+            pedido.status = 'REPROVADO'
             pedido.save()
             messages.success(request, 'Pedido cancelado com sucesso!')
-        
     except Exception as e:
         messages.error(request, f'Ocorreu um erro ao cancelar o pedido. Por favor, tente novamente.')
-    
     return redirect('vendas:meus_pedidos')
 
 @login_required
@@ -216,18 +210,14 @@ def lista_pedidos_admin(request):
 @user_passes_test(lambda u: u.is_superuser)
 def aprovar_pedido(request, pedido_id):
     pedido = get_object_or_404(Pedido, id=pedido_id)
-    
     if request.method == 'POST':
         acao = request.POST.get('acao')
-        
         if acao == 'aprovar':
             pedido.status = 'APROVADO'
             messages.success(request, 'Pedido aprovado com sucesso!')
         elif acao == 'rejeitar':
-            pedido.status = 'REJEITADO'
+            pedido.status = 'REPROVADO'
             pedido.observacoes = request.POST.get('motivo_rejeicao', '')
-            messages.success(request, 'Pedido rejeitado com sucesso!')
-        
+            messages.success(request, 'Pedido reprovado com sucesso!')
         pedido.save()
-    
     return redirect('vendas:lista_pedidos_admin')

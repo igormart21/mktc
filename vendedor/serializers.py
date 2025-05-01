@@ -16,7 +16,7 @@ class VendedorSerializer(serializers.ModelSerializer):
             'hectares_atendidos',
             'rg',
             'cnh',
-            'created_at',
+            'data_criacao',
             'updated_at'
         ]
-        read_only_fields = ['id', 'created_at', 'updated_at'] 
+        read_only_fields = ['id', 'data_criacao', 'updated_at'] 

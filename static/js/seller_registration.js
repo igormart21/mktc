@@ -1,47 +1,52 @@
 document.addEventListener('DOMContentLoaded', function () {
     const form = document.getElementById('sellerRegistrationForm');
-    const cepInput = document.getElementById('zip_code');
-    const addressInput = document.getElementById('address');
-    const cityInput = document.getElementById('city');
-    const stateInput = document.getElementById('state');
-    const password1 = document.getElementById('password1');
-    const password2 = document.getElementById('password2');
-    const documentFile = document.getElementById('document_file');
+    const cepInput = document.getElementById('id_cep');
+    const addressInput = document.getElementById('id_endereco');
+    const cityInput = document.getElementById('id_cidade');
+    const stateInput = document.getElementById('id_estado');
+    const password1 = document.getElementById('id_password1');
+    const password2 = document.getElementById('id_password2');
+    const documentFile = document.getElementById('frente_documento');
 
-    // Máscara para o CEP
-    cepInput.addEventListener('input', function (e) {
-        let value = e.target.value.replace(/\D/g, '');
-        if (value.length > 8) value = value.slice(0, 8);
-        value = value.replace(/(\d{5})(\d)/, '$1-$2');
-        e.target.value = value;
-    });
+    // Verificar se os elementos existem antes de adicionar event listeners
+    if (cepInput) {
+        // Máscara para o CEP
+        cepInput.addEventListener('input', function (e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length > 8) value = value.slice(0, 8);
+            value = value.replace(/(\d{5})(\d)/, '$1-$2');
+            e.target.value = value;
+        });
 
-    // Buscar endereço pelo CEP
-    cepInput.addEventListener('blur', function (e) {
-        const cep = e.target.value.replace(/\D/g, '');
-        if (cep.length !== 8) return;
+        // Buscar endereço pelo CEP
+        cepInput.addEventListener('blur', function (e) {
+            const cep = e.target.value.replace(/\D/g, '');
+            if (cep.length !== 8) return;
 
-        fetch(`https://viacep.com.br/ws/${cep}/json/`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.erro) {
-                    showError(cepInput, 'CEP não encontrado');
-                    return;
-                }
-                addressInput.value = data.logradouro;
-                cityInput.value = data.localidade;
-                stateInput.value = data.uf;
-                clearError(cepInput);
-            })
-            .catch(error => {
-                showError(cepInput, 'Erro ao buscar CEP');
-                console.error('Erro:', error);
-            });
-    });
+            fetch(`https://viacep.com.br/ws/${cep}/json/`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.erro) {
+                        showError(cepInput, 'CEP não encontrado');
+                        return;
+                    }
+                    if (addressInput) addressInput.value = data.logradouro;
+                    if (cityInput) cityInput.value = data.localidade;
+                    if (stateInput) stateInput.value = data.uf;
+                    clearError(cepInput);
+                })
+                .catch(error => {
+                    showError(cepInput, 'Erro ao buscar CEP');
+                    console.error('Erro:', error);
+                });
+        });
+    }
 
     // Função para mostrar erro em um campo
     function showError(input, message) {
+        if (!input) return;
         const formGroup = input.closest('.input-group');
+        if (!formGroup) return;
         const errorDiv = document.createElement('div');
         errorDiv.className = 'invalid-feedback d-block';
         errorDiv.textContent = message;
@@ -51,8 +56,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Função para limpar erro de um campo
     function clearError(input) {
+        if (!input) return;
         input.classList.remove('is-invalid');
         const formGroup = input.closest('.input-group');
+        if (!formGroup) return;
         const errorDiv = formGroup.querySelector('.invalid-feedback');
         if (errorDiv) {
             errorDiv.remove();
@@ -61,6 +68,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Validar senhas
     function validatePasswords() {
+        if (!password1 || !password2) return;
         if (password1.value !== password2.value) {
             password2.setCustomValidity('As senhas não coincidem');
         } else {
@@ -70,6 +78,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Validar arquivo
     function validateFile() {
+        if (!documentFile) return;
         const file = documentFile.files[0];
         if (file) {
             const validTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
@@ -87,6 +96,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Validar CEP
     async function validateCEP() {
+        if (!cepInput) return;
         const cep = cepInput.value.replace(/\D/g, '');
         if (cep.length === 8) {
             try {
@@ -94,9 +104,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 const data = await response.json();
 
                 if (!data.erro) {
-                    addressInput.value = data.logradouro;
-                    cityInput.value = data.localidade;
-                    stateInput.value = data.uf;
+                    if (addressInput) addressInput.value = data.logradouro;
+                    if (cityInput) cityInput.value = data.localidade;
+                    if (stateInput) stateInput.value = data.uf;
                 }
             } catch (error) {
                 console.error('Erro ao buscar CEP:', error);
@@ -105,25 +115,27 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Event listeners
-    password2.addEventListener('input', validatePasswords);
-    documentFile.addEventListener('change', validateFile);
-    cepInput.addEventListener('blur', validateCEP);
+    if (password2) password2.addEventListener('input', validatePasswords);
+    if (documentFile) documentFile.addEventListener('change', validateFile);
+    if (cepInput) cepInput.addEventListener('blur', validateCEP);
 
     // Validar formulário antes de enviar
-    form.addEventListener('submit', function (event) {
-        validatePasswords();
-        validateFile();
+    if (form) {
+        form.addEventListener('submit', function (event) {
+            validatePasswords();
+            validateFile();
 
-        if (!form.checkValidity()) {
-            event.preventDefault();
-            event.stopPropagation();
-        }
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
 
-        form.classList.add('was-validated');
-    });
+            form.classList.add('was-validated');
+        });
+    }
 
     // Formatação do CPF
-    const cpfInput = document.getElementById('cpf');
+    const cpfInput = document.getElementById('id_cpf');
     if (cpfInput) {
         cpfInput.addEventListener('input', function (e) {
             let value = e.target.value.replace(/\D/g, '');
@@ -137,8 +149,8 @@ document.addEventListener('DOMContentLoaded', function () {
     // Validação do formulário
     if (form) {
         form.addEventListener('submit', function (e) {
-            const cpf = document.getElementById('cpf').value;
-            if (!validateCPF(cpf)) {
+            const cpf = document.getElementById('id_cpf');
+            if (cpf && !validateCPF(cpf.value)) {
                 e.preventDefault();
                 alert('CPF inválido. Por favor, verifique o número informado.');
             }

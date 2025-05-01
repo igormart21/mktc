@@ -51,7 +51,7 @@ Usuario = get_user_model()
 
 def home(request):
     """View principal do site"""
-    products = Product.objects.filter(is_active=True).order_by('-created_at')[:6]
+    products = Product.objects.filter(is_active=True).order_by('-data_criacao')[:6]
     
     context = {
         'products': products,
@@ -131,6 +131,37 @@ def seller_registration(request):
         if form.is_valid():
             try:
                 user = form.save()
+                user.is_active = False  # Deixa o usuário inativo até aprovação
+                user.save()
+                # Cria o vendedor vinculado ao usuário
+                from vendedor.models import Vendedor
+                tipo_doc = form.cleaned_data.get('tipo_documento')
+                frente = request.FILES.get('frente_documento')
+                verso = request.FILES.get('verso_documento')
+                vendedor = Vendedor.objects.create(
+                    usuario=user,
+                    telefone=form.cleaned_data.get('telefone'),
+                    endereco=form.cleaned_data.get('endereco'),
+                    numero=form.cleaned_data.get('numero'),
+                    bairro=form.cleaned_data.get('bairro'),
+                    cidade=form.cleaned_data.get('cidade'),
+                    estado=form.cleaned_data.get('estado'),
+                    cep=form.cleaned_data.get('cep'),
+                    hectares_atendidos=int(form.cleaned_data.get('hectares_atendidos')),
+                    culturas_atendidas=form.cleaned_data.get('culturas_atendidas', []),
+                )
+                # Salvar os documentos de frente e verso
+                if tipo_doc == 'RG':
+                    if frente:
+                        vendedor.rg = frente
+                    if verso:
+                        vendedor.rg_verso = verso
+                elif tipo_doc == 'CNH':
+                    if frente:
+                        vendedor.cnh = frente
+                    if verso:
+                        vendedor.cnh_verso = verso
+                vendedor.save()
                 messages.success(request, 'Cadastro realizado com sucesso! Aguarde a aprovação do administrador.')
                 return redirect('core:login')
             except Exception as e:
@@ -145,26 +176,28 @@ def seller_registration(request):
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
 def superadmin_dashboard(request):
-    """Dashboard do superadmin"""
-    from django.db.models import Q
+    from django.db.models import Q, Sum
+    from django.utils import timezone
+    from datetime import timedelta
     # Métricas principais
     total_vendedores = Vendedor.objects.count()
-    vendedores_ativos = Vendedor.objects.filter(usuario__is_active=True).count()
+    vendedores_ativos = Vendedor.objects.filter(usuario__is_active=True, status_aprovacao='APROVADO').count()
     total_produtos = Produto.objects.count()
     mensagens_pendentes = MensagemSuporte.objects.filter(respondido=False).count()
     total_usuarios = Usuario.objects.count()
     total_pedidos = Pedido.objects.count()
 
-    # Métricas de desempenho
-    pedidos_recebidos = Pedido.objects.count()
-    vendas_aprovadas = Pedido.objects.filter(status='APROVADO').count()
-    if pedidos_recebidos > 0:
-        percentual_vendas_aprovadas = int((vendas_aprovadas / pedidos_recebidos) * 100)
-    else:
-        percentual_vendas_aprovadas = 0
+    # Novas métricas de desempenho
+    total_vendas = Pedido.objects.filter(status='APROVADO').aggregate(total=Sum('total'))['total'] or 0
+    total_aprovados = Pedido.objects.filter(status='APROVADO').count()
+    total_reprovados = Pedido.objects.filter(status='REPROVADO').count()
+    total_pendentes = Pedido.objects.filter(status='PENDENTE').count()
+    ticket_medio = (total_vendas / total_aprovados) if total_aprovados else 0
+    percentual_aprovacao = (total_aprovados / total_pedidos * 100) if total_pedidos else 0
+    percentual_reprovacao = (total_reprovados / total_pedidos * 100) if total_pedidos else 0
 
     # Últimos vendedores registrados
-    ultimos_vendedores = Vendedor.objects.order_by('-created_at')[:5]
+    ultimos_vendedores = Vendedor.objects.order_by('-data_criacao')[:5]
 
     # Pedidos pendentes
     pedidos_pendentes = Pedido.objects.filter(status='PENDENTE').order_by('-data_criacao')[:5]
@@ -173,7 +206,67 @@ def superadmin_dashboard(request):
     pedidos_recentes = Pedido.objects.order_by('-data_criacao')[:5]
 
     # Produtos recentes
-    produtos_recentes = Produto.objects.order_by('-created_at')[:5]
+    produtos_recentes = Produto.objects.order_by('-data_criacao')[:5]
+
+    # --- DADOS PARA GRÁFICO DE EVOLUÇÃO ---
+    hoje = timezone.now()
+    # Últimos 6 meses
+    meses = []
+    dados_recebidos_6m = []
+    dados_aprovados_6m = []
+    dados_reprovados_6m = []
+    dados_pendentes_6m = []
+    faturamento_6m = []
+    vendas_6m = []
+    for i in range(5, -1, -1):
+        mes = (hoje.replace(day=1) - timedelta(days=30*i)).replace(day=1)
+        proximo_mes = (mes + timedelta(days=32)).replace(day=1)
+        label = mes.strftime('%b/%Y')
+        meses.append(label)
+        dados_recebidos_6m.append(Pedido.objects.filter(data_criacao__gte=mes, data_criacao__lt=proximo_mes).count())
+        dados_aprovados_6m.append(Pedido.objects.filter(status='APROVADO', data_criacao__gte=mes, data_criacao__lt=proximo_mes).count())
+        dados_reprovados_6m.append(Pedido.objects.filter(status='REPROVADO', data_criacao__gte=mes, data_criacao__lt=proximo_mes).count())
+        dados_pendentes_6m.append(Pedido.objects.filter(status='PENDENTE', data_criacao__gte=mes, data_criacao__lt=proximo_mes).count())
+        faturamento_6m.append(float(Pedido.objects.filter(status='APROVADO', data_criacao__gte=mes, data_criacao__lt=proximo_mes).aggregate(total=Sum('total'))['total'] or 0))
+        vendas_6m.append(Pedido.objects.filter(status='APROVADO', data_criacao__gte=mes, data_criacao__lt=proximo_mes).count())
+
+    # Mês atual (por dia)
+    mes_atual = hoje.replace(day=1)
+    dias_mes = (hoje - mes_atual).days + 1
+    dias_labels = [(mes_atual + timedelta(days=i)).strftime('%d/%m') for i in range(dias_mes)]
+    dados_recebidos_mes = []
+    dados_aprovados_mes = []
+    dados_reprovados_mes = []
+    dados_pendentes_mes = []
+    faturamento_mes = []
+    vendas_mes = []
+    for i in range(dias_mes):
+        dia = mes_atual + timedelta(days=i)
+        proximo_dia = dia + timedelta(days=1)
+        dados_recebidos_mes.append(Pedido.objects.filter(data_criacao__gte=dia, data_criacao__lt=proximo_dia).count())
+        dados_aprovados_mes.append(Pedido.objects.filter(status='APROVADO', data_criacao__gte=dia, data_criacao__lt=proximo_dia).count())
+        dados_reprovados_mes.append(Pedido.objects.filter(status='REPROVADO', data_criacao__gte=dia, data_criacao__lt=proximo_dia).count())
+        dados_pendentes_mes.append(Pedido.objects.filter(status='PENDENTE', data_criacao__gte=dia, data_criacao__lt=proximo_dia).count())
+        faturamento_mes.append(float(Pedido.objects.filter(status='APROVADO', data_criacao__gte=dia, data_criacao__lt=proximo_dia).aggregate(total=Sum('total'))['total'] or 0))
+        vendas_mes.append(Pedido.objects.filter(status='APROVADO', data_criacao__gte=dia, data_criacao__lt=proximo_dia).count())
+
+    # Últimos 7 dias
+    dias_7 = [(hoje - timedelta(days=i)).replace(hour=0, minute=0, second=0, microsecond=0) for i in range(6, -1, -1)]
+    dias_labels_7 = [d.strftime('%d/%m') for d in dias_7]
+    dados_recebidos_7 = []
+    dados_aprovados_7 = []
+    dados_reprovados_7 = []
+    dados_pendentes_7 = []
+    faturamento_7 = []
+    vendas_7 = []
+    for d in dias_7:
+        proximo_dia = d + timedelta(days=1)
+        dados_recebidos_7.append(Pedido.objects.filter(data_criacao__gte=d, data_criacao__lt=proximo_dia).count())
+        dados_aprovados_7.append(Pedido.objects.filter(status='APROVADO', data_criacao__gte=d, data_criacao__lt=proximo_dia).count())
+        dados_reprovados_7.append(Pedido.objects.filter(status='REPROVADO', data_criacao__gte=d, data_criacao__lt=proximo_dia).count())
+        dados_pendentes_7.append(Pedido.objects.filter(status='PENDENTE', data_criacao__gte=d, data_criacao__lt=proximo_dia).count())
+        faturamento_7.append(float(Pedido.objects.filter(status='APROVADO', data_criacao__gte=d, data_criacao__lt=proximo_dia).aggregate(total=Sum('total'))['total'] or 0))
+        vendas_7.append(Pedido.objects.filter(status='APROVADO', data_criacao__gte=d, data_criacao__lt=proximo_dia).count())
 
     context = {
         'total_vendedores': total_vendedores,
@@ -182,13 +275,44 @@ def superadmin_dashboard(request):
         'mensagens_pendentes': mensagens_pendentes,
         'total_usuarios': total_usuarios,
         'total_pedidos': total_pedidos,
-        'pedidos_recebidos': pedidos_recebidos,
-        'vendas_aprovadas': vendas_aprovadas,
-        'percentual_vendas_aprovadas': percentual_vendas_aprovadas,
+        'pedidos_recebidos': total_pedidos,  # Alias para compatibilidade
+        'vendas_aprovadas': total_aprovados, # Alias para compatibilidade
+        'percentual_vendas_aprovadas': percentual_aprovacao, # Alias para compatibilidade
         'ultimos_vendedores': ultimos_vendedores,
         'pedidos_pendentes': pedidos_pendentes,
         'pedidos_recentes': pedidos_recentes,
         'produtos_recentes': produtos_recentes,
+        # Novas métricas:
+        'total_vendas': total_vendas,
+        'total_aprovados': total_aprovados,
+        'total_reprovados': total_reprovados,
+        'total_pendentes': total_pendentes,
+        'ticket_medio': ticket_medio,
+        'percentual_aprovacao': percentual_aprovacao,
+        'percentual_reprovacao': percentual_reprovacao,
+        # Dados para gráfico de evolução
+        'grafico_meses': meses,
+        'grafico_recebidos_6m': dados_recebidos_6m,
+        'grafico_aprovados_6m': dados_aprovados_6m,
+        'grafico_reprovados_6m': dados_reprovados_6m,
+        'grafico_pendentes_6m': dados_pendentes_6m,
+        'grafico_dias_mes': dias_labels,
+        'grafico_recebidos_mes': dados_recebidos_mes,
+        'grafico_aprovados_mes': dados_aprovados_mes,
+        'grafico_reprovados_mes': dados_reprovados_mes,
+        'grafico_pendentes_mes': dados_pendentes_mes,
+        'grafico_dias_7': dias_labels_7,
+        'grafico_recebidos_7': dados_recebidos_7,
+        'grafico_aprovados_7': dados_aprovados_7,
+        'grafico_reprovados_7': dados_reprovados_7,
+        'grafico_pendentes_7': dados_pendentes_7,
+        # Novos dados para gráfico interativo
+        'faturamento_6m': faturamento_6m,
+        'vendas_6m': vendas_6m,
+        'faturamento_mes': faturamento_mes,
+        'vendas_mes': vendas_mes,
+        'faturamento_7': faturamento_7,
+        'vendas_7': vendas_7,
     }
     return render(request, 'core/superadmin_dashboard.html', context)
 
@@ -209,27 +333,26 @@ def seller_dashboard(request):
         return redirect('core:home')
     
     # Produtos - agora mostrando todos os produtos ativos
-    total_products = Produto.objects.filter(ativo=True).count()
-    recent_products = Produto.objects.filter(ativo=True).order_by('-created_at')[:5]
+    total_produtos = Product.objects.filter(is_active=True).count()
+    produtos_recentes = Product.objects.filter(is_active=True).order_by('-data_criacao')[:5]
 
-    # Pedidos do vendedor - usando o objeto Vendedor
-    pedidos = Pedido.objects.filter(vendedor=usuario)
+    # Pedidos do vendedor - usando o vendedor correto
+    pedidos = Pedido.objects.filter(vendedor=vendedor.usuario)
     total_pedidos = pedidos.count()
     pedidos_pendentes = pedidos.filter(status='PENDENTE').count()
     pedidos_aprovados = pedidos.filter(status='APROVADO').count()
-    pedidos_rejeitados = pedidos.filter(status='REJEITADO').count()
+    pedidos_rejeitados = pedidos.filter(status='REPROVADO').count()
     ultimos_pedidos = pedidos.order_by('-data_criacao')[:5]
     
-    # Calcular o total de vendas somando os itens dos pedidos aprovados
-    total_vendas = 0
-    for pedido in pedidos.filter(status='APROVADO'):
-        for item in pedido.itens.all():
-            total_vendas += item.quantidade * item.preco_unitario
+    # Calcular o total de vendas usando agregação
+    total_vendas = pedidos.filter(status='APROVADO').aggregate(
+        total=models.Sum('total')
+    )['total'] or 0
 
-    # Calcular vendas por mês para o gráfico
+    # Calcular vendas por mês para o gráfico usando agregação
+    hoje = timezone.now()
     vendas_por_mes = []
     meses = []
-    hoje = timezone.now()
     
     # Pegar os últimos 6 meses
     for i in range(6):
@@ -237,17 +360,14 @@ def seller_dashboard(request):
         mes_inicio = mes.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
         mes_fim = (mes_inicio + timedelta(days=32)).replace(day=1) - timedelta(days=1)
         
-        vendas_mes = 0
-        pedidos_mes = pedidos.filter(
+        vendas_mes = pedidos.filter(
             status='APROVADO',
             data_criacao__range=[mes_inicio, mes_fim]
-        )
+        ).aggregate(
+            total=models.Sum('total')
+        )['total'] or 0
         
-        for pedido in pedidos_mes:
-            for item in pedido.itens.all():
-                vendas_mes += float(item.quantidade) * float(item.preco_unitario)
-        
-        vendas_por_mes.append(round(vendas_mes, 2))
+        vendas_por_mes.append(round(float(vendas_mes), 2))
         meses.append(mes.strftime('%b/%Y'))
     
     # Inverter as listas para mostrar do mais antigo para o mais recente
@@ -262,18 +382,28 @@ def seller_dashboard(request):
     # Mensagens de suporte do vendedor
     mensagens_suporte = MensagemSuporte.objects.filter(usuario=usuario).order_by('-data_envio')
 
-    # Garante que o contexto tenha o usuário correto para o template
+    # Preparar dados adicionais do vendedor
+    seller = {
+        'full_name': f"{usuario.nome} {usuario.sobrenome}".strip(),
+        'user': usuario,
+        'created_at': vendedor.data_criacao,
+        'document_number': usuario.numero_documento,
+        'is_approved': vendedor.status_aprovacao == 'APROVADO'
+    }
+
+    # Garante que o contexto tenha todos os dados necessários
     context = {
         'user': usuario,
         'vendedor': vendedor,
-        'total_products': total_products,
+        'seller': seller,  # Dados formatados para o template
+        'total_produtos': total_produtos,
         'total_pedidos': total_pedidos,
         'pedidos_pendentes': pedidos_pendentes,
         'pedidos_aprovados': pedidos_aprovados,
         'pedidos_rejeitados': pedidos_rejeitados,
         'ultimos_pedidos': ultimos_pedidos,
         'total_vendas': total_vendas,
-        'recent_products': recent_products,
+        'produtos_recentes': produtos_recentes,
         'mensagens_suporte': mensagens_suporte,
         'vendas_por_mes': vendas_por_mes,
         'meses': meses,
@@ -636,8 +766,12 @@ def cadastrar_vendedor(request):
                     cidade=form.cleaned_data['cidade'],
                     estado=form.cleaned_data['estado'],
                     cep=form.cleaned_data['cep'],
-                    hectares_atendidos=form.cleaned_data['hectares_atendidos']
+                    hectares_atendidos=int(form.cleaned_data['hectares_atendidos'])
                 )
+
+                # Debug dos arquivos recebidos
+                print('DEBUG - frente_documento:', request.FILES.get('frente_documento'))
+                print('DEBUG - verso_documento:', request.FILES.get('verso_documento'))
 
                 # Salvar os documentos de frente e verso
                 tipo_doc = form.cleaned_data.get('tipo_documento')
@@ -774,7 +908,7 @@ def catalogo(request):
     elif ordenar == 'nome':
         produtos = produtos.order_by('nome')
     else:  # recentes
-        produtos = produtos.order_by('-created_at')
+        produtos = produtos.order_by('-data_criacao')
 
     # Paginação
     paginator = Paginator(produtos, 12)  # 12 produtos por página
@@ -1104,15 +1238,13 @@ def historico_pedidos_vendedor_admin(request, vendedor_id):
     vendedor = get_object_or_404(Vendedor, id=vendedor_id)
     usuario = vendedor.usuario
     
-    # Temporariamente substituindo a consulta problemática
-    # pedidos = Pedido.objects.filter(vendedor=usuario).order_by('-data_criacao')
-    pedidos = []
+    # Query corrigida para usar o campo vendedor do modelo Pedido
+    pedidos = Pedido.objects.filter(vendedor=usuario).order_by('-data_criacao')
     
     context = {
         'vendedor': vendedor,
         'pedidos': pedidos,
-        'status_choices': [('PENDENTE', 'Pendente'), ('APROVADO', 'Aprovado'), ('REJEITADO', 'Rejeitado')],
-        'aviso_manutencao': 'Sistema em manutenção. Histórico de pedidos temporariamente indisponível.'
+        'status_choices': [('PENDENTE', 'Pendente'), ('APROVADO', 'Aprovado'), ('REJEITADO', 'Rejeitado')]
     }
     return render(request, 'core/historico_pedidos.html', context)
 
@@ -1162,6 +1294,10 @@ def checkout(request):
             if hasattr(produto, 'seller') and produto.seller:
                 vendedor_usuario = produto.seller.usuario if hasattr(produto.seller, 'usuario') else None
                 break
+
+        # Fallback: se não encontrar, use o próprio usuário logado (caso ele seja vendedor)
+        if not vendedor_usuario and hasattr(usuario, 'vendedor'):
+            vendedor_usuario = usuario
 
         pedido = Pedido.objects.create(
             comprador=usuario,
@@ -1407,7 +1543,7 @@ def reprovar_pedido(request, pedido_id):
         if not motivo:
             messages.error(request, 'A justificativa é obrigatória para reprovar um pedido.')
             return render(request, 'core/pedido_reprovar.html', {'pedido': pedido})
-        pedido.status = 'REJEITADO'
+        pedido.status = 'REPROVADO'  # Corrigido para padronizar
         pedido.reprovado_por = request.user
         pedido.reprovado_em = timezone.now()
         pedido.justificativa_reprovacao = motivo
@@ -1452,7 +1588,7 @@ def pedido_cancel(request, pedido_id):
 @user_passes_test(is_superadmin)
 def superadmin_products(request):
     """Lista todos os produtos para o superadmin"""
-    produtos = Produto.objects.all().order_by('-created_at')
+    produtos = Produto.objects.all().order_by('-data_criacao')
     return render(request, 'core/superadmin_products.html', {'produtos': produtos})
 
 @login_required
@@ -1540,8 +1676,25 @@ def remover_do_carrinho(request, product_id):
 @user_passes_test(is_superadmin)
 def listar_vendedores(request):
     """Lista todos os vendedores"""
-    vendedores = Vendedor.objects.all().order_by('-created_at')
-    return render(request, 'core/listar_vendedores.html', {'vendedores': vendedores})
+    search_query = request.GET.get('search', '')
+    status_filter = request.GET.get('status', '')
+    vendedores = Vendedor.objects.all().order_by('-data_criacao')
+    if search_query:
+        vendedores = vendedores.filter(
+            models.Q(usuario__nome__icontains=search_query) |
+            models.Q(usuario__email__icontains=search_query) |
+            models.Q(usuario__cpf__icontains=search_query) |
+            models.Q(telefone__icontains=search_query)
+        )
+    if status_filter:
+        vendedores = vendedores.filter(status_aprovacao=status_filter)
+    status_choices = Vendedor._meta.get_field('status_aprovacao').choices
+    return render(request, 'core/listar_vendedores.html', {
+        'vendedores': vendedores,
+        'status_choices': status_choices,
+        'status_filter': status_filter,
+        'search_query': search_query
+    })
 
 @login_required
 @user_passes_test(is_superadmin)

@@ -49,7 +49,7 @@ class Vendedor(models.Model):
     )
     justificativa_recusa = models.TextField(blank=True, null=True, verbose_name='Justificativa da Recusa')
     
-    created_at = models.DateTimeField(default=timezone.now)
+    data_criacao = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
@@ -58,4 +58,4 @@ class Vendedor(models.Model):
     class Meta:
         verbose_name = 'Vendedor'
         verbose_name_plural = 'Vendedores'
-        ordering = ['-created_at']
+        ordering = ['-data_criacao']

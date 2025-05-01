@@ -12,6 +12,15 @@ from django.utils import timezone
 from django.contrib.auth.models import AbstractUser
 from produtos.models import Produto
 
+CULTURAS_CHOICES = [
+    ('feijao', 'Feijão'),
+    ('algodao', 'Algodão'),
+    ('gergelim', 'Gergelim'),
+    ('pastagem', 'Pastagem'),
+    ('milho', 'Milho'),
+    ('soja', 'Soja'),
+]
+
 def product_image_path(instance, filename):
     return f'products/{filename}'
 
@@ -46,7 +55,7 @@ class Product(models.Model):
     packaging = models.CharField(max_length=50, default='Saco', verbose_name='Embalagem')
     currency = models.CharField(max_length=3, choices=CURRENCY_CHOICES, default='BRL', verbose_name='Moeda')
     image = models.ImageField(upload_to=product_image_path, blank=True, null=True, verbose_name='Imagem')
-    created_at = models.DateTimeField(auto_now_add=True)
+    data_criacao = models.DateTimeField(auto_now_add=True, verbose_name='Criado em')
     updated_at = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=True, verbose_name='Ativo')
     manufacturer = models.CharField(max_length=100, blank=True, null=True, verbose_name='Fabricante')
@@ -55,14 +64,13 @@ class Product(models.Model):
     minimum_quantity = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, verbose_name='Quantidade Mínima')
     sieve = models.CharField(max_length=50, blank=True, null=True, verbose_name='Peneira')
     variety = models.CharField(max_length=100, blank=True, null=True, verbose_name='Variedade')
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Criado em')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='Atualizado em')
     seller = models.ForeignKey(Vendedor, on_delete=models.CASCADE, related_name='products', null=True, blank=True, verbose_name='Vendedor')
 
     class Meta:
         verbose_name = 'Produto'
         verbose_name_plural = 'Produtos'
-        ordering = ['-created_at']
+        ordering = ['-data_criacao']
 
     def __str__(self):
         return self.name
@@ -157,7 +165,7 @@ class VendorApplication(models.Model):
     address = models.TextField(default='')
     phone = models.CharField(max_length=20, default='')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
-    created_at = models.DateTimeField(auto_now_add=True)
+    data_criacao = models.DateTimeField(auto_now_add=True)
     documents = models.FileField(upload_to='vendor_documents/', null=True, blank=True)
     notes = models.TextField(blank=True, null=True)
 

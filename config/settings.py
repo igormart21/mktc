@@ -15,6 +15,8 @@ from pathlib import Path
 from dotenv import load_dotenv
 from django.core.cache import cache
 from decouple import config, Csv
+import pymysql
+pymysql.install_as_MySQLdb()
 
 # Carrega as variáveis de ambiente do arquivo .env
 load_dotenv()
@@ -180,10 +182,10 @@ WSGI_APPLICATION = 'config.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'mktc',
-        'USER': 'mktc_user',
-        'PASSWORD': 'Agro12345@',
-        'HOST': 'localhost',
+        'NAME': 'agromarketplace',
+        'USER': 'root',
+        'PASSWORD': 'root123',
+        'HOST': 'localhost',  # Usando localhost pois a porta está mapeada
         'PORT': '3306',
         'OPTIONS': {
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",

@@ -43,10 +43,10 @@ class ProdutoSerializer(serializers.ModelSerializer):
             'permite_troca',
             'ativo',
             'imagem',
-            'created_at',
+            'data_criacao',
             'updated_at'
         ]
-        read_only_fields = ['created_at', 'updated_at']
+        read_only_fields = ['data_criacao', 'updated_at']
 
     def create(self, validated_data):
         return super().create(validated_data)

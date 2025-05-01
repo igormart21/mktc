@@ -1,0 +1,12 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Erro Interno do Servidor{% endblock %}
+
+{% block content %}
+<div class="container text-center py-5">
+    <h1 class="display-4">Oops! Algo deu errado.</h1>
+    <p class="lead">Nossos servidores estão tendo dificuldades para processar sua solicitação.</p>
+    <p>Por favor, tente novamente mais tarde ou entre em contato com o suporte se o problema persistir.</p>
+    <a href="{% url 'core:home' %}" class="btn btn-primary mt-4">Voltar para a Página Inicial</a>
+</div>
+{% endblock %} 

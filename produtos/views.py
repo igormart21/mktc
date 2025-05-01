@@ -79,7 +79,7 @@ class ListaProdutosAPIView(generics.ListAPIView):
             logger.info(f"Tempo: {query['time']}")
         
         logger.info("="*50)
-        return queryset.order_by('-created_at')
+        return queryset.order_by('-data_criacao')
 
 class ProdutoListCreateAPIView(generics.ListCreateAPIView):
     permission_classes = [IsVendedorAprovadoOrSuperAdmin]

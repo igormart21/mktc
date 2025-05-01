@@ -113,9 +113,9 @@
                                 {% endif %}
                             </div>
                         </div>
-                        {% if produto.created_at %}
+                        {% if produto.data_criacao %}
                         <div class="text-muted small">
-                            <i class="fas fa-calendar-plus me-1"></i> Cadastrado em: {{ produto.created_at|date:"d/m/Y" }}
+                            <i class="fas fa-calendar-plus me-1"></i> Cadastrado em: {{ produto.data_criacao|date:"d/m/Y" }}
                         </div>
                         {% endif %}
                     </div>

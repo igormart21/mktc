@@ -70,7 +70,7 @@ class VendedorAdmin(admin.ModelAdmin):
     list_display = ['usuario', 'nome_fantasia', 'telefone', 'cidade', 'estado', 'culturas_descricao']
     search_fields = ['usuario__username', 'nome_fantasia', 'telefone']
     list_filter = ['estado', 'cidade']
-    readonly_fields = ('created_at', 'updated_at')
+    readonly_fields = ('data_criacao', 'updated_at')
     fieldsets = (
         ('Informações do Usuário', {
             'fields': ('usuario', 'senha')
@@ -102,7 +102,7 @@ class VendedorAdmin(admin.ModelAdmin):
             )
         }),
         ('Informações de Sistema', {
-            'fields': ('created_at', 'updated_at'),
+            'fields': ('data_criacao', 'updated_at'),
             'classes': ('collapse',)
         })
     )

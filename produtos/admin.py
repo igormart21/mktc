@@ -6,7 +6,7 @@ class ProdutoAdmin(admin.ModelAdmin):
     list_display = ['nome', 'categoria', 'preco', 'volume_disponivel', 'ativo']
     list_filter = ['categoria', 'tipo', 'ativo']
     search_fields = ['nome', 'descricao']
-    readonly_fields = ['created_at', 'updated_at']
+    readonly_fields = ['data_criacao', 'updated_at']
     fieldsets = (
         ('Informações Básicas', {
             'fields': ('nome', 'categoria', 'descricao')
@@ -30,7 +30,7 @@ class ProdutoAdmin(admin.ModelAdmin):
             'fields': ('ativo',)
         }),
         ('Metadados', {
-            'fields': ('created_at', 'updated_at'),
+            'fields': ('data_criacao', 'updated_at'),
             'classes': ('collapse',)
         })
     )

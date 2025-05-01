@@ -1,0 +1,31 @@
+<!-- Overlay de bloqueio de printscreen -->
+<div id="printscreen-overlay" style="display:none;position:fixed;z-index:99999;top:0;left:0;width:100vw;height:100vh;background:rgba(255,255,255,0.98);color:#222;align-items:center;justify-content:center;text-align:center;font-size:2rem;font-weight:bold;">
+    🚫 Captura de tela bloqueada por segurança<br>
+    <span style="font-size:1rem;font-weight:normal;">Por favor, não compartilhe informações sensíveis.</span>
+</div>
+
+<script>
+// Função para mostrar overlay
+function showPrintOverlay() {
+    const overlay = document.getElementById('printscreen-overlay');
+    overlay.style.display = 'flex';
+    setTimeout(() => { overlay.style.display = 'none'; }, 2500);
+}
+// Bloqueia PrintScreen (PrtScn)
+document.addEventListener('keydown', function(e) {
+    // PrintScreen
+    if (e.key === 'PrintScreen') {
+        showPrintOverlay();
+        e.preventDefault();
+    }
+    // Ctrl+P (imprimir)
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'p') {
+        showPrintOverlay();
+        e.preventDefault();
+    }
+});
+// Bloqueia menu de contexto (botão direito)
+document.addEventListener('contextmenu', function(e) {
+    e.preventDefault();
+});
+</script> 

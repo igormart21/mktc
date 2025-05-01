@@ -1,4 +1,4 @@
-{% extends "base_internal.html" %}
+{% extends "../base_internal.html" %}
 {% load static %}
 
 {% block title %}Dashboard do Vendedor - AgroMarketplace{% endblock %}
@@ -93,7 +93,7 @@
         </div>
     </div>
 
-    <!-- Gráfico de Desempenho (Placeholder) -->
+    <!-- Gráfico de Desempenho -->
     <div class="row mb-4">
         <div class="col-12">
             <div class="card">
@@ -136,7 +136,7 @@
                                 <tr>
                                     <td>{{ item.produto.nome }}</td>
                                     <td>{{ item.quantidade }}</td>
-                                    <td>{{ pedido.data_criacao|date:"d/m/Y" }}</td>
+                                    <td>{{ pedido.data_criacao|date:"d/m/Y H:i" }}</td>
                                     <td>
                                         <span class="badge {% if pedido.status == 'PENDENTE' %}bg-warning{% elif pedido.status == 'APROVADO' %}bg-success{% elif pedido.status == 'PROCESSANDO' %}bg-info{% else %}bg-danger{% endif %}">
                                             {{ pedido.get_status_display }}
@@ -349,32 +349,50 @@ function encerrarCaso(mensagemId) {
 {% endblock %}
 
 {% block extra_js %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Dados do gráfico
-        const meses = {{ meses|safe }};
-        const vendas = {{ vendas_por_mes|safe }};
-        
-        console.log('Meses:', meses);
-        console.log('Vendas:', vendas);
-        
-        const ctx = document.getElementById('grafico-vendas').getContext('2d');
-        const grafico = new Chart(ctx, {
-            type: 'bar',
+        // Verifica se o elemento do gráfico existe
+        const ctx = document.getElementById('grafico-vendas');
+        if (!ctx) return;
+
+        // Verifica se os dados existem
+        if (!{{ meses|safe }} || !{{ vendas_por_mes|safe }}) {
+            console.error('Dados do gráfico não encontrados');
+            return;
+        }
+
+        // Configuração do gráfico de vendas
+        new Chart(ctx, {
+            type: 'line',
             data: {
-                labels: meses,
+                labels: {{ meses|safe }},
                 datasets: [{
-                    label: 'Vendas (R$)',
-                    data: vendas,
-                    backgroundColor: 'rgba(40, 167, 69, 0.8)',
-                    borderColor: 'rgba(40, 167, 69, 1)',
-                    borderWidth: 1
+                    label: 'Vendas por Mês (R$)',
+                    data: {{ vendas_por_mes|safe }},
+                    backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                    borderColor: '#28a745',
+                    borderWidth: 2,
+                    pointBackgroundColor: '#28a745',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: '#28a745',
+                    tension: 0.4,
+                    fill: true
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return 'R$ ' + value.toLocaleString('pt-BR');
+                            }
+                        }
+                    }
+                },
                 plugins: {
                     legend: {
                         display: false
@@ -382,26 +400,8 @@ function encerrarCaso(mensagemId) {
                     tooltip: {
                         callbacks: {
                             label: function(context) {
-                                return 'R$ ' + context.raw.toLocaleString('pt-BR', {minimumFractionDigits: 2});
+                                return 'R$ ' + context.parsed.y.toLocaleString('pt-BR');
                             }
-                        }
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        grid: {
-                            color: 'rgba(0, 0, 0, 0.05)'
-                        },
-                        ticks: {
-                            callback: function(value) {
-                                return 'R$ ' + value.toLocaleString('pt-BR', {minimumFractionDigits: 2});
-                            }
-                        }
-                    },
-                    x: {
-                        grid: {
-                            display: false
                         }
                     }
                 }

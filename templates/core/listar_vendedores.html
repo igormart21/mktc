@@ -82,7 +82,7 @@
                                                         <span class="badge bg-secondary">Inativo</span>
                                                     {% endif %}
                                                 </td>
-                                                <td>{{ vendedor.created_at|date:"d/m/Y H:i" }}</td>
+                                                <td>{{ vendedor.data_criacao|date:"d/m/Y H:i" }}</td>
                                                 <td>
                                                     <div class="btn-group">
                                                         <a href="{% url 'core:seller_detail' vendedor.id %}" class="btn btn-sm btn-primary" title="Ver detalhes">

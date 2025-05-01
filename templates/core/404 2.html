@@ -1,0 +1,12 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Página Não Encontrada{% endblock %}
+
+{% block content %}
+<div class="container text-center py-5">
+    <h1 class="display-4">Página Não Encontrada</h1>
+    <p class="lead">A página que você está procurando não existe ou foi movida.</p>
+    <p>Verifique se o endereço está correto ou use o botão abaixo para voltar à página inicial.</p>
+    <a href="{% url 'core:home' %}" class="btn btn-primary mt-4">Voltar para a Página Inicial</a>
+</div>
+{% endblock %} 

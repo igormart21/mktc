@@ -104,7 +104,7 @@
                             <td>{{ pedido.data_criacao|date:"d/m/Y H:i" }}</td>
                             <td>R$ {{ pedido.total|floatformat:2 }}</td>
                             <td>
-                                <span class="badge {% if pedido.status == 'APROVADO' %}bg-success{% elif pedido.status == 'REJEITADO' %}bg-danger{% elif pedido.status == 'ENTREGUE' %}bg-info{% elif pedido.status == 'ARQUIVADO' %}bg-secondary{% else %}bg-warning text-dark{% endif %}">
+                                <span class="badge {% if pedido.status == 'APROVADO' %}bg-success{% elif pedido.status == 'REPROVADO' or pedido.status == 'REJEITADO' %}bg-danger{% elif pedido.status == 'ENTREGUE' %}bg-info{% elif pedido.status == 'ARQUIVADO' %}bg-secondary{% else %}bg-warning text-dark{% endif %}">
                                     {{ pedido.get_status_display }}
                                 </span>
                             </td>
@@ -136,7 +136,7 @@
                                         </button>
                                     </form>
                                     <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#modalReprovar{{ pedido.id }}">
-                                        <i class="fas fa-times"></i> Rejeitar
+                                        <i class="fas fa-times"></i> Reprovar
                                     </button>
                                     {% endif %}
                                 <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#detalhesPedido{{ pedido.id }}">

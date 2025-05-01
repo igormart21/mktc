@@ -22,18 +22,22 @@
                     <div class="d-flex align-items-center justify-content-between">
                         <div class="d-flex align-items-center">
                             <div class="flex-shrink-0">
-                                {% if seller.usuario.is_active %}
+                                {% if seller.status_aprovacao == 'APROVADO' %}
                                     <i class="fas fa-check-circle text-success" style="font-size: 2.5rem;"></i>
+                                {% elif seller.status_aprovacao == 'RECUSADO' %}
+                                    <i class="fas fa-times-circle text-danger" style="font-size: 2.5rem;"></i>
                                 {% else %}
                                     <i class="fas fa-clock text-warning" style="font-size: 2.5rem;"></i>
                                 {% endif %}
                             </div>
                             <div class="flex-grow-1 ms-3">
                                 <h5 class="mb-1">
-                                    {% if seller.usuario.is_active %}
-                                        Vendedor Ativo
+                                    {% if seller.status_aprovacao == 'APROVADO' %}
+                                        <span class="badge bg-success">Aprovado</span>
+                                    {% elif seller.status_aprovacao == 'RECUSADO' %}
+                                        <span class="badge bg-danger">Recusado</span>
                                     {% else %}
-                                        Aguardando Aprovação
+                                        <span class="badge bg-warning text-dark">Pendente</span>
                                     {% endif %}
                                 </h5>
                                 <p class="text-muted mb-0">
