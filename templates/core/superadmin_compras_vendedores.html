@@ -3,6 +3,14 @@
 
 {% block title %}Compras por Vendedor - SuperAdmin{% endblock %}
 
+{% block navbar_title %}
+Compras por Vendedor
+{% endblock %}
+
+{% block navbar_subtitle %}
+Visualize e gerencie as compras realizadas por vendedor.
+{% endblock %}
+
 {% block content %}
 <div class="container py-4">
     <div class="row mb-4">
@@ -17,21 +25,13 @@
                 </div>
             </div>
             <div class="card border-0 shadow-sm">
-                <div class="card-header bg-white py-3">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h3 class="h3 mb-0">
-                            <i class="fas fa-shopping-cart text-primary me-2"></i>Compras por Vendedor
-                        </h3>
-                    </div>
-                    <p class="text-muted mb-0 mt-2">Visualize e gerencie as compras realizadas por vendedor.</p>
-                </div>
                 <div class="card-body">
                     <!-- Filtros -->
                     <form method="get" class="mb-4">
-                        <div class="row g-3">
-                            <div class="col-md-4">
+                        <div class="d-flex flex-row flex-wrap align-items-end gap-3 mb-2">
+                            <div style="flex:1; min-width: 160px;">
                                 <label for="vendedor" class="form-label">Vendedor</label>
-                                <select name="vendedor" id="vendedor" class="form-select">
+                                <select name="vendedor" id="vendedor" class="form-select form-select-sm">
                                     <option value="">Todos os vendedores</option>
                                     {% for vendedor in vendedores %}
                                     <option value="{{ vendedor.id }}" {% if vendedor.id|stringformat:"i" == request.GET.vendedor %}selected{% endif %}>
@@ -40,9 +40,9 @@
                                     {% endfor %}
                                 </select>
                             </div>
-                            <div class="col-md-4">
+                            <div style="flex:1; min-width: 160px;">
                                 <label for="status" class="form-label">Status</label>
-                                <select name="status" id="status" class="form-select">
+                                <select name="status" id="status" class="form-select form-select-sm">
                                     <option value="">Todos os status</option>
                                     {% for status in status_choices %}
                                     <option value="{{ status.0 }}" {% if status.0 == request.GET.status %}selected{% endif %}>
@@ -51,27 +51,25 @@
                                     {% endfor %}
                                 </select>
                             </div>
-                            <div class="col-md-4">
+                            <div style="flex:1; min-width: 140px;">
                                 <label for="data_inicio" class="form-label">Data Início</label>
-                                <input type="date" name="data_inicio" id="data_inicio" class="form-control" 
+                                <input type="date" name="data_inicio" id="data_inicio" class="form-control form-control-sm"
                                        value="{{ request.GET.data_inicio }}">
                             </div>
-                            <div class="col-md-4">
+                            <div style="flex:1; min-width: 140px;">
                                 <label for="data_fim" class="form-label">Data Fim</label>
-                                <input type="date" name="data_fim" id="data_fim" class="form-control" 
+                                <input type="date" name="data_fim" id="data_fim" class="form-control form-control-sm"
                                        value="{{ request.GET.data_fim }}">
                             </div>
-                            <div class="col-12">
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-filter me-2"></i>Filtrar
-                                </button>
-                                <a href="{% url 'core:superadmin_compras_vendedores' %}" class="btn btn-outline-secondary">
-                                    <i class="fas fa-times me-2"></i>Limpar Filtros
-                                </a>
-                                <a href="{% url 'core:exportar_compras_pdf' %}?{% if request.GET.vendedor %}vendedor={{ request.GET.vendedor }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.data_inicio %}&data_inicio={{ request.GET.data_inicio }}{% endif %}{% if request.GET.data_fim %}&data_fim={{ request.GET.data_fim }}{% endif %}" class="btn btn-danger">
-                                    <i class="fas fa-file-pdf me-2"></i>Exportar PDF
-                                </a>
-                            </div>
+                        </div>
+                        <div class="d-flex flex-wrap gap-2">
+                            <button type="submit" class="btn btn-primary px-2 py-1" style="font-size:0.85rem; min-height:1.3rem; border-radius:0.35rem;"><i class="fas fa-filter me-2"></i>Filtrar</button>
+                            <a href="{% url 'core:superadmin_compras_vendedores' %}" class="btn btn-outline-secondary px-2 py-1" style="font-size:0.85rem; min-height:1.3rem; border-radius:0.35rem;">
+                                <i class="fas fa-times me-2"></i>Limpar Filtros
+                            </a>
+                            <a href="{% url 'core:exportar_compras_pdf' %}?{% if request.GET.vendedor %}vendedor={{ request.GET.vendedor }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.data_inicio %}&data_inicio={{ request.GET.data_inicio }}{% endif %}{% if request.GET.data_fim %}&data_fim={{ request.GET.data_fim }}{% endif %}" class="btn btn-danger btn-sm">
+                                <i class="fas fa-file-pdf me-2"></i>Exportar PDF
+                            </a>
                         </div>
                     </form>
 

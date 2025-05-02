@@ -4,6 +4,70 @@
 {% block title %}Dashboard do Vendedor - AgroMarketplace{% endblock %}
 
 {% block content %}
+<style>
+    /* Cards modernos e responsivos para o dashboard do vendedor */
+    .dashboard-card {
+        border-radius: 1.25rem !important;
+        box-shadow: 0 4px 24px 0 rgba(0,0,0,0.07), 0 1.5px 4px 0 rgba(0,0,0,0.03) !important;
+        transition: box-shadow 0.2s, transform 0.2s;
+        padding: 1.5rem 1rem 1.2rem 1rem;
+        background: #fff;
+        min-height: 180px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+    .dashboard-card:hover {
+        box-shadow: 0 8px 32px 0 rgba(0,0,0,0.12), 0 3px 8px 0 rgba(0,0,0,0.06) !important;
+        transform: translateY(-2px) scale(1.02);
+    }
+    .dashboard-card .icon-wrapper {
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        background: rgba(0,0,0,0.04);
+    }
+    .dashboard-card i {
+        font-size: 2.2rem;
+        margin: 0;
+    }
+    .dashboard-card .card-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+        color: #222;
+    }
+    .dashboard-card .card-value {
+        font-size: 2.1rem;
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+    }
+    .dashboard-card .card-text {
+        font-size: 1.05rem;
+        color: #6c757d;
+    }
+    @media (max-width: 767px) {
+        .dashboard-card {
+            min-height: 140px;
+            padding: 1.1rem 0.5rem;
+        }
+        .dashboard-card .icon-wrapper {
+            width: 48px;
+            height: 48px;
+        }
+        .dashboard-card .card-title {
+            font-size: 1rem;
+        }
+        .dashboard-card .card-value {
+            font-size: 1.4rem;
+        }
+    }
+</style>
 <div class="container-fluid">
     <!-- Cabeçalho -->
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-4 border-bottom">
@@ -24,71 +88,39 @@
     <!-- Cards de Estatísticas -->
     <div class="row g-4 mb-4">
         <div class="col-md-6 col-lg-3">
-            <div class="card h-100">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-shrink-0">
-                            <div class="bg-primary bg-opacity-10 rounded p-3">
-                                <i class="fas fa-shopping-cart fa-2x text-primary"></i>
-                            </div>
-                        </div>
-                        <div class="flex-grow-1 ms-3">
-                            <h6 class="text-muted mb-1">Total de Pedidos</h6>
-                            <h3 class="mb-0 fw-bold">{{ total_pedidos }}</h3>
-                        </div>
-                    </div>
+            <div class="dashboard-card h-100">
+                <div class="icon-wrapper bg-primary bg-opacity-10">
+                    <i class="fas fa-shopping-cart text-primary"></i>
                 </div>
+                <div class="card-title">Total de Pedidos</div>
+                <div class="card-value">{{ total_pedidos }}</div>
             </div>
         </div>
         <div class="col-md-6 col-lg-3">
-            <div class="card h-100">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-shrink-0">
-                            <div class="bg-warning bg-opacity-10 rounded p-3">
-                                <i class="fas fa-clock fa-2x text-warning"></i>
-                            </div>
-                        </div>
-                        <div class="flex-grow-1 ms-3">
-                            <h6 class="text-muted mb-1">Aguardando Aprovação</h6>
-                            <h3 class="mb-0 fw-bold">{{ pedidos_pendentes }}</h3>
-                        </div>
-                    </div>
+            <div class="dashboard-card h-100">
+                <div class="icon-wrapper bg-warning bg-opacity-10">
+                    <i class="fas fa-clock text-warning"></i>
                 </div>
+                <div class="card-title">Aguardando Aprovação</div>
+                <div class="card-value">{{ pedidos_pendentes }}</div>
             </div>
         </div>
         <div class="col-md-6 col-lg-3">
-            <div class="card h-100">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-shrink-0">
-                            <div class="bg-success bg-opacity-10 rounded p-3">
-                                <i class="fas fa-check-circle fa-2x text-success"></i>
-                            </div>
-                        </div>
-                        <div class="flex-grow-1 ms-3">
-                            <h6 class="text-muted mb-1">Pedidos Aprovados</h6>
-                            <h3 class="mb-0 fw-bold">{{ pedidos_aprovados }}</h3>
-                        </div>
-                    </div>
+            <div class="dashboard-card h-100">
+                <div class="icon-wrapper bg-success bg-opacity-10">
+                    <i class="fas fa-check-circle text-success"></i>
                 </div>
+                <div class="card-title">Pedidos Aprovados</div>
+                <div class="card-value">{{ pedidos_aprovados }}</div>
             </div>
         </div>
         <div class="col-md-6 col-lg-3">
-            <div class="card h-100">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-shrink-0">
-                            <div class="bg-danger bg-opacity-10 rounded p-3">
-                                <i class="fas fa-times-circle fa-2x text-danger"></i>
-                            </div>
-                        </div>
-                        <div class="flex-grow-1 ms-3">
-                            <h6 class="text-muted mb-1">Pedidos Rejeitados</h6>
-                            <h3 class="mb-0 fw-bold">{{ pedidos_rejeitados }}</h3>
-                        </div>
-                    </div>
+            <div class="dashboard-card h-100">
+                <div class="icon-wrapper bg-danger bg-opacity-10">
+                    <i class="fas fa-times-circle text-danger"></i>
                 </div>
+                <div class="card-title">Pedidos Rejeitados</div>
+                <div class="card-value">{{ pedidos_rejeitados }}</div>
             </div>
         </div>
     </div>

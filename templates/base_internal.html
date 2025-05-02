@@ -69,36 +69,98 @@
         }
         
         .sidebar {
-            width: var(--sidebar-width);
+            display: none;
             position: fixed;
+            z-index: 1050;
             top: 0;
-            bottom: 0;
             left: 0;
-            z-index: 100;
-            padding: 0;
-            box-shadow: var(--card-shadow);
-            background-color: var(--sidebar-bg);
-            transition: background-color var(--transition-speed);
+            width: 80vw;
+            max-width: 320px;
+            height: 100vh;
+            background: var(--sidebar-bg);
+            /* Sombra só nas laterais e base, não no topo */
+            box-shadow: 2px 4px 12px 0 rgba(0,0,0,0.08);
+            transition: left 0.3s, display 0.3s;
         }
         
-        .sidebar-sticky {
-            position: sticky;
-            top: 0;
-            height: 100vh;
-            padding-top: 1rem;
-            overflow-x: hidden;
-            overflow-y: auto;
+        .sidebar.active {
+            display: block;
         }
         
         .main-content {
+            margin-left: 0 !important;
+            padding: 1.5rem;
             flex: 1;
-            margin-left: var(--sidebar-width);
             min-height: 100vh;
             background-color: var(--main-bg);
-            padding: 1.5rem;
-            transition: background-color var(--transition-speed), margin-left var(--transition-speed);
+            transition: background-color var(--transition-speed);
+            padding-top: 90px;
         }
         
+        .sidebar-sticky {
+            height: auto;
+            padding-top: 96px;
+        }
+        
+        .dashboard-content-wrapper {
+            overflow-x: auto;
+        }
+        
+        /* Gráficos responsivos */
+        canvas, .chartjs-render-monitor {
+            max-width: 100% !important;
+            height: auto !important;
+        }
+        
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            z-index: 1049;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0,0,0,0.3);
+            transition: opacity 0.3s;
+        }
+        
+        .sidebar.active ~ .sidebar-overlay {
+            display: block;
+        }
+        
+        .sidebar-overlay.active {
+            display: block;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar .nav-link {
+                padding: 0.7rem 0.7rem;
+                font-size: 1rem;
+                margin: 0.1rem 0.5rem;
+                min-height: 48px;
+                display: flex;
+                align-items: center;
+            }
+            .sidebar .nav-link i {
+                font-size: 1.3rem;
+                margin-right: 0.7rem;
+                width: 2rem;
+                text-align: center;
+            }
+            .sidebar .nav-link span,
+            .sidebar .nav-link .menu-label {
+                font-size: 1rem;
+            }
+        }
+        @media (max-width: 500px) {
+            .sidebar .nav-link span,
+            .sidebar .nav-link .menu-label {
+                font-size: 0.95rem;
+            }
+            .sidebar .nav-link i {
+                font-size: 1.4rem;
+            }
+        }
         .nav-link {
             color: #6c757d;
             padding: 0.8rem 1rem;
@@ -106,112 +168,195 @@
             margin: 0.2rem 1rem;
             transition: all var(--transition-speed);
         }
-        
         .nav-link:hover {
             color: var(--sidebar-hover-color);
             background-color: var(--sidebar-hover-bg);
         }
-        
         .nav-link.active {
             color: var(--sidebar-active-color);
             background-color: var(--sidebar-active-bg);
             font-weight: 500;
         }
-        
         .nav-link i {
             width: 1.5rem;
             text-align: center;
         }
-        
         .card {
             transition: transform var(--transition-speed), box-shadow var(--transition-speed);
             border: none;
             box-shadow: var(--card-shadow);
         }
-        
         .card:hover {
             transform: translateY(-3px);
             box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
         }
-        
         .btn-primary {
             background-color: var(--primary-color);
             border-color: var(--primary-color);
         }
-        
         .btn-primary:hover {
             background-color: var(--primary-hover);
             border-color: var(--primary-hover);
         }
-        
         .btn-outline-primary {
             color: var(--primary-color);
             border-color: var(--primary-color);
         }
-        
         .btn-outline-primary:hover {
             background-color: var(--primary-color);
             border-color: var(--primary-color);
         }
-        
         .text-primary {
             color: var(--primary-color) !important;
         }
-        
         .bg-primary {
             background-color: var(--primary-color) !important;
         }
-        
         .bg-success {
             background-color: var(--success-color) !important;
         }
-        
         .bg-warning {
             background-color: var(--warning-color) !important;
         }
-        
         .bg-danger {
             background-color: var(--danger-color) !important;
         }
-        
         .bg-info {
             background-color: var(--info-color) !important;
         }
-        
         .text-success {
             color: var(--success-color) !important;
         }
-        
         .text-warning {
             color: var(--warning-color) !important;
         }
-        
         .text-danger {
             color: var(--danger-color) !important;
         }
-        
         .text-info {
             color: var(--info-color) !important;
         }
-        
-        @media (max-width: 768px) {
-            body {
-                flex-direction: column;
+        /* CSS para imagens nas opções do menu */
+        .sidebar .nav-link img {
+            max-width: 28px;
+            max-height: 28px;
+            margin-right: 0.5rem;
+            border-radius: 0.25rem;
+            object-fit: cover;
+        }
+        @media (max-width: 991px) {
+            .navbar .flex-grow-1 {
+                align-items: flex-start !important;
             }
-            
-            .sidebar {
-                width: 100%;
-                height: auto;
-                position: relative;
+            .navbar .navbar-brand span {
+                font-size: 1.1rem !important;
             }
-            
+            .navbar .fw-bold.h5 {
+                font-size: 1.1rem !important;
+            }
+            .navbar .text-muted.small {
+                font-size: 0.95rem !important;
+            }
+        }
+        @media (max-width: 600px) {
+            .navbar .flex-grow-1 {
+                align-items: flex-start !important;
+                padding-left: 0 !important;
+            }
+            .navbar .fw-bold.h5 {
+                font-size: 1rem !important;
+            }
+            .navbar .text-muted.small {
+                font-size: 0.9rem !important;
+            }
+            .navbar .navbar-brand img {
+                max-height: 32px !important;
+            }
+            .navbar .btn {
+                padding: 0.5rem 0.7rem !important;
+                font-size: 0.95rem !important;
+            }
             .main-content {
-                margin-left: 0;
-                padding: 1rem;
+                padding-top: 100px;
             }
-            
-            .sidebar-sticky {
-                height: auto;
+        }
+        .navbar-center {
+            left: 50%;
+            transform: translateX(-50%);
+            top: 6px;
+            position: absolute !important;
+            z-index: 1;
+            min-width: 200px;
+            max-width: 70vw;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+        @media (max-width: 991px) {
+            .navbar-center {
+                max-width: 90vw;
+            }
+        }
+        @media (max-width: 600px) {
+            .navbar-center {
+                max-width: 99vw;
+                min-width: 120px;
+                white-space: normal;
+            }
+            .navbar-center .text-muted.small {
+                font-size: 0.9rem !important;
+                white-space: normal;
+                word-break: break-word;
+            }
+        }
+        /* Sidebar mais clean e profissional */
+        .modern-sidebar-menu .nav-item {
+            margin-bottom: 0.1rem;
+        }
+        .modern-sidebar-menu .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+            font-size: 1.01rem;
+            font-weight: 500;
+            border-radius: 0.55rem;
+            padding: 0.55rem 0.7rem;
+            margin: 0 0.3rem;
+            min-height: 38px;
+            transition: background 0.18s, color 0.18s, box-shadow 0.18s;
+            box-shadow: none;
+        }
+        .modern-sidebar-menu .nav-link i {
+            font-size: 1.18rem;
+            min-width: 1.5rem;
+            text-align: center;
+            opacity: 0.92;
+        }
+        .modern-sidebar-menu .nav-link.active {
+            background: var(--sidebar-active-bg);
+            color: var(--sidebar-active-color);
+            font-weight: 600;
+            box-shadow: 0 2px 8px 0 rgba(40,167,69,0.07);
+        }
+        .modern-sidebar-menu .nav-link:hover {
+            background: var(--sidebar-hover-bg);
+            color: var(--sidebar-hover-color);
+            box-shadow: 0 2px 8px 0 rgba(40,167,69,0.09);
+        }
+        .modern-sidebar-menu .nav-link.text-danger {
+            color: #dc3545 !important;
+        }
+        .modern-sidebar-menu .nav-link.text-danger:hover {
+            background: #f8d7da !important;
+            color: #a71d2a !important;
+        }
+        @media (max-width: 768px) {
+            .modern-sidebar-menu .nav-link {
+                font-size: 0.97rem;
+                padding: 0.5rem 0.5rem;
+                min-height: 34px;
+            }
+            .modern-sidebar-menu .nav-link i {
+                font-size: 1.08rem;
             }
         }
     </style>
@@ -223,13 +368,41 @@
         <div class="loader-spinner"></div>
     </div>
 
+    <!-- Overlay para o menu lateral no mobile -->
+    <div id="sidebar-overlay" class="sidebar-overlay"></div>
+
+    <!-- NAVBAR FIXA NO TOPO -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom shadow-sm fixed-top" style="z-index: 1101; min-height: 70px; box-shadow: 0 2px 12px 0 rgba(40,167,69,0.07);">
+        <div class="container-fluid px-3 d-flex align-items-center justify-content-between gap-2 flex-wrap position-relative" style="min-height:70px;">
+            <!-- Esquerda: Logo + Nome -->
+            <div class="d-flex align-items-center gap-2 flex-shrink-0" style="min-width: 0;">
+                <button class="btn btn-outline-primary me-2 d-flex align-items-center justify-content-center" id="btn-toggle-sidebar" type="button" style="border-radius: 50%; width: 40px; height: 40px;">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <a href="/" class="navbar-brand d-flex align-items-center mb-0 h-100 p-0" style="min-width:0;">
+                    <img src="{% static 'img/PNG/Logotipo Verde.png' %}" alt="AgroMais" style="max-height:52px; width:auto;">
+                </a>
+            </div>
+            <!-- Centro: Título e subtítulo alinhados ao topo -->
+            <div class="navbar-center position-absolute start-50 translate-middle-x d-flex flex-column align-items-center w-100 px-2" style="top: 6px; pointer-events:none; max-width: 70vw; overflow: hidden; white-space: nowrap;">
+                <div class="fw-bold h5 mb-0 text-truncate text-center" style="font-size:1.1rem; color:var(--primary-color); pointer-events:auto; overflow: hidden; text-overflow: ellipsis; max-width: 100%;">
+                    {% block navbar_title %}Dashboard do SuperAdmin{% endblock %}
+                </div>
+                <div class="text-muted small text-center" style="font-size:0.95rem; pointer-events:auto; overflow: hidden; text-overflow: ellipsis; max-width: 100%; white-space: normal; word-break: break-word;">
+                    {% block navbar_subtitle %}Bem-vindo ao painel de controle administrativo{% endblock %}
+                </div>
+            </div>
+            <!-- Direita: Botões de ação -->
+            <div class="d-flex align-items-center ms-auto gap-2 flex-shrink-0">
+                {% block navbar_actions %}{% endblock %}
+            </div>
+        </div>
+    </nav>
+
     <!-- Sidebar -->
     <nav class="sidebar">
         <div class="sidebar-sticky">
-            <div class="text-center py-4">
-                <img src="{% static 'img/PNG/Logotipo Verde.png' %}" alt="Logo" class="img-fluid" style="max-width: 150px;">
-            </div>
-            <ul class="nav flex-column">
+            <ul class="nav flex-column modern-sidebar-menu">
                 {% if user|is_vendedor %}
                 <li class="nav-item">
                     <a class="nav-link {% if request.resolver_match.url_name == 'seller_dashboard' %}active{% endif %}" href="{% url 'core:seller_dashboard' %}">
@@ -241,45 +414,45 @@
                 {% if user.is_superuser %}
                 <li class="nav-item">
                     <a class="nav-link {% if request.path == '/superadmin/dashboard/' %}active{% endif %}" href="/superadmin/dashboard/">
-                        <i class="fas fa-home"></i>
+                        <i class="fas fa-home text-success"></i>
                         Início do Painel Admin
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link {% if request.resolver_match.url_name == 'admin:index' %}active{% endif %}" href="{% url 'admin:index' %}">
-                        <i class="fas fa-cogs"></i>
+                        <i class="fas fa-cogs text-success"></i>
                         Dashboard Admin
                     </a>
                 </li>
                 {% endif %}
                 <li class="nav-item">
                     <a class="nav-link {% if request.resolver_match.url_name == 'catalogo' %}active{% endif %}" href="{% url 'core:catalogo' %}">
-                        <i class="fas fa-store"></i>
+                        <i class="fas fa-store text-info"></i>
                         Catálogo
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link {% if request.resolver_match.url_name == 'pedidos' %}active{% endif %}" href="{% url 'core:pedidos' %}">
-                        <i class="fas fa-shopping-cart"></i>
+                        <i class="fas fa-shopping-cart text-warning"></i>
                         Meus Pedidos
                     </a>
                 </li>
                 {% if user|is_vendedor %}
                 <li class="nav-item">
                     <a class="nav-link {% if request.resolver_match.url_name == 'suporte' %}active{% endif %}" href="{% url 'core:suporte' %}">
-                        <i class="fas fa-headset"></i>
+                        <i class="fas fa-headset text-primary"></i>
                         Suporte
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link {% if request.resolver_match.url_name == 'seller_profile' %}active{% endif %}" href="{% url 'core:seller_profile' %}">
-                        <i class="fas fa-user-cog"></i>
+                        <i class="fas fa-user-cog text-success"></i>
                         Gerenciar Perfil
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link {% if request.resolver_match.url_name == 'minhas_solicitacoes' %}active{% endif %}" href="{% url 'core:minhas_solicitacoes' %}">
-                        <i class="fas fa-clipboard-list"></i>
+                        <i class="fas fa-clipboard-list text-info"></i>
                         Minhas Solicitações
                     </a>
                 </li>
@@ -287,25 +460,25 @@
                 {% if user.is_superuser %}
                 <li class="nav-item">
                     <a class="nav-link {% if request.resolver_match.url_name == 'listar_vendedores' %}active{% endif %}" href="{% url 'core:listar_vendedores' %}">
-                        <i class="fas fa-users"></i>
+                        <i class="fas fa-users text-success"></i>
                         Gerenciar Vendedores
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link {% if request.resolver_match.url_name == 'superadmin_products' %}active{% endif %}" href="{% url 'core:superadmin_products' %}">
-                        <i class="fas fa-box"></i>
+                        <i class="fas fa-box text-info"></i>
                         Gerenciar Produtos
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link {% if request.resolver_match.url_name == 'superadmin_pedidos' %}active{% endif %}" href="{% url 'core:superadmin_pedidos' %}">
-                        <i class="fas fa-shopping-cart"></i>
+                        <i class="fas fa-shopping-cart text-warning"></i>
                         Gerenciar Pedidos
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link {% if request.resolver_match.url_name == 'superadmin_suporte' %}active{% endif %}" href="{% url 'core:superadmin_suporte' %}">
-                        <i class="fas fa-headset me-2"></i>
+                        <i class="fas fa-headset me-2 text-primary"></i>
                         Suporte
                         {% if mensagens_pendentes > 0 %}
                         <span class="badge bg-warning rounded-pill ms-2">{{ mensagens_pendentes }}</span>
@@ -314,20 +487,20 @@
                 </li>
                 <li class="nav-item">
                     <a class="nav-link {% if request.resolver_match.url_name == 'superadmin_solicitacoes' %}active{% endif %}" href="{% url 'core:superadmin_solicitacoes' %}">
-                        <i class="fas fa-clipboard-list me-2"></i>
+                        <i class="fas fa-clipboard-list me-2 text-info"></i>
                         Solicitações de Produtos
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link {% if request.resolver_match.url_name == 'superadmin_compras_vendedores' %}active{% endif %}" href="{% url 'core:superadmin_compras_vendedores' %}">
-                        <i class="fas fa-cash-register me-2"></i>
+                        <i class="fas fa-cash-register me-2 text-success"></i>
                         Compras de Vendedores
                     </a>
                 </li>
                 {% endif %}
-                <li class="nav-item mt-4">
+                <li class="nav-item">
                     <a class="nav-link text-danger" href="{% url 'core:logout' %}">
-                        <i class="fas fa-sign-out-alt"></i>
+                        <i class="fas fa-sign-out-alt text-danger"></i>
                         Sair
                     </a>
                 </li>
@@ -336,7 +509,7 @@
     </nav>
 
     <!-- Main Content -->
-    <main class="main-content">
+    <main class="main-content" style="padding-top: 110px;">
         {% if messages %}
         <div class="messages-container mb-4">
             {% for message in messages %}
@@ -347,8 +520,9 @@
             {% endfor %}
         </div>
         {% endif %}
-
-        {% block content %}{% endblock %}
+        <div class="dashboard-content-wrapper">
+            {% block content %}{% endblock %}
+        </div>
     </main>
 
     {% block extra_js %}{% endblock %}
@@ -377,6 +551,28 @@
                 }
             });
         }, 4000);
+        // Botão hamburguer universal
+        var btnToggle = document.getElementById('btn-toggle-sidebar');
+        var sidebar = document.querySelector('.sidebar');
+        var overlay = document.getElementById('sidebar-overlay');
+        btnToggle && btnToggle.addEventListener('click', function(e) {
+            e.stopPropagation();
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+            document.body.classList.toggle('sidebar-open');
+        });
+        overlay && overlay.addEventListener('click', function() {
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
+            document.body.classList.remove('sidebar-open');
+        });
+        document.addEventListener('click', function(e) {
+            if (sidebar.classList.contains('active') && !sidebar.contains(e.target) && e.target !== btnToggle) {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+                document.body.classList.remove('sidebar-open');
+            }
+        });
     });
     </script>
 </body>

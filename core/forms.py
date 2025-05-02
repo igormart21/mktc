@@ -226,7 +226,7 @@ class SellerRegistrationForm(forms.ModelForm):
     culturas_atendidas = forms.MultipleChoiceField(
         choices=Vendedor.CULTURAS_CHOICES,
         label='Culturas Atendidas',
-        required=True,
+        required=False,
         widget=forms.CheckboxSelectMultiple(attrs={'class': 'form-check-input'})
     )
     

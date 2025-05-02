@@ -4,29 +4,125 @@
 
 {% block title %}Gerenciar Suporte - AgroMarketplace{% endblock %}
 
-{% block content %}
-<div class="container-fluid py-4">
-    <!-- Cabeçalho -->
-    <div class="row mb-4">
-        <div class="col-md-12">
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-white py-3">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h3 class="h3 mb-0">
-                            <i class="fas fa-headset text-primary me-2"></i>Gerenciar Suporte
-                        </h3>
-                    </div>
-                    <p class="text-muted mb-0 mt-2">Visualize e responda as mensagens dos vendedores.</p>
-                </div>
-            </div>
-        </div>
-    </div>
+{% block navbar_title %}
+Gerenciar Suporte
+{% endblock %}
 
+{% block navbar_subtitle %}
+Visualize e responda as mensagens dos vendedores.
+{% endblock %}
+
+{% block content %}
+<style>
+    /* Filtros centralizados, campos maiores e ocupando toda a largura (padrão catálogo/pedidos) */
+    .catalogo-filtros-card {
+        margin-top: 0.5rem !important;
+        border-radius: 1.1rem;
+        box-shadow: 0 2px 12px 0 rgba(40,167,69,0.04);
+        width: 100%;
+        max-width: 100%;
+    }
+    .catalogo-filtros-card .card-body {
+        padding: 0.7rem 1.2rem 0.6rem 1.2rem;
+    }
+    .catalogo-filtros-card .form-label {
+        font-size: 1rem;
+        margin-bottom: 0.12rem;
+        color: #222;
+        font-weight: bold;
+        letter-spacing: 0.01em;
+        text-align: left;
+        padding-left: 2px;
+    }
+    .catalogo-filtros-card .form-control,
+    .catalogo-filtros-card .form-select {
+        font-size: 1.08rem;
+        padding: 0.28rem 0.7rem;
+        height: 2.2rem;
+        border-radius: 0.55rem;
+        border-width: 1px;
+        box-shadow: none;
+        background: #fff;
+        margin-bottom: 0 !important;
+    }
+    .catalogo-filtros-card .form-control:focus,
+    .catalogo-filtros-card .form-select:focus {
+        border-color: #b2dfb2;
+        box-shadow: 0 0 0 1px #b2dfb2;
+    }
+    .catalogo-filtros-card .row.g-3 {
+        --bs-gutter-x: 1.2rem;
+        --bs-gutter-y: 0.1rem;
+        margin-bottom: 0.1rem;
+        align-items: end;
+    }
+    .catalogo-filtros-card button,
+    .catalogo-filtros-card a.btn {
+        font-size: 0.92rem;
+        padding: 0.13rem 0.7rem;
+        border-radius: 0.38rem;
+        min-height: 1.45rem;
+        box-shadow: none;
+        font-weight: 500;
+        letter-spacing: 0.01em;
+    }
+    .catalogo-filtros-card .btn-primary,
+    .catalogo-filtros-card .btn-outline-secondary {
+        font-weight: 500;
+        letter-spacing: 0.01em;
+    }
+    @media (min-width: 768px) {
+        .catalogo-filtros-card .row.g-3 > [class^='col-'] {
+            flex: 1 1 0;
+            min-width: 180px;
+            max-width: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+        }
+        .catalogo-filtros-card form {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-end;
+            gap: 0.2rem 1.2rem;
+        }
+    }
+    @media (max-width: 767px) {
+        .catalogo-filtros-card {
+            padding-left: 0.2rem;
+            padding-right: 0.2rem;
+        }
+        .catalogo-filtros-card .row.g-3 {
+            flex-direction: column;
+        }
+        .catalogo-filtros-card .form-control,
+        .catalogo-filtros-card .form-select {
+            font-size: 1.05rem;
+            height: 2.3rem;
+        }
+        .catalogo-filtros-card .form-label {
+            padding-left: 0;
+        }
+    }
+    .catalogo-filtros-card .btn-filtro-suporte {
+        width: 100%;
+        min-width: 130px;
+        max-width: 200px;
+        font-size: 0.98rem;
+        padding: 0.18rem 0.8rem;
+        border-radius: 0.45rem;
+        min-height: 1.7rem;
+        box-shadow: none;
+        font-weight: 500;
+        letter-spacing: 0.01em;
+    }
+</style>
+<div class="container-fluid py-2">
     <!-- Filtros -->
-    <div class="card border-0 shadow-sm mb-4">
+    <div class="card border-0 shadow-sm mb-4 catalogo-filtros-card">
         <div class="card-body">
             <form method="get" class="row g-3">
-                <div class="col-md-4">
+                <div class="col-md-6">
                     <label for="status" class="form-label">Status</label>
                     <select class="form-select" id="status" name="status">
                         <option value="">Todos</option>
@@ -34,15 +130,15 @@
                         <option value="respondido" {% if status_filtro == 'respondido' %}selected{% endif %}>Respondidos</option>
                     </select>
                 </div>
-                <div class="col-md-4 d-flex align-items-end">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-filter me-2"></i>Filtrar
-                    </button>
+                <div class="col-md-6 d-flex align-items-end gap-2 justify-content-end">
+                    <button type="submit" class="btn btn-primary px-2 py-1" style="font-size:0.85rem; min-height:1.3rem; border-radius:0.35rem;"><i class="fas fa-filter me-2"></i>Filtrar</button>
+                    <a href="{% url 'core:superadmin_suporte' %}" class="btn btn-outline-secondary btn-filtro-suporte">
+                        <i class="fas fa-times me-2"></i>Limpar Filtros
+                    </a>
                 </div>
             </form>
         </div>
     </div>
-
     <!-- Lista de Mensagens em Accordion -->
     <div class="accordion" id="suporteAccordion">
       {% for mensagem in mensagens %}

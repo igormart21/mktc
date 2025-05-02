@@ -3,24 +3,22 @@
 
 {% block title %}Dashboard do SuperAdmin - AgroMarketplace{% endblock %}
 
+{% block navbar_title %}
+Dashboard do SuperAdmin
+{% endblock %}
+
+{% block navbar_subtitle %}
+Bem-vindo ao painel de controle administrativo
+{% endblock %}
+
+{% block navbar_actions %}
+<a href="{% url 'core:cadastrar_vendedor' %}" class="btn btn-primary">
+    <i class="fas fa-user-plus me-1"></i> Adicionar Vendedor
+</a>
+{% endblock %}
+
 {% block content %}
 <div class="container-fluid">
-    <!-- Cabeçalho -->
-    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-4 border-bottom">
-        <div>
-            <h1 class="h2 mb-1">Dashboard do SuperAdmin</h1>
-            <p class="text-muted">Bem-vindo ao painel de controle administrativo</p>
-        </div>
-        <div class="btn-toolbar mb-2 mb-md-0">
-            <div class="btn-group me-2">
-                <a href="{% url 'core:cadastrar_vendedor' %}" class="btn btn-sm btn-primary">
-                    <i class="fas fa-plus me-1"></i>
-                    Adicionar Vendedor
-                </a>
-            </div>
-        </div>
-    </div>
-
     <!-- Cards de Estatísticas -->
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4 mb-4">
         <div class="col">

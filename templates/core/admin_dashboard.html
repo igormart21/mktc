@@ -3,6 +3,64 @@
 
 {% block title %}Dashboard do Administrador - AgroMais{% endblock %}
 
+{% block extra_css %}
+<style>
+    /* Modernização dos cards do dashboard */
+    .dashboard-card {
+        border-radius: 1.25rem !important;
+        box-shadow: 0 4px 24px 0 rgba(0,0,0,0.07), 0 1.5px 4px 0 rgba(0,0,0,0.03) !important;
+        transition: box-shadow 0.2s, transform 0.2s;
+        padding: 1.5rem 1rem 1.2rem 1rem;
+        background: #fff;
+        min-height: 180px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+    .dashboard-card:hover {
+        box-shadow: 0 8px 32px 0 rgba(0,0,0,0.12), 0 3px 8px 0 rgba(0,0,0,0.06) !important;
+        transform: translateY(-2px) scale(1.02);
+    }
+    .dashboard-card .icon-wrapper {
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        background: rgba(0,0,0,0.04);
+    }
+    .dashboard-card i {
+        font-size: 2.2rem;
+        margin: 0;
+    }
+    .dashboard-card .card-title {
+        font-size: 2.1rem;
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+    }
+    .dashboard-card .card-text {
+        font-size: 1.05rem;
+        color: #6c757d;
+    }
+    @media (max-width: 767px) {
+        .dashboard-card {
+            min-height: 140px;
+            padding: 1.1rem 0.5rem;
+        }
+        .dashboard-card .icon-wrapper {
+            width: 48px;
+            height: 48px;
+        }
+        .dashboard-card .card-title {
+            font-size: 1.4rem;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="container py-5">
     <!-- Cabeçalho -->
@@ -16,59 +74,40 @@
 
     <!-- Cards de Estatísticas -->
     <div class="row g-4 mb-5">
-        <div class="col-md-3">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body text-center">
-                    <div class="mb-3">
-                        <div class="bg-primary bg-opacity-10 p-3 rounded-circle d-inline-block">
-                            <i class="fas fa-users fa-2x text-primary"></i>
-                        </div>
-                    </div>
-                    <h3 class="card-title mb-2">{{ total_usuarios }}</h3>
-                    <p class="card-text text-muted mb-0">Total de Usuários</p>
+        <div class="col-12 col-sm-6 col-md-3">
+            <div class="dashboard-card">
+                <div class="icon-wrapper bg-primary bg-opacity-10">
+                    <i class="fas fa-users text-primary"></i>
                 </div>
+                <div class="card-title">{{ total_usuarios }}</div>
+                <div class="card-text">Total de Usuários</div>
             </div>
         </div>
-
-        <div class="col-md-3">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body text-center">
-                    <div class="mb-3">
-                        <div class="bg-success bg-opacity-10 p-3 rounded-circle d-inline-block">
-                            <i class="fas fa-store fa-2x text-success"></i>
-                        </div>
-                    </div>
-                    <h3 class="card-title mb-2">{{ vendedores_ativos }}</h3>
-                    <p class="card-text text-muted mb-0">Vendedores Ativos</p>
+        <div class="col-12 col-sm-6 col-md-3">
+            <div class="dashboard-card">
+                <div class="icon-wrapper bg-success bg-opacity-10">
+                    <i class="fas fa-store text-success"></i>
                 </div>
+                <div class="card-title">{{ vendedores_ativos }}</div>
+                <div class="card-text">Vendedores Ativos</div>
             </div>
         </div>
-
-        <div class="col-md-3">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body text-center">
-                    <div class="mb-3">
-                        <div class="bg-info bg-opacity-10 p-3 rounded-circle d-inline-block">
-                            <i class="fas fa-box fa-2x text-info"></i>
-                        </div>
-                    </div>
-                    <h3 class="card-title mb-2">{{ total_produtos }}</h3>
-                    <p class="card-text text-muted mb-0">Produtos Cadastrados</p>
+        <div class="col-12 col-sm-6 col-md-3">
+            <div class="dashboard-card">
+                <div class="icon-wrapper bg-info bg-opacity-10">
+                    <i class="fas fa-box text-info"></i>
                 </div>
+                <div class="card-title">{{ total_produtos }}</div>
+                <div class="card-text">Produtos Cadastrados</div>
             </div>
         </div>
-
-        <div class="col-md-3">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body text-center">
-                    <div class="mb-3">
-                        <div class="bg-warning bg-opacity-10 p-3 rounded-circle d-inline-block">
-                            <i class="fas fa-shopping-cart fa-2x text-warning"></i>
-                        </div>
-                    </div>
-                    <h3 class="card-title mb-2">{{ total_pedidos }}</h3>
-                    <p class="card-text text-muted mb-0">Total de Pedidos</p>
+        <div class="col-12 col-sm-6 col-md-3">
+            <div class="dashboard-card">
+                <div class="icon-wrapper bg-warning bg-opacity-10">
+                    <i class="fas fa-shopping-cart text-warning"></i>
                 </div>
+                <div class="card-title">{{ total_pedidos }}</div>
+                <div class="card-text">Total de Pedidos</div>
             </div>
         </div>
     </div>

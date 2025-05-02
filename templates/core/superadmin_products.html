@@ -3,6 +3,20 @@
 
 {% block title %}Gerenciar Produtos - AgroMarketplace{% endblock %}
 
+{% block navbar_title %}
+Gerenciar Produtos
+{% endblock %}
+
+{% block navbar_subtitle %}
+Cadastre, edite e gerencie todos os produtos da plataforma.
+{% endblock %}
+
+{% block navbar_actions %}
+<a href="{% url 'core:superadmin_product_create' %}" class="btn btn-primary btn-sm px-3 py-2 shadow-sm rounded-pill d-flex align-items-center gap-2" style="font-weight:600;">
+    <i class="fas fa-plus"></i> <span class="d-none d-md-inline">Adicionar Produto</span>
+</a>
+{% endblock %}
+
 {% block extra_js %}
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -12,61 +26,142 @@
 {% endblock %}
 
 {% block content %}
-<div class="container py-4">
+<style>
+    /* Filtros centralizados, campos maiores e ocupando toda a largura (padrão catálogo/pedidos) */
+    .catalogo-filtros-card {
+        margin-top: 0.1rem !important;
+        border-radius: 1.1rem;
+        box-shadow: 0 2px 12px 0 rgba(40,167,69,0.04);
+        width: 100%;
+        max-width: 100%;
+    }
+    .catalogo-filtros-card .card-body {
+        padding: 0.7rem 0.5rem 0.6rem 0.5rem;
+    }
+    .catalogo-filtros-card .form-label {
+        font-size: 1rem;
+        margin-bottom: 0.12rem;
+        color: #222;
+        font-weight: bold;
+        letter-spacing: 0.01em;
+        text-align: left;
+        padding-left: 2px;
+    }
+    .catalogo-filtros-card .form-control,
+    .catalogo-filtros-card .form-select {
+        font-size: 1.08rem;
+        padding: 0.28rem 0.7rem;
+        height: 2.2rem;
+        border-radius: 0.55rem;
+        border-width: 1px;
+        box-shadow: none;
+        background: #fff;
+        margin-bottom: 0 !important;
+    }
+    .catalogo-filtros-card .form-control:focus,
+    .catalogo-filtros-card .form-select:focus {
+        border-color: #b2dfb2;
+        box-shadow: 0 0 0 1px #b2dfb2;
+    }
+    .catalogo-filtros-card .row.g-3 {
+        --bs-gutter-x: 1.2rem;
+        --bs-gutter-y: 0.1rem;
+        margin-bottom: 0.1rem;
+        align-items: end;
+    }
+    .catalogo-filtros-card .btn-filtro-produtos {
+        width: 100%;
+        min-width: 100px;
+        max-width: 160px;
+        font-size: 0.92rem;
+        padding: 0.13rem 0.7rem;
+        border-radius: 0.38rem;
+        min-height: 1.45rem;
+        box-shadow: none;
+        font-weight: 500;
+        letter-spacing: 0.01em;
+    }
+    .catalogo-filtros-card .btn-primary,
+    .catalogo-filtros-card .btn-outline-secondary {
+        font-weight: 500;
+        letter-spacing: 0.01em;
+    }
+    @media (min-width: 768px) {
+        .catalogo-filtros-card .row.g-3 > [class^='col-'] {
+            flex: 1 1 0;
+            min-width: 180px;
+            max-width: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+        }
+        .catalogo-filtros-card form {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-end;
+            gap: 0.2rem 1.2rem;
+        }
+    }
+    @media (max-width: 767px) {
+        .catalogo-filtros-card {
+            padding-left: 0.2rem;
+            padding-right: 0.2rem;
+        }
+        .catalogo-filtros-card .row.g-3 {
+            flex-direction: column;
+        }
+        .catalogo-filtros-card .form-control,
+        .catalogo-filtros-card .form-select {
+            font-size: 1.05rem;
+            height: 2.3rem;
+        }
+        .catalogo-filtros-card .form-label {
+            padding-left: 0;
+        }
+    }
+</style>
+<div class="container-fluid py-2">
+    <!-- Filtros -->
+    <div class="card border-0 shadow-sm mb-4 catalogo-filtros-card">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-4">
+                    <label for="category" class="form-label">Categoria</label>
+                    <select name="category" id="category" class="form-select">
+                        <option value="">Todas as categorias</option>
+                        {% for category in categories %}
+                        <option value="{{ category.id }}" {% if selected_category == category.id|stringformat:"s" %}selected{% endif %}>
+                            {{ category.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="status" class="form-label">Status</label>
+                    <select name="status" id="status" class="form-select">
+                        <option value="">Todos os status</option>
+                        <option value="active" {% if selected_status == 'active' %}selected{% endif %}>Ativo</option>
+                        <option value="inactive" {% if selected_status == 'inactive' %}selected{% endif %}>Inativo</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="search" class="form-label">Buscar</label>
+                    <input type="text" name="search" id="search" class="form-control" placeholder="Nome ou descrição" value="{{ search_query|default:'' }}">
+                </div>
+                <div class="col-12 d-flex align-items-end gap-2 justify-content-end">
+                    <button type="submit" class="btn btn-primary px-2 py-1" style="font-size:0.85rem; min-height:1.3rem; border-radius:0.35rem;"><i class="fas fa-search me-2"></i>Filtrar</button>
+                    <a href="{% url 'core:superadmin_products' %}" class="btn btn-outline-secondary btn-filtro-produtos">
+                        <i class="fas fa-times me-2"></i>Limpar Filtros
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- Lista de Produtos -->
     <div class="row mb-4">
         <div class="col-md-12">
             <div class="card border-0 shadow-sm">
-                <div class="card-header bg-white py-3">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h3 class="h3 mb-0">
-                            <i class="fas fa-box text-primary me-2"></i>Gerenciar Produtos
-                        </h3>
-                        <a href="{% url 'core:superadmin_product_create' %}" class="btn btn-success">
-                            <i class="fas fa-plus me-2"></i>Cadastrar Produto
-                        </a>
-                    </div>
-                    <p class="text-muted mb-0 mt-2">Cadastre, edite e gerencie todos os produtos da plataforma.</p>
-                </div>
                 <div class="card-body">
-                    <form method="get" class="mb-4">
-                        <div class="row g-3">
-                            <div class="col-md-4">
-                                <label for="category" class="form-label">Categoria</label>
-                                <select name="category" id="category" class="form-select">
-                                    <option value="">Todas as categorias</option>
-                                    {% for category in categories %}
-                                    <option value="{{ category.id }}" {% if selected_category == category.id|stringformat:"s" %}selected{% endif %}>
-                                        {{ category.name }}
-                                    </option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                            
-                            <div class="col-md-4">
-                                <label for="status" class="form-label">Status</label>
-                                <select name="status" id="status" class="form-select">
-                                    <option value="">Todos os status</option>
-                                    <option value="active" {% if selected_status == 'active' %}selected{% endif %}>Ativo</option>
-                                    <option value="inactive" {% if selected_status == 'inactive' %}selected{% endif %}>Inativo</option>
-                                </select>
-                            </div>
-                            
-                            <div class="col-md-4">
-                                <label for="search" class="form-label">Buscar</label>
-                                <input type="text" name="search" id="search" class="form-control" placeholder="Nome ou descrição" value="{{ search_query|default:'' }}">
-                            </div>
-                            
-                            <div class="col-12">
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-search me-2"></i>Filtrar
-                                </button>
-                                <a href="{% url 'core:superadmin_products' %}" class="btn btn-outline-secondary">
-                                    <i class="fas fa-times me-2"></i>Limpar Filtros
-                                </a>
-                            </div>
-                        </div>
-                    </form>
-
                     <div id="messages"></div>
 
                     <div class="table-responsive">

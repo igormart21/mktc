@@ -35,7 +35,12 @@
                                 <ul class="mb-0">
                                     {% for field, errors in form.errors.items %}
                                         {% for error in errors %}
-                                            <li>{{ error }}</li>
+                                            <li>
+                                                {% if field != '__all__' %}
+                                                    <strong>{{ field|capfirst }}:</strong>
+                                                {% endif %}
+                                                {{ error }}
+                                            </li>
                                         {% endfor %}
                                     {% endfor %}
                                 </ul>
@@ -162,9 +167,13 @@
                                 <label for="{{ form.estado.id_for_label }}" class="form-label">Estado</label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-light"><i class="fas fa-map"></i></span>
-                                    {{ form.estado }}
+                                    {% if form.estado %}
+                                        {{ form.estado }}
+                                    {% else %}
+                                        <input type="text" name="estado" id="id_estado" class="form-control" required>
+                                    {% endif %}
                                 </div>
-                                {% if form.estado.errors %}<div class="invalid-feedback d-block">{{ form.estado.errors }}</div>{% endif %}
+                                {% if form.estado and form.estado.errors %}<div class="invalid-feedback d-block">{{ form.estado.errors }}</div>{% endif %}
                             </div>
                         </div>
                         <div class="mb-3">

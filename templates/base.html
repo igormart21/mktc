@@ -18,7 +18,7 @@
     <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
         <div class="container">
             <a class="navbar-brand d-flex align-items-center gap-2" href="{% url 'core:home' %}">
-                <img src="{% static 'img/SVG/Fundo Branco - Logo V5.svg' %}" alt="Logo AgroMais" height="100" style="max-width:220px;width:auto;object-fit:contain;">
+                <img src="{% static 'img/SVG/Fundo Branco - Logo V5.svg' %}" alt="Logo AgroMais" height="100" style="max-width:220px;width:auto;object-fit:contain;" class="img-fluid">
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
@@ -95,7 +95,7 @@
         </div>
     </nav>
 
-    <main class="container main-container">
+    <main class="container-fluid main-container">
         {% if messages %}
             <div class="messages-container">
                 {% for message in messages %}
@@ -129,7 +129,7 @@
             <div class="row">
                 <div class="col-md-4 mb-4 mb-md-0">
                     <div class="d-flex align-items-center mb-3">
-                        <img src="{% static 'img/PNG/Logotipo Verde.png' %}" alt="Logo AgroMais" height="90" style="max-width:240px;object-fit:contain;">
+                        <img src="{% static 'img/PNG/Logotipo Verde.png' %}" alt="Logo AgroMais" height="90" style="max-width:240px;object-fit:contain;" class="img-fluid">
                     </div>
                     <p class="text-muted mb-0">Conectando produtores e consumidores de produtos agrícolas.</p>
                 </div>
