@@ -109,115 +109,115 @@ Gerencie os vendedores da plataforma, aprovações e status.
         }
     }
 </style>
-<div class="container-fluid py-2">
+<div class="container py-8">
     <!-- Filtros -->
     <div class="card border-0 shadow-sm mb-4 catalogo-filtros-card">
-        <div class="card-body">
+                <div class="card-body">
             <form method="get" class="row g-3">
                 <div class="col flex-grow-1">
                     <label for="search" class="form-label">Buscar</label>
-                    <div class="input-group">
-                        <span class="input-group-text bg-light">
-                            <i class="fas fa-search"></i>
-                        </span>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light">
+                                        <i class="fas fa-search"></i>
+                                    </span>
                         <input type="text" class="form-control" id="search" name="search" placeholder="Nome, email, CPF ou telefone" value="{{ search_query }}">
-                    </div>
-                </div>
+                                </div>
+                            </div>
                 <div class="col flex-grow-1">
                     <label for="status" class="form-label">Status</label>
                     <select name="status" id="status" class="form-select">
-                        {% for status_value, status_label in status_choices %}
+                                    {% for status_value, status_label in status_choices %}
                             <option value="{{ status_value }}" {% if status_value == status_filter %}selected{% endif %}>{{ status_label }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
+                                    {% endfor %}
+                                </select>
+                            </div>
                 <div class="col-auto d-flex align-items-end gap-2">
                     <button type="submit" class="btn btn-primary px-2 py-1 w-100" style="font-size:0.85rem; min-height:1.3rem; border-radius:0.35rem;">
-                        <i class="fas fa-filter me-2"></i>Filtrar
-                    </button>
+                                    <i class="fas fa-filter me-2"></i>Filtrar
+                                </button>
                     <a href="{% url 'core:listar_vendedores' %}" class="btn btn-outline-secondary px-2 py-1 w-100" style="font-size:0.85rem; min-height:1.3rem; border-radius:0.35rem;">
                         <i class="fas fa-times me-2"></i>Limpar Filtros
                     </a>
                 </div>
             </form>
-        </div>
-    </div>
+                            </div>
+                        </div>
     <!-- Lista de Vendedores -->
-    <div class="card shadow-sm">
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th>Nome</th>
-                            <th>E-mail</th>
-                            <th>CPF</th>
-                            <th>Status</th>
-                            <th>Data de Cadastro</th>
-                            <th>Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for vendedor in vendedores %}
-                            <tr>
-                                <td>{{ vendedor.usuario.nome }}</td>
-                                <td>{{ vendedor.usuario.email }}</td>
-                                <td>{{ vendedor.cpf }}</td>
-                                <td>
-                                    {% if vendedor.status_aprovacao == 'APROVADO' %}
-                                        <span class="badge bg-success">Aprovado</span>
-                                    {% elif vendedor.status_aprovacao == 'RECUSADO' %}
-                                        <span class="badge bg-danger">Recusado</span>
-                                    {% else %}
-                                        <span class="badge bg-warning">Pendente</span>
-                                    {% endif %}
-                                    <br>
-                                    {% if vendedor.usuario.is_active %}
-                                        <span class="badge bg-primary">Ativo</span>
-                                    {% else %}
-                                        <span class="badge bg-secondary">Inativo</span>
-                                    {% endif %}
-                                </td>
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Nome</th>
+                                            <th>E-mail</th>
+                                            <th>CPF</th>
+                                            <th>Status</th>
+                                            <th>Data de Cadastro</th>
+                                            <th>Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for vendedor in vendedores %}
+                                            <tr>
+                                                <td>{{ vendedor.usuario.nome }}</td>
+                                                <td>{{ vendedor.usuario.email }}</td>
+                                                <td>{{ vendedor.cpf }}</td>
+                                                <td>
+                                                    {% if vendedor.status_aprovacao == 'APROVADO' %}
+                                                        <span class="badge bg-success">Aprovado</span>
+                                                    {% elif vendedor.status_aprovacao == 'RECUSADO' %}
+                                                        <span class="badge bg-danger">Recusado</span>
+                                                    {% else %}
+                                                        <span class="badge bg-warning">Pendente</span>
+                                                    {% endif %}
+                                                    <br>
+                                                    {% if vendedor.usuario.is_active %}
+                                                        <span class="badge bg-primary">Ativo</span>
+                                                    {% else %}
+                                                        <span class="badge bg-secondary">Inativo</span>
+                                                    {% endif %}
+                                                </td>
                                 <td>{{ vendedor.data_criacao|date:"d/m/Y H:i" }}</td>
-                                <td>
-                                    <div class="btn-group">
-                                        <a href="{% url 'core:seller_detail' vendedor.id %}" class="btn btn-sm btn-primary" title="Ver detalhes">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-                                        <a href="{% url 'core:seller_edit' vendedor.id %}" class="btn btn-sm btn-info" title="Editar">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                        {% if vendedor.usuario.is_active %}
-                                            <form method="post" action="{% url 'core:seller_disable' vendedor.id %}" class="d-inline">
-                                                {% csrf_token %}
-                                                <button type="submit" class="btn btn-sm btn-warning" title="Desativar" onclick="return confirm('Tem certeza que deseja desativar este vendedor?')">
-                                                    <i class="fas fa-user-slash"></i>
-                                                </button>
-                                            </form>
-                                        {% else %}
-                                            <form method="post" action="{% url 'core:seller_enable' vendedor.id %}" class="d-inline">
-                                                {% csrf_token %}
-                                                <button type="submit" class="btn btn-sm btn-success" title="Ativar" onclick="return confirm('Tem certeza que deseja ativar este vendedor?')">
-                                                    <i class="fas fa-user-check"></i>
-                                                </button>
-                                            </form>
-                                        {% endif %}
-                                        <form method="post" action="{% url 'core:seller_delete' vendedor.id %}" class="d-inline">
-                                            {% csrf_token %}
-                                            <button type="submit" class="btn btn-sm btn-danger" title="Excluir" onclick="return confirm('Tem certeza que deseja excluir este vendedor? Esta ação não pode ser desfeita.')">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </form>
-                                    </div>
-                                </td>
-                            </tr>
-                        {% empty %}
-                            <tr>
-                                <td colspan="6" class="text-center">Nenhum vendedor encontrado.</td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                                                <td>
+                                                    <div class="btn-group">
+                                                        <a href="{% url 'core:seller_detail' vendedor.id %}" class="btn btn-sm btn-primary" title="Ver detalhes">
+                                                            <i class="fas fa-eye"></i>
+                                                        </a>
+                                                        <a href="{% url 'core:seller_edit' vendedor.id %}" class="btn btn-sm btn-info" title="Editar">
+                                                            <i class="fas fa-edit"></i>
+                                                        </a>
+                                                        {% if vendedor.usuario.is_active %}
+                                                            <form method="post" action="{% url 'core:seller_disable' vendedor.id %}" class="d-inline">
+                                                                {% csrf_token %}
+                                                                <button type="submit" class="btn btn-sm btn-warning" title="Desativar" onclick="return confirm('Tem certeza que deseja desativar este vendedor?')">
+                                                                    <i class="fas fa-user-slash"></i>
+                                                                </button>
+                                                            </form>
+                                                        {% else %}
+                                                            <form method="post" action="{% url 'core:seller_enable' vendedor.id %}" class="d-inline">
+                                                                {% csrf_token %}
+                                                                <button type="submit" class="btn btn-sm btn-success" title="Ativar" onclick="return confirm('Tem certeza que deseja ativar este vendedor?')">
+                                                                    <i class="fas fa-user-check"></i>
+                                                                </button>
+                                                            </form>
+                                                        {% endif %}
+                                                        <form method="post" action="{% url 'core:seller_delete' vendedor.id %}" class="d-inline">
+                                                            {% csrf_token %}
+                                                            <button type="submit" class="btn btn-sm btn-danger" title="Excluir" onclick="return confirm('Tem certeza que deseja excluir este vendedor? Esta ação não pode ser desfeita.')">
+                                                                <i class="fas fa-trash"></i>
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        {% empty %}
+                                            <tr>
+                                                <td colspan="6" class="text-center">Nenhum vendedor encontrado.</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
             </div>
         </div>
     </div>

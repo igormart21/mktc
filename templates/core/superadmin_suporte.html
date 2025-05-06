@@ -117,7 +117,7 @@ Visualize e responda as mensagens dos vendedores.
         letter-spacing: 0.01em;
     }
 </style>
-<div class="container-fluid py-2">
+<div class="container py-8">
     <!-- Filtros -->
     <div class="card border-0 shadow-sm mb-4 catalogo-filtros-card">
         <div class="card-body">
@@ -199,7 +199,7 @@ function encerrarCaso(mensagemId) {
         const csrf = document.createElement('input');
         csrf.type = 'hidden';
         csrf.name = 'csrfmiddlewaretoken';
-        csrf.value = '{{ csrf_token }}';
+        csrf.value = document.querySelector('input[name=csrfmiddlewaretoken]').value;
         form.appendChild(csrf);
         const input = document.createElement('input');
         input.type = 'hidden';

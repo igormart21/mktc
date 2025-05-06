@@ -539,13 +539,13 @@ footer h5 {
     width: 1.5rem;
     text-align: center;
     margin-right: 0.75rem;
-    color: #6b7280;
+    color: inherit !important;
     transition: color 0.2s ease;
 }
 
 .menu-item:hover i,
 .menu-item.active i {
-    color: var(--primary-color);
+    color: inherit !important;
 }
 
 /* Responsividade */

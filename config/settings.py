@@ -185,11 +185,12 @@ DATABASES = {
         'NAME': 'agromarketplace',
         'USER': 'root',
         'PASSWORD': 'root123',
-        'HOST': 'localhost',  # Usando localhost pois a porta está mapeada
+        'HOST': '127.0.0.1',
         'PORT': '3306',
         'OPTIONS': {
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
             'charset': 'utf8mb4',
+            'use_unicode': True,
         }
     }
 }

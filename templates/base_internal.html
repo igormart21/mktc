@@ -94,12 +94,13 @@
             min-height: 100vh;
             background-color: var(--main-bg);
             transition: background-color var(--transition-speed);
-            padding-top: 90px;
+            padding-top: 130px;
+            margin-top: 2.5rem;
         }
         
         .sidebar-sticky {
             height: auto;
-            padding-top: 96px;
+            padding-top: 130px;
         }
         
         .dashboard-content-wrapper {
@@ -159,7 +160,7 @@
             }
             .sidebar .nav-link i {
                 font-size: 1.4rem;
-            }
+        }
         }
         .nav-link {
             color: #6c757d;
@@ -311,7 +312,7 @@
         /* Sidebar mais clean e profissional */
         .modern-sidebar-menu .nav-item {
             margin-bottom: 0.1rem;
-        }
+            }
         .modern-sidebar-menu .nav-link {
             display: flex;
             align-items: center;
@@ -379,8 +380,8 @@
                 <button class="btn btn-outline-primary me-2 d-flex align-items-center justify-content-center" id="btn-toggle-sidebar" type="button" style="border-radius: 50%; width: 40px; height: 40px;">
                     <i class="fas fa-bars"></i>
                 </button>
-                <a href="/" class="navbar-brand d-flex align-items-center mb-0 h-100 p-0" style="min-width:0;">
-                    <img src="{% static 'img/PNG/Logotipo Verde.png' %}" alt="AgroMais" style="max-height:52px; width:auto;">
+                <a href="{% url 'core:superadmin_dashboard' %}" class="navbar-brand d-flex align-items-center mb-0 h-100 p-0" style="min-width:0;">
+                    <img src="{% static 'img/PNG/Logotipo Verde.png' %}" alt="AgroMais" style="max-height:90px; width:auto;">
                 </a>
             </div>
             <!-- Centro: Título e subtítulo alinhados ao topo -->
@@ -414,45 +415,45 @@
                 {% if user.is_superuser %}
                 <li class="nav-item">
                     <a class="nav-link {% if request.path == '/superadmin/dashboard/' %}active{% endif %}" href="/superadmin/dashboard/">
-                        <i class="fas fa-home text-success"></i>
+                        <i class="fas fa-home"></i>
                         Início do Painel Admin
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link {% if request.resolver_match.url_name == 'admin:index' %}active{% endif %}" href="{% url 'admin:index' %}">
-                        <i class="fas fa-cogs text-success"></i>
+                        <i class="fas fa-cogs"></i>
                         Dashboard Admin
                     </a>
                 </li>
                 {% endif %}
                 <li class="nav-item">
                     <a class="nav-link {% if request.resolver_match.url_name == 'catalogo' %}active{% endif %}" href="{% url 'core:catalogo' %}">
-                        <i class="fas fa-store text-info"></i>
+                        <i class="fas fa-store"></i>
                         Catálogo
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link {% if request.resolver_match.url_name == 'pedidos' %}active{% endif %}" href="{% url 'core:pedidos' %}">
-                        <i class="fas fa-shopping-cart text-warning"></i>
+                        <i class="fas fa-shopping-cart"></i>
                         Meus Pedidos
                     </a>
                 </li>
                 {% if user|is_vendedor %}
                 <li class="nav-item">
                     <a class="nav-link {% if request.resolver_match.url_name == 'suporte' %}active{% endif %}" href="{% url 'core:suporte' %}">
-                        <i class="fas fa-headset text-primary"></i>
+                        <i class="fas fa-headset"></i>
                         Suporte
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link {% if request.resolver_match.url_name == 'seller_profile' %}active{% endif %}" href="{% url 'core:seller_profile' %}">
-                        <i class="fas fa-user-cog text-success"></i>
+                        <i class="fas fa-user-cog"></i>
                         Gerenciar Perfil
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link {% if request.resolver_match.url_name == 'minhas_solicitacoes' %}active{% endif %}" href="{% url 'core:minhas_solicitacoes' %}">
-                        <i class="fas fa-clipboard-list text-info"></i>
+                        <i class="fas fa-clipboard-list"></i>
                         Minhas Solicitações
                     </a>
                 </li>
@@ -460,25 +461,25 @@
                 {% if user.is_superuser %}
                 <li class="nav-item">
                     <a class="nav-link {% if request.resolver_match.url_name == 'listar_vendedores' %}active{% endif %}" href="{% url 'core:listar_vendedores' %}">
-                        <i class="fas fa-users text-success"></i>
+                        <i class="fas fa-users"></i>
                         Gerenciar Vendedores
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link {% if request.resolver_match.url_name == 'superadmin_products' %}active{% endif %}" href="{% url 'core:superadmin_products' %}">
-                        <i class="fas fa-box text-info"></i>
+                        <i class="fas fa-box"></i>
                         Gerenciar Produtos
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link {% if request.resolver_match.url_name == 'superadmin_pedidos' %}active{% endif %}" href="{% url 'core:superadmin_pedidos' %}">
-                        <i class="fas fa-shopping-cart text-warning"></i>
+                        <i class="fas fa-shopping-cart"></i>
                         Gerenciar Pedidos
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link {% if request.resolver_match.url_name == 'superadmin_suporte' %}active{% endif %}" href="{% url 'core:superadmin_suporte' %}">
-                        <i class="fas fa-headset me-2 text-primary"></i>
+                        <i class="fas fa-headset me-2"></i>
                         Suporte
                         {% if mensagens_pendentes > 0 %}
                         <span class="badge bg-warning rounded-pill ms-2">{{ mensagens_pendentes }}</span>
@@ -487,13 +488,13 @@
                 </li>
                 <li class="nav-item">
                     <a class="nav-link {% if request.resolver_match.url_name == 'superadmin_solicitacoes' %}active{% endif %}" href="{% url 'core:superadmin_solicitacoes' %}">
-                        <i class="fas fa-clipboard-list me-2 text-info"></i>
+                        <i class="fas fa-clipboard-list me-2"></i>
                         Solicitações de Produtos
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link {% if request.resolver_match.url_name == 'superadmin_compras_vendedores' %}active{% endif %}" href="{% url 'core:superadmin_compras_vendedores' %}">
-                        <i class="fas fa-cash-register me-2 text-success"></i>
+                        <i class="fas fa-cash-register me-2"></i>
                         Compras de Vendedores
                     </a>
                 </li>
@@ -522,7 +523,7 @@
         {% endif %}
         <div class="dashboard-content-wrapper">
             {% block welcome_message %}{% endblock %}
-            {% block content %}{% endblock %}
+        {% block content %}{% endblock %}
         </div>
     </main>
 

@@ -140,14 +140,25 @@
 }
 
 .hero-shape {
-    width: 600px;
-    height: 600px;
-    background: linear-gradient(45deg, rgba(25, 135, 84, 0.1), rgba(32, 201, 151, 0.1));
+    width: 800px;
+    height: 800px;
+    background: linear-gradient(45deg, rgba(25, 135, 84, 0.15), rgba(32, 201, 151, 0.15));
     border-radius: 50%;
     transform: translate(-50%, -50%);
-    top: 0;
-    left: 0;
-    filter: blur(80px);
+    top: 50%;
+    left: 50%;
+    filter: blur(100px);
+    z-index: 0;
+}
+
+.hero {
+    position: relative;
+    overflow: hidden;
+}
+
+.hero .container {
+    position: relative;
+    z-index: 1;
 }
 
 .hover-card {
@@ -167,8 +178,8 @@
 
 @media (max-width: 768px) {
     .hero-shape {
-        width: 300px;
-        height: 300px;
+        width: 400px;
+        height: 400px;
     }
 }
 </style>

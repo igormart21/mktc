@@ -284,6 +284,29 @@ document.addEventListener('DOMContentLoaded', function() {
 
     tipoDocumentoSelect.addEventListener('change', atualizarCampoDocumento);
     atualizarCampoDocumento(); // Executa ao carregar a página
+
+    document.getElementById('buscarCep').addEventListener('click', function() {
+        var cep = document.getElementById('id_cep').value.replace(/\D/g, '');
+        if (cep.length !== 8) {
+            alert('Digite um CEP válido com 8 dígitos.');
+            return;
+        }
+        fetch('https://viacep.com.br/ws/' + cep + '/json/')
+            .then(response => response.json())
+            .then(data => {
+                if (data.erro) {
+                    alert('CEP não encontrado.');
+                } else {
+                    if (document.getElementById('id_endereco')) document.getElementById('id_endereco').value = data.logradouro || '';
+                    if (document.getElementById('id_bairro')) document.getElementById('id_bairro').value = data.bairro || '';
+                    if (document.getElementById('id_cidade')) document.getElementById('id_cidade').value = data.localidade || '';
+                    if (document.getElementById('id_estado')) document.getElementById('id_estado').value = data.uf || '';
+                }
+            })
+            .catch(() => {
+                alert('Erro ao buscar o CEP.');
+            });
+    });
 });
 </script>
 {% endblock %} 
