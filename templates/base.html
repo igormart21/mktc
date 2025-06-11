@@ -16,19 +16,37 @@
         .navbar-brand {
             position: relative;
             padding: 0;
+            display: flex;
+            align-items: center;
+            height: 110px;
+            overflow: hidden;
         }
         .navbar-brand img {
             position: relative;
             z-index: 2;
+            height: 100%;
+            width: auto;
+            max-width: 260px;
+            object-fit: contain;
+            display: block;
+            transform: translateZ(0);
+            -webkit-transform: translateZ(0);
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
         }
-        .navbar-brand::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            z-index: 1;
+        .logo-chrome {
+            display: block !important;
+            max-width: 260px;
+            height: 110px;
+            object-fit: contain;
+        }
+        .logo-svg {
+            display: none !important;
+        }
+        /* Exibir PNG em navegadores baseados em Chromium */
+        @media screen and (-webkit-min-device-pixel-ratio:0) {
+            .logo-svg { display: none !important; }
+            .logo-chrome { display: block !important; }
         }
     </style>
     {% block extra_css %}{% endblock %}
@@ -37,7 +55,8 @@
     <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
         <div class="container">
             <a class="navbar-brand" href="{% url 'core:home' %}">
-                <img src="{% static 'img/SVG/Fundo Branco - Logo V5.svg' %}" alt="Logo AgroMais" height="45" style="max-width:110px;width:auto;object-fit:contain;" class="img-fluid">
+                <img src="{% static 'img/SVG/logo-branco-v5.svg' %}" alt="Logo AgroMais" class="logo-svg img-fluid" style="max-width:260px;height:110px;">
+                <img src="{% static 'img/PNG/Logotipo Preto e Cinza.png' %}" alt="Logo AgroMais Chrome" class="logo-chrome img-fluid" style="max-width:260px;height:110px;">
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
@@ -164,9 +183,8 @@
                     <h5 class="text-white">Redes Sociais</h5>
                     <div class="social-links mt-3">
                         <a href="#" class="text-secondary me-3"><i class="fab fa-facebook"></i></a>
-                        <a href="#" class="text-secondary me-3"><i class="fab fa-instagram"></i></a>
-                        <a href="#" class="text-secondary me-3"><i class="fab fa-twitter"></i></a>
-                        <a href="#" class="text-secondary"><i class="fab fa-linkedin"></i></a>
+                        <a href="https://www.instagram.com/agromais.mtp?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" class="text-secondary me-3"><i class="fab fa-instagram"></i></a>
+                        <a href="https://www.linkedin.com/company/agromais-mtp" class="text-secondary"><i class="fab fa-linkedin"></i></a>
                     </div>
                 </div>
             </div>
@@ -204,6 +222,108 @@
                 } else {
                     seenMessages.add(messageText);
                 }
+            });
+        });
+
+        // Configurações do timeout
+        const TIMEOUT_MINUTES = 30;
+        const WARNING_MINUTES = 5;
+        let timeoutId;
+        let warningId;
+
+        // Função para atualizar a última atividade
+        function updateLastActivity() {
+            fetch('/update-last-activity/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                },
+            });
+        }
+
+        // Função para mostrar aviso de timeout
+        function showTimeoutWarning() {
+            const warningDiv = document.createElement('div');
+            warningDiv.id = 'timeout-warning';
+            warningDiv.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background-color: #ff9800;
+                color: white;
+                padding: 15px;
+                border-radius: 5px;
+                z-index: 9999;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            `;
+            warningDiv.innerHTML = `
+                <p>Sua sessão irá expirar em ${WARNING_MINUTES} minutos.</p>
+                <button onclick="extendSession()" style="
+                    background-color: white;
+                    color: #ff9800;
+                    border: none;
+                    padding: 5px 10px;
+                    border-radius: 3px;
+                    cursor: pointer;
+                    margin-top: 10px;
+                ">Manter sessão ativa</button>
+            `;
+            document.body.appendChild(warningDiv);
+        }
+
+        // Função para estender a sessão
+        function extendSession() {
+            updateLastActivity();
+            clearTimeout(timeoutId);
+            clearTimeout(warningId);
+            const warningDiv = document.getElementById('timeout-warning');
+            if (warningDiv) {
+                warningDiv.remove();
+            }
+            startTimeout();
+        }
+
+        // Função para iniciar o timeout
+        function startTimeout() {
+            // Limpar timeouts existentes
+            clearTimeout(timeoutId);
+            clearTimeout(warningId);
+            
+            // Configurar aviso
+            warningId = setTimeout(showTimeoutWarning, (TIMEOUT_MINUTES - WARNING_MINUTES) * 60 * 1000);
+            
+            // Configurar timeout
+            timeoutId = setTimeout(() => {
+                window.location.href = '/login/?next=' + window.location.pathname;
+            }, TIMEOUT_MINUTES * 60 * 1000);
+        }
+
+        // Função para obter o cookie CSRF
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        // Iniciar o timeout quando a página carregar
+        document.addEventListener('DOMContentLoaded', () => {
+            startTimeout();
+            
+            // Atualizar a última atividade a cada minuto
+            setInterval(updateLastActivity, 60000);
+            
+            // Atualizar a última atividade em eventos do usuário
+            ['click', 'keypress', 'scroll', 'mousemove'].forEach(event => {
+                document.addEventListener(event, updateLastActivity);
             });
         });
     </script>

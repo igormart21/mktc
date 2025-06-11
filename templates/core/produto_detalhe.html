@@ -336,13 +336,9 @@
                                 <a href="{% url 'core:catalogo' %}" class="btn btn-outline-secondary">
                                     <i class="fas fa-arrow-left me-2"></i>Voltar ao Catálogo
                                 </a>
-                                <form method="post" action="{% url 'core:adicionar_ao_carrinho' produto.id %}" class="d-inline">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="quantidade" value="1">
                                     <button type="submit" class="btn btn-primary btn-lg">
                                         <i class="fas fa-shopping-cart me-2"></i>Adicionar ao Carrinho
                                     </button>
-                                </form>
                             </div>
                     </form>
                     </div>
@@ -371,6 +367,17 @@
         // Atualizar resumo
         document.getElementById('resumoQuantidade').textContent = `${quantidade} {{ produto.get_unidade_medida_display }}`;
         document.getElementById('valorTotal').textContent = `R$ ${valorTotal.toFixed(2)}`;
+    });
+
+    // Validar quantidade mínima antes de enviar o formulário
+    document.querySelector('form').addEventListener('submit', function(e) {
+        const quantidade = parseInt(document.getElementById('quantidade').value) || 0;
+        const quantidadeMinima = {{ produto.quantidade_minima|default:1 }};
+        
+        if (quantidade < quantidadeMinima) {
+            e.preventDefault();
+            alert(`A quantidade mínima para este produto é ${quantidadeMinima} {{ produto.get_unidade_medida_display }}`);
+        }
     });
 </script>
 {% endblock %} 

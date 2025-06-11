@@ -1,0 +1,27 @@
+{% extends "emails/base_email.html" %}
+
+{% block title %}Confirmação de Pedido - AgroMais{% endblock %}
+
+{% block content %}
+    <div style="text-align: center;">
+        <h2 style="margin-top: 0;">Pedido Confirmado!</h2>
+        <p>Olá {{ pedido.cliente.nome }},</p>
+        <p>Seu pedido #{{ pedido.id }} foi confirmado com sucesso!</p>
+    </div>
+    <div style="margin: 0 auto; max-width: 400px;">
+        <h3>Detalhes do Pedido:</h3>
+        <ul style="text-align: left;">
+            {% for item in pedido.itens.all %}
+                <li>{{ item.produto.nome }} - {{ item.quantidade }} unidade(s) - R$ {{ item.preco_unitario }}</li>
+            {% endfor %}
+        </ul>
+        <p><strong>Total do Pedido:</strong> R$ {{ pedido.valor_total }}</p>
+    </div>
+    <div style="text-align: center; margin: 30px 0;">
+        <p>Você pode acompanhar o status do seu pedido através do seu painel de vendedor.</p>
+        <a href="{{ pedido_url }}" class="button" style="display: inline-block; padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px; margin: 20px 0;">Ver Detalhes do Pedido</a>
+    </div>
+    <div style="text-align: center;">
+        <p>Em caso de dúvidas, entre em contato conosco.</p>
+    </div>
+{% endblock %} 

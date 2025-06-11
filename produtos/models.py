@@ -39,6 +39,8 @@ class Produto(models.Model):
         ('FUNGICIDA', 'Fungicida'),
         ('OLEO_MINERAL', 'Óleo Mineral'),
         ('SEMENTE', 'Semente'),
+        ('NUTRICAO_VEGETAL', 'Nutrição Vegetal'),
+        ('BIOLOGICO', 'Biológico'),
     ]
 
     TIPO_SEMENTE_CHOICES = [

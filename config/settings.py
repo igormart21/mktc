@@ -34,6 +34,10 @@ SECRET_KEY = config('SECRET_KEY', default='django-insecure-2n-9e!u*l_q#6q$8t3)w+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+# Forçar exibição de erros detalhados
+ADMINS = [('Admin', 'admin@agromais.com')]
+SERVER_EMAIL = 'server@agromais.com'
+
 # Configurações do Carrinho
 CARRINHO_SESSION_ID = 'carrinho'
 
@@ -88,6 +92,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'core.middleware.CustomCsrfMiddleware',  # Adicionando middleware personalizado
+    'core.middleware.SessionTimeoutMiddleware',  # Adicionando middleware de timeout
 ]
 
 # Adiciona o middleware do debug toolbar apenas em desenvolvimento
@@ -110,7 +115,14 @@ else:
     SESSION_COOKIE_SECURE = True
     SESSION_COOKIE_SAMESITE = 'Lax'
 
-CSRF_TRUSTED_ORIGINS = ['http://localhost:8000', 'http://127.0.0.1:8000']
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:8000',
+    'http://127.0.0.1:8000',
+    'https://agromaisdigital.com.br',
+    'https://www.agromaisdigital.com.br',
+    'http://82.25.93.20',
+    'https://82.25.93.20'
+]
 CSRF_COOKIE_NAME = 'csrftoken'
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_DOMAIN = None
@@ -123,7 +135,7 @@ SESSION_COOKIE_SAMESITE = 'Lax'
 SESSION_COOKIE_DOMAIN = None
 SESSION_COOKIE_NAME = 'sessionid'
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
-SESSION_COOKIE_AGE = 1209600  # 2 semanas em segundos
+SESSION_COOKIE_AGE = 1800  # 30 minutos em segundos
 
 # Configurações de Segurança
 SECURE_BROWSER_XSS_FILTER = True
@@ -185,7 +197,7 @@ DATABASES = {
         'NAME': 'agromarketplace',
         'USER': 'root',
         'PASSWORD': 'root123',
-        'HOST': '127.0.0.1',
+        'HOST': 'localhost',
         'PORT': '3306',
         'OPTIONS': {
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
@@ -229,6 +241,12 @@ AUTH_USER_MODEL = 'usuarios.Usuario'
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
+
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+]
 
 # Configurações de Armazenamento de Arquivos
 USE_S3 = os.getenv('USE_S3', 'False') == 'True'
@@ -274,26 +292,17 @@ else:
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Email Configuration
+# Configurações de E-mail
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.gmail.com')
-EMAIL_PORT = int(os.getenv('EMAIL_PORT', 587))
-EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
-EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
-EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True') == 'True'
-EMAIL_USE_SSL = os.getenv('EMAIL_USE_SSL', 'False') == 'True'
-EMAIL_TIMEOUT = int(os.getenv('EMAIL_TIMEOUT', 30))
-DEFAULT_FROM_EMAIL = 'noreply@agromais.com'
-
-# Em desenvolvimento, use o backend de console para debug
-if DEBUG:
-    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-    EMAIL_HOST = 'localhost'
-    EMAIL_PORT = 1025
-    EMAIL_HOST_USER = ''
-    EMAIL_HOST_PASSWORD = ''
-    EMAIL_USE_TLS = False
-    DEFAULT_FROM_EMAIL = 'noreply@agromais.com'
+EMAIL_HOST = 'smtp.hostinger.com'
+EMAIL_PORT = 465
+EMAIL_USE_TLS = False
+EMAIL_USE_SSL = True
+EMAIL_HOST_USER = 'contato@agromaisdigital.com.br'
+EMAIL_HOST_PASSWORD = 'Agromias1@'
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+SERVER_EMAIL = EMAIL_HOST_USER
+SITE_URL = 'http://localhost:8000'
 
 # Logging Configuration
 LOG_LEVEL = os.getenv('LOG_LEVEL', 'INFO')

@@ -1,0 +1,24 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block title %}{{ title }} | {{ site_title|default:_('AgroMais Admin') }}{% endblock %}
+
+{% block extrastyle %}
+<link rel="stylesheet" type="text/css" href="{% static 'admin/css/base.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'admin/css/dashboard.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'admin/css/forms.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'admin/css/login.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'admin/css/responsive.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'admin/css/widgets.css' %}">
+{% endblock %}
+
+{% block branding %}
+<h1 id="site-name">
+    <a href="{% url 'admin:index' %}">
+        <img src="{% static 'img/PNG/Logotipo Verde.png' %}" alt="AgroMais" style="height: 40px; margin-right: 10px;">
+        {{ site_header|default:_('AgroMais Administration') }}
+    </a>
+</h1>
+{% endblock %}
+
+{% block nav-global %}{% endblock %} 

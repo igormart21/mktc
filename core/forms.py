@@ -218,10 +218,12 @@ class SellerRegistrationForm(forms.ModelForm):
         required=False,
         widget=forms.FileInput(attrs={'class': 'form-control'})
     )
-    hectares_atendidos = forms.CharField(
-        label='Hectares Atendidos',
+    hectares_livres = forms.IntegerField(
         required=True,
-        widget=forms.TextInput(attrs={'class': 'form-control'})
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Quantidade de hectares atendidos'
+        })
     )
     culturas_atendidas = forms.MultipleChoiceField(
         choices=Vendedor.CULTURAS_CHOICES,
@@ -328,7 +330,7 @@ class SellerProfileForm(forms.ModelForm):
             'cidade',
             'estado',
             'cep',
-            'hectares_atendidos',
+            'hectares_livres',
             'rg',
             'cnh'
         ]

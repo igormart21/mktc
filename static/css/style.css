@@ -496,7 +496,7 @@ footer h5 {
     left: 0;
     height: calc(100vh - var(--header-height));
     background-color: white;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: none !important;
     z-index: 1000;
     transition: all 0.3s ease-in-out;
 }
@@ -667,4 +667,18 @@ footer h5 {
 .table-success td {
     background-color: #d1e7dd !important;
     color: #1b4b36 !important;
+}
+
+/* Remover qualquer sombra da sidebar em qualquer estado */
+.admin-sidebar,
+.admin-sidebar:hover,
+.admin-sidebar:focus,
+.admin-sidebar.mobile-open,
+.admin-sidebar.active,
+.admin-sidebar[style],
+aside.admin-sidebar,
+aside.admin-sidebar:hover,
+aside.admin-sidebar:focus {
+    box-shadow: none !important;
+    -webkit-box-shadow: none !important;
 }

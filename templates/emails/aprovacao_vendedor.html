@@ -1,0 +1,17 @@
+{% extends "emails/base_email.html" %}
+
+{% block title %}Cadastro Aprovado - AgroMais{% endblock %}
+
+{% block content %}
+    <h2>Parabéns, seu cadastro foi aprovado!</h2>
+    <p>Olá {{ vendedor.usuario.nome }},</p>
+    <p>Seu cadastro como vendedor na AgroMais foi aprovado com sucesso.</p>
+    <p>Agora você já pode acessar a plataforma com os dados abaixo:</p>
+    <ul>
+        <li><strong>Login:</strong> {{ vendedor.usuario.email }}</li>
+        <li><strong>Senha provisória:</strong> {{ senha_provisoria }}</li>
+    </ul>
+    <a href="https://agromaisdigital.com.br/login/" class="button">Acessar Plataforma</a>
+    <p>Recomendamos que você altere sua senha após o primeiro acesso.</p>
+    <p>Se tiver dúvidas, nossa equipe está à disposição para ajudar!</p>
+{% endblock %} 

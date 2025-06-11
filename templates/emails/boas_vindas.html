@@ -1,0 +1,21 @@
+{% extends "emails/base_email.html" %}
+
+{% block title %}Bem-vindo ao AgroMais!{% endblock %}
+
+{% block content %}
+    <h2>Bem-vindo ao AgroMais!</h2>
+    <p>Olá {{ usuario.nome }},</p>
+    <p>É com grande satisfação que damos as boas-vindas a você no AgroMais!</p>
+    
+    <p>Com o AgroMais, você tem acesso a:</p>
+    <ul>
+        <li>Produtos agrícolas de qualidade</li>
+        <li>Vendedores certificados</li>
+        <li>Entrega rápida e segura</li>
+        <li>Suporte especializado</li>
+    </ul>
+    
+    <p>Seu registro está em análise. Assim que for aprovado, você receberá um contato da AgroMais.</p>
+    
+    <p>Se precisar de ajuda, nossa equipe está sempre à disposição!</p>
+{% endblock %} 

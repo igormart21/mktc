@@ -1,0 +1,11 @@
+{% extends "emails/base_email.html" %}
+
+{% block title %}Reprovação de Cadastro - AgroMais{% endblock %}
+
+{% block content %}
+    <h2>Cadastro Reprovado</h2>
+    <p>Olá {{ vendedor.usuario.nome }},</p>
+    <p>Infelizmente seu cadastro como vendedor no AgroMais foi reprovado.</p>
+    <p><strong>Motivo da Recusa:</strong> {{ vendedor.justificativa_recusa }}</p>
+    <p>Se tiver dúvidas ou precisar de mais informações, entre em contato conosco.</p>
+{% endblock %} 

@@ -24,12 +24,19 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView,
 )
 from core.views import handler404, handler500, handler403, handler400
+from django.views.generic import TemplateView
 
 # Configuração dos handlers de erro
 handler404 = 'core.views.handler404'
 handler500 = 'core.views.handler500'
 handler403 = 'core.views.handler403'
 handler400 = 'core.views.handler400'
+
+def handler500(request):
+    import traceback
+    import sys
+    exc_info = sys.exc_info()
+    return TemplateView.as_view(template_name='500.html')(request, exception=exc_info[1], traceback=traceback.format_exc())
 
 urlpatterns = [
     path('admin/', admin.site.urls),

@@ -1,0 +1,17 @@
+{% extends "emails/base_email.html" %}
+
+{% block title %}Recuperação de Senha - AgroMais{% endblock %}
+
+{% block content %}
+    <h2>Recuperação de Senha</h2>
+    <p>Olá {{ usuario.nome }},</p>
+    <p>Recebemos uma solicitação para redefinir sua senha no AgroMais.</p>
+    <p>Para prosseguir com a redefinição de senha, clique no botão abaixo:</p>
+    
+    <a href="{{ reset_url }}" class="button">Redefinir Senha</a>
+    
+    <p>Se você não solicitou a redefinição de senha, por favor ignore este e-mail.</p>
+    <p>Este link é válido por 24 horas.</p>
+    
+    <p>Por questões de segurança, não compartilhe este e-mail com ninguém.</p>
+{% endblock %} 

@@ -44,6 +44,7 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle # type: ign
 from reportlab.lib.enums import TA_CENTER # type: ignore
 from django.views.defaults import page_not_found, server_error, permission_denied, bad_request
 from .models import MensagemSuporteThread
+from django.views.decorators.http import require_POST
 
 logger = logging.getLogger(__name__)
 
@@ -766,7 +767,7 @@ def cadastrar_vendedor(request):
                     cidade=form.cleaned_data['cidade'],
                     estado=form.cleaned_data['estado'],
                     cep=form.cleaned_data['cep'],
-                    hectares_atendidos=int(form.cleaned_data['hectares_atendidos'])
+                    hectares_livres=int(form.cleaned_data['hectares_livres'])
                 )
 
                 # Debug dos arquivos recebidos
@@ -1658,9 +1659,20 @@ def adicionar_ao_carrinho(request, product_id):
     """Adiciona um produto ao carrinho"""
     produto = get_object_or_404(Produto, id=product_id)
     carrinho = Carrinho(request)
-    quantidade = int(request.POST.get('quantidade', 1))
-    carrinho.adicionar(produto, quantidade)
-    messages.success(request, 'Produto adicionado ao carrinho!')
+    
+    try:
+        quantidade = int(request.POST.get('quantidade', 1))
+        if quantidade <= 0:
+            raise ValueError('A quantidade deve ser maior que zero')
+        if produto.quantidade_minima and quantidade < produto.quantidade_minima:
+            raise ValueError(f'A quantidade mínima para este produto é {produto.quantidade_minima} {produto.get_unidade_medida_display()}')
+        carrinho.adicionar(produto, quantidade)
+        messages.success(request, 'Produto adicionado ao carrinho!')
+    except ValueError as e:
+        messages.error(request, str(e))
+    except Exception as e:
+        messages.error(request, 'Erro ao adicionar produto ao carrinho')
+        
     return redirect('core:carrinho')
 
 @login_required
@@ -1979,3 +1991,10 @@ def excluir_caso_suporte(request, suporte_id):
         messages.success(request, 'Caso excluído com sucesso!')
         return redirect('core:superadmin_suporte')
     return render(request, 'core/confirmar_exclusao_caso.html', {'suporte': suporte})
+
+@login_required
+@require_POST
+def update_last_activity(request):
+    """Atualiza o timestamp da última atividade do usuário"""
+    request.session['last_activity'] = timezone.now().isoformat()
+    return JsonResponse({'status': 'success'})

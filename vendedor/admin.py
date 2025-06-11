@@ -2,6 +2,7 @@ from django.contrib import admin
 from django import forms
 from .models import Vendedor
 from usuarios.models import Usuario
+from core.email_service import EmailService
 
 class VendedorAdminForm(forms.ModelForm):
     culturas_atendidas = forms.MultipleChoiceField(
@@ -119,3 +120,12 @@ class VendedorAdmin(admin.ModelAdmin):
         return obj.usuario.nome if obj.usuario.nome else obj.usuario.email
     get_nome_usuario.short_description = 'Nome do Usuário'
     get_nome_usuario.admin_order_field = 'usuario__nome'
+
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+        if not change:  # Se for criação
+            EmailService.send_welcome_email(obj.usuario)
+        elif obj.status_aprovacao == 'APROVADO':
+            EmailService.send_order_confirmation(obj)
+        elif obj.status_aprovacao == 'RECUSADO':
+            EmailService.send_vendedor_reprovado(obj)

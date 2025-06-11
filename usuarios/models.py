@@ -1,6 +1,6 @@
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db import models
-from django.core.validators import RegexValidator
+from django.core.validators import RegexValidator, MinValueValidator
 from django.utils import timezone
 from django.core.exceptions import ValidationError
 import re
@@ -116,7 +116,13 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
     rua = models.CharField(max_length=255, verbose_name='Rua', null=True, blank=True)
     numero = models.CharField(max_length=20, verbose_name='Número', null=True, blank=True)
     complemento = models.CharField(max_length=255, blank=True, null=True, verbose_name='Complemento')
-    hectares_atendidos = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Hectares Atendidos', null=True, blank=True)
+    hectares_atendidos = models.IntegerField(
+        default=10,
+        validators=[MinValueValidator(10)],
+        verbose_name='Quantidade de Hectares Atendidos',
+        null=True,
+        blank=True
+    )
     
     # Campos de documento
     tipo_documento = models.CharField(max_length=3, choices=TIPO_DOCUMENTO_CHOICES, verbose_name='Tipo de Documento', null=True, blank=True)

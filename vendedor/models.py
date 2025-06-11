@@ -27,14 +27,8 @@ class Vendedor(models.Model):
     estado = models.CharField(max_length=2, blank=True, null=True)
     cep = models.CharField(max_length=9, blank=True, null=True)
     culturas_atendidas = models.JSONField(default=list, blank=True, help_text='Lista de culturas atendidas pelo vendedor')
-    hectares_atendidos = models.IntegerField(
-        default=10,
-        null=False,
-        blank=False,
-        help_text='Quantidade de hectares atendidos pelo vendedor (entre 10 e 300)',
-        validators=[
-            MaxValueValidator(300, message='O máximo de hectares é 300')
-        ]
+    hectares_livres = models.IntegerField(
+        help_text='Quantidade de hectares atendidos pelo vendedor'
     )
     rg = models.FileField(upload_to='documentos/rg/', blank=True, null=True)
     rg_verso = models.FileField(upload_to='documentos/rg/', blank=True, null=True)

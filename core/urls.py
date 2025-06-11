@@ -102,4 +102,5 @@ urlpatterns = [
     path('superadmin/suporte/<int:suporte_id>/thread/', views.superadmin_suporte_thread, name='superadmin_suporte_thread'),
     path('suporte/<int:suporte_id>/encerrar/', views.encerrar_caso_usuario, name='encerrar_caso_usuario'),
     path('superadmin/suporte/<int:suporte_id>/excluir/', views.excluir_caso_suporte, name='excluir_caso_suporte'),
+    path('update-last-activity/', views.update_last_activity, name='update_last_activity'),
 ] 

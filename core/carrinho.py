@@ -2,6 +2,17 @@ from decimal import Decimal
 from django.conf import settings
 from produtos.models import Produto
 
+# Função recursiva para converter Decimals em string
+def converter_decimals(obj):
+    if isinstance(obj, dict):
+        return {k: converter_decimals(v) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [converter_decimals(i) for i in obj]
+    elif isinstance(obj, Decimal):
+        return str(obj)
+    else:
+        return obj
+
 class Carrinho:
     def __init__(self, request):
         self.session = request.session
@@ -30,26 +41,27 @@ class Carrinho:
             self.salvar()
 
     def salvar(self):
+        # Salva apenas o dicionário puro, convertido
+        self.session[settings.CARRINHO_SESSION_ID] = converter_decimals(self.carrinho)
         self.session.modified = True
 
     def limpar(self):
-        del self.session[settings.CARRINHO_SESSION_ID]
-        self.salvar()
+        if settings.CARRINHO_SESSION_ID in self.session:
+            del self.session[settings.CARRINHO_SESSION_ID]
+        self.session.modified = True
 
     def __iter__(self):
-        produto_ids = self.carrinho.keys()
-        print("IDs dos produtos no carrinho:", list(produto_ids))
-        
-        produtos = Produto.objects.filter(id__in=produto_ids, ativo=True)
-        print("Produtos encontrados:", list(produtos))
-        
-        carrinho = self.carrinho.copy()
-        for produto in produtos:
-            if str(produto.id) in carrinho:
-                carrinho[str(produto.id)]['produto'] = produto
-                carrinho[str(produto.id)]['preco'] = Decimal(carrinho[str(produto.id)]['preco'])
-                carrinho[str(produto.id)]['preco_total'] = carrinho[str(produto.id)]['preco'] * carrinho[str(produto.id)]['quantidade']
-                yield carrinho[str(produto.id)]
+        for produto_id, item in self.carrinho.items():
+            produto = Produto.objects.get(id=produto_id)
+            preco = float(item['preco'])  # Garante que é float
+            quantidade = int(item['quantidade'])
+            preco_total = float(preco * quantidade)
+            yield {
+                'produto': produto,
+                'quantidade': quantidade,
+                'preco': preco,
+                'preco_total': preco_total,
+            }
 
     def __len__(self):
         return sum(item['quantidade'] for item in self.carrinho.values())

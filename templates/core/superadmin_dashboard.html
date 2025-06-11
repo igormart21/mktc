@@ -18,6 +18,48 @@ Bem-vindo ao painel de controle administrativo
 {% endblock %}
 
 {% block content %}
+<style>
+/* TESTE: borda vermelha temporária para garantir aplicação do CSS */
+@media (max-width: 576px) {
+  body { border: 4px solid red !important; }
+  .card-body.d-flex.align-items-center.justify-content-between {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 0.5rem !important;
+  }
+  .card .icon-box {
+    align-self: flex-end !important;
+    margin-top: 0.5rem !important;
+  }
+  .dashboard-content-wrapper, .container-fluid, .container {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+  }
+  .card-title, h4, h5 {
+    font-size: 1.1rem !important;
+  }
+  .btn, .form-select {
+    font-size: 1rem !important;
+    padding: 0.5rem 1rem !important;
+  }
+  .table-responsive {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+  .table th, .table td {
+    white-space: nowrap !important;
+    font-size: 0.95rem !important;
+  }
+  .navbar-center {
+    max-width: 100vw !important;
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+  }
+  .card-body {
+    padding: 1rem !important;
+  }
+}
+</style>
 <div class="container-fluid">
     <!-- Cards de Estatísticas -->
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4 mb-4">
@@ -174,6 +216,21 @@ Bem-vindo ao painel de controle administrativo
     <!-- Fim dos cards de métricas de desempenho -->
 
     <!-- Gráfico de Desempenho da Plataforma -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-transparent">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-chart-line text-primary me-2"></i>
+                    Desempenho da Plataforma
+                </h5>
+            </div>
+        </div>
+        <div class="card-body">
+            <canvas id="grafico-desempenho" height="120"></canvas>
+        </div>
+    </div>
+
+    <!-- Gráfico de Evolução -->
     <div class="card shadow-sm border-0 mb-4">
         <div class="card-header bg-transparent">
             <div class="d-flex justify-content-between align-items-center">

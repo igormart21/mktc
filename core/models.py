@@ -130,8 +130,13 @@ class SellerRegistration(models.Model):
     tipo_documento = models.CharField(max_length=3, choices=DOCUMENT_TYPES, null=True, blank=True)
     numero_documento = models.CharField(max_length=20, null=True, blank=True)
     documento = models.FileField(upload_to='documentos/', null=True, blank=True)
-    hectares_atendidos = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True)
-    culturas_atendidas = models.CharField(max_length=255, null=True, blank=True)  # pode ser um campo de texto separado por vírgula
+    hectares_atendidos = models.IntegerField(
+        default=10,
+        validators=[MinValueValidator(10)],
+        null=True,
+        blank=True
+    )
+    culturas_atendidas = models.CharField(max_length=255, null=True, blank=True)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pendente')
     data_criacao = models.DateTimeField(auto_now_add=True)
     data_atualizacao = models.DateTimeField(auto_now=True)
@@ -284,7 +289,7 @@ class Usuario(AbstractUser):
     arquivo_documento = models.FileField(upload_to='documentos/', verbose_name='Arquivo do Documento', null=True, blank=True)
     hectares_atendidos = models.IntegerField(
         default=10,
-        validators=[MinValueValidator(10), MaxValueValidator(300)],
+        validators=[MinValueValidator(10)],
         verbose_name='Quantidade de Hectares Atendidos',
         null=True,
         blank=True
