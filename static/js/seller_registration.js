@@ -4,8 +4,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const addressInput = document.getElementById('id_endereco');
     const cityInput = document.getElementById('id_cidade');
     const stateInput = document.getElementById('id_estado');
-    const password1 = document.getElementById('id_password1');
-    const password2 = document.getElementById('id_password2');
     const documentFile = document.getElementById('frente_documento');
 
     // Verificar se os elementos existem antes de adicionar event listeners
@@ -66,16 +64,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // Validar senhas
-    function validatePasswords() {
-        if (!password1 || !password2) return;
-        if (password1.value !== password2.value) {
-            password2.setCustomValidity('As senhas não coincidem');
-        } else {
-            password2.setCustomValidity('');
-        }
-    }
-
     // Validar arquivo
     function validateFile() {
         if (!documentFile) return;
@@ -115,14 +103,12 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Event listeners
-    if (password2) password2.addEventListener('input', validatePasswords);
     if (documentFile) documentFile.addEventListener('change', validateFile);
     if (cepInput) cepInput.addEventListener('blur', validateCEP);
 
     // Validar formulário antes de enviar
     if (form) {
         form.addEventListener('submit', function (event) {
-            validatePasswords();
             validateFile();
 
             if (!form.checkValidity()) {
