@@ -218,7 +218,7 @@ class SellerRegistrationForm(forms.ModelForm):
         required=False,
         widget=forms.FileInput(attrs={'class': 'form-control'})
     )
-    hectares_livres = forms.IntegerField(
+    hectares_atendidos = forms.IntegerField(
         required=True,
         widget=forms.NumberInput(attrs={
             'class': 'form-control',
@@ -330,7 +330,7 @@ class SellerProfileForm(forms.ModelForm):
             'cidade',
             'estado',
             'cep',
-            'hectares_livres',
+            'hectares_atendidos',
             'rg',
             'cnh'
         ]

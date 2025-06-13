@@ -10,7 +10,7 @@ class Vendedor(models.Model):
         ('ALGODAO', 'Algodão'),
         ('FEIJAO', 'Feijão'),
         ('GERGELIM', 'Gergelim'),
-        ('GIRASOL', 'Girasol'),
+        ('GIRASSOL', 'Girassol'),
         ('PASTAGEM', 'Pastagem'),
         ('MILHO_PIPOCA', 'Milho Pipoca'),
         ('ARROZ', 'Arroz'),
@@ -27,8 +27,12 @@ class Vendedor(models.Model):
     estado = models.CharField(max_length=2, blank=True, null=True)
     cep = models.CharField(max_length=9, blank=True, null=True)
     culturas_atendidas = models.JSONField(default=list, blank=True, help_text='Lista de culturas atendidas pelo vendedor')
-    hectares_livres = models.IntegerField(
-        help_text='Quantidade de hectares atendidos pelo vendedor'
+    hectares_atendidos = models.IntegerField(
+        default=10,
+        help_text='Quantidade de hectares atendidos pelo vendedor',
+        validators=[MinValueValidator(10)],
+        null=True,
+        blank=True
     )
     rg = models.FileField(upload_to='documentos/rg/', blank=True, null=True)
     rg_verso = models.FileField(upload_to='documentos/rg/', blank=True, null=True)

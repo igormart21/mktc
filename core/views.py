@@ -767,7 +767,7 @@ def cadastrar_vendedor(request):
                     cidade=form.cleaned_data['cidade'],
                     estado=form.cleaned_data['estado'],
                     cep=form.cleaned_data['cep'],
-                    hectares_livres=int(form.cleaned_data['hectares_livres'])
+                    hectares_atendidos=int(form.cleaned_data['hectares_atendidos'])
                 )
 
                 # Debug dos arquivos recebidos
