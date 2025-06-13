@@ -45,208 +45,77 @@
                 <div class="row mb-3">
                     <div class="col-md-6">
                         <label for="id_nome" class="form-label">Nome</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-light"><i class="fas fa-user"></i></span>
-                            {{ form.nome }}
-                        </div>
-                        {% if form.nome.errors %}
-                            <div class="invalid-feedback d-block">
-                                {{ form.nome.errors }}
-                            </div>
-                        {% endif %}
+                        {{ form.nome }}
                     </div>
                     <div class="col-md-6">
                         <label for="id_sobrenome" class="form-label">Sobrenome</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-light"><i class="fas fa-user"></i></span>
-                            {{ form.sobrenome }}
-                        </div>
-                        {% if form.sobrenome.errors %}
-                            <div class="invalid-feedback d-block">
-                                {{ form.sobrenome.errors }}
-                            </div>
-                        {% endif %}
+                        {{ form.sobrenome }}
                     </div>
                 </div>
                 <div class="mb-3">
                     <label for="id_email" class="form-label">E-mail</label>
-                    <div class="input-group">
-                        <span class="input-group-text bg-light"><i class="fas fa-envelope"></i></span>
-                        {{ form.email }}
-                    </div>
-                    {% if form.email.errors %}
-                        <div class="invalid-feedback d-block">
-                            {{ form.email.errors }}
-                        </div>
-                    {% endif %}
+                    {{ form.email }}
                 </div>
-
                 <div class="mb-3">
                     <label for="id_cpf" class="form-label">CPF</label>
-                    <div class="input-group">
-                        <span class="input-group-text bg-light"><i class="fas fa-id-card"></i></span>
-                        {{ form.cpf }}
-                    </div>
+                    {{ form.cpf }}
                     <div class="form-text">Digite apenas números</div>
-                    {% if form.cpf.errors %}
-                        <div class="invalid-feedback d-block">
-                            {{ form.cpf.errors }}
-                        </div>
-                    {% endif %}
                 </div>
-
                 <div class="mb-3">
                     <label for="id_telefone" class="form-label">Telefone</label>
-                    <div class="input-group">
-                        <span class="input-group-text bg-light"><i class="fas fa-phone"></i></span>
-                        {{ form.telefone }}
-                    </div>
-                    {% if form.telefone.errors %}
-                        <div class="invalid-feedback d-block">
-                            {{ form.telefone.errors }}
-                        </div>
-                    {% endif %}
+                    {{ form.telefone }}
                 </div>
-
-                <div class="form-group">
-                    <label for="id_tipo_documento">Tipo de Documento</label>
-                    {{ form.tipo_documento }}
-                    {% if form.tipo_documento.errors %}
-                        <div class="invalid-feedback d-block">
-                            {% for error in form.tipo_documento.errors %}
-                                {{ error }}
-                            {% endfor %}
-                        </div>
-                    {% endif %}
-                </div>
-
-                <div class="mb-3">
-                    <label for="id_numero_documento" class="form-label">Número do Documento</label>
-                    <div class="input-group">
-                        <span class="input-group-text bg-light"><i class="fas fa-hashtag"></i></span>
-                        {{ form.numero_documento }}
-                    </div>
-                    {% if form.numero_documento.errors %}
-                        <div class="invalid-feedback d-block">
-                            {{ form.numero_documento.errors }}
-                        </div>
-                    {% endif %}
-                </div>
-
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <label for="frente_documento" class="form-label">Frente do Documento (PDF, JPG, PNG)</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-light"><i class="fas fa-upload"></i></span>
-                            <input type="file" name="frente_documento" id="frente_documento" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
-                        </div>
-                        <small class="form-text text-muted">Tamanho máximo: 5MB</small>
-                    </div>
-                    <div class="col-md-6">
-                        <label for="verso_documento" class="form-label">Verso do Documento (PDF, JPG, PNG)</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-light"><i class="fas fa-upload"></i></span>
-                            <input type="file" name="verso_documento" id="verso_documento" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
-                        </div>
-                        <small class="form-text text-muted">Tamanho máximo: 5MB</small>
-                    </div>
-                </div>
-
                 <div class="mb-3">
                     <label for="id_cep" class="form-label">CEP</label>
-                    <div class="input-group">
-                        <span class="input-group-text bg-light"><i class="fas fa-map-pin"></i></span>
-                        {{ form.cep }}
-                        <button type="button" class="btn btn-outline-secondary" id="buscarCep">
-                            <i class="fas fa-search"></i> Buscar
-                        </button>
-                    </div>
-                    <div class="form-text">Digite o CEP para preencher automaticamente o endereço</div>
-                    {% if form.cep.errors %}
-                        <div class="invalid-feedback d-block">
-                            {{ form.cep.errors }}
-                        </div>
-                    {% endif %}
+                    {{ form.cep }}
                 </div>
-
                 <div class="mb-3">
                     <label for="id_endereco" class="form-label">Endereço</label>
-                    <div class="input-group">
-                        <span class="input-group-text bg-light"><i class="fas fa-map-marker-alt"></i></span>
-                        {{ form.endereco }}
-                    </div>
-                    {% if form.endereco.errors %}
-                        <div class="invalid-feedback d-block">
-                            {{ form.endereco.errors }}
-                        </div>
-                    {% endif %}
+                    {{ form.endereco }}
                 </div>
                 <div class="mb-3">
                     <label for="id_numero" class="form-label">Número</label>
-                    <div class="input-group">
-                        <span class="input-group-text bg-light"><i class="fas fa-hashtag"></i></span>
-                        {{ form.numero }}
-                    </div>
-                    {% if form.numero.errors %}
-                        <div class="invalid-feedback d-block">
-                            {{ form.numero.errors }}
-                        </div>
-                    {% endif %}
+                    {{ form.numero }}
                 </div>
-
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <label for="id_cidade" class="form-label">Cidade</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-light"><i class="fas fa-city"></i></span>
-                            {{ form.cidade }}
-                        </div>
-                        {% if form.cidade.errors %}
-                            <div class="invalid-feedback d-block">
-                                {{ form.cidade.errors }}
-                            </div>
-                        {% endif %}
-                    </div>
-                    <div class="col-md-6">
-                        <label for="id_estado" class="form-label">Estado</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-light"><i class="fas fa-map"></i></span>
-                            {{ form.estado }}
-                        </div>
-                        {% if form.estado.errors %}
-                            <div class="invalid-feedback d-block">
-                                {{ form.estado.errors }}
-                            </div>
-                        {% endif %}
-                    </div>
-                </div>
-
                 <div class="mb-3">
                     <label for="id_bairro" class="form-label">Bairro</label>
-                    <div class="input-group">
-                        <span class="input-group-text bg-light"><i class="fas fa-map"></i></span>
-                        {{ form.bairro }}
-                    </div>
-                    {% if form.bairro.errors %}
-                        <div class="invalid-feedback d-block">
-                            {{ form.bairro.errors }}
-                        </div>
-                    {% endif %}
+                    {{ form.bairro }}
                 </div>
-
+                <div class="mb-3">
+                    <label for="id_cidade" class="form-label">Cidade</label>
+                    {{ form.cidade }}
+                </div>
+                <div class="mb-3">
+                    <label for="id_estado" class="form-label">Estado</label>
+                    {{ form.estado }}
+                </div>
+                <div class="mb-3">
+                    <label for="id_tipo_documento" class="form-label">Tipo de Documento</label>
+                    {{ form.tipo_documento }}
+                </div>
+                <div class="mb-3">
+                    <label for="id_numero_documento" class="form-label">Número do Documento</label>
+                    {{ form.numero_documento }}
+                </div>
+                <div class="row mb-3" id="upload-arquivo-documento" style="display: block;">
+                    <div class="col-md-6">
+                        <label id="label-arquivo-documento" for="id_frente_documento" class="form-label">Frente do Documento (PDF, JPG, PNG)</label>
+                        {{ form.frente_documento }}
+                        <small class="form-text text-muted">Tamanho máximo: 5MB</small>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="id_verso_documento" class="form-label">Verso do Documento (PDF, JPG, PNG)</label>
+                        {{ form.verso_documento }}
+                        <small class="form-text text-muted">Tamanho máximo: 5MB</small>
+                    </div>
+                </div>
                 <div class="form-group mb-3">
                     <label for="id_hectares_livres" class="form-label">Quantidade de Hectares Atendidos</label>
                     <div class="input-group">
                         {{ form.hectares_livres }}
                         <span class="input-group-text">ha</span>
                     </div>
-                    {% if form.hectares_livres.errors %}
-                        <div class="invalid-feedback d-block">
-                            {{ form.hectares_livres.errors }}
-                        </div>
-                    {% endif %}
                 </div>
-
                 <div class="mb-3">
                     <label for="id_culturas_atendidas" class="form-label">
                         <i class="fas fa-seedling me-2"></i>Culturas Atendidas
@@ -264,13 +133,7 @@
                         {% endfor %}
                     </div>
                     <div class="form-text">Selecione as culturas que você atende</div>
-                    {% if form.culturas_atendidas.errors %}
-                        <div class="invalid-feedback d-block">
-                            {{ form.culturas_atendidas.errors }}
-                        </div>
-                    {% endif %}
                 </div>
-
                 <div class="d-grid gap-2">
                     <button type="submit" class="btn btn-success">
                         <i class="fas fa-user-plus me-2"></i>Cadastrar
@@ -316,15 +179,17 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Máscara para CPF
     const cpfInput = document.getElementById('{{ form.cpf.id_for_label }}');
-    cpfInput.addEventListener('input', function(e) {
-        let value = e.target.value.replace(/\D/g, '');
-        if (value.length <= 11) {
-            value = value.replace(/(\d{3})(\d)/, '$1.$2');
-            value = value.replace(/(\d{3})(\d)/, '$1.$2');
-            value = value.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
-            e.target.value = value;
-        }
-    });
+    if (cpfInput) {
+        cpfInput.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length <= 11) {
+                value = value.replace(/(\d{3})(\d)/, '$1.$2');
+                value = value.replace(/(\d{3})(\d)/, '$1.$2');
+                value = value.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+                e.target.value = value;
+            }
+        });
+    }
 
     // Validação de CPF no frontend
     function validarCPF(cpf) {
@@ -349,14 +214,16 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     const form = document.getElementById('sellerRegistrationForm');
-    form.addEventListener('submit', function(e) {
-        const cpf = cpfInput.value.replace(/[^\d]/g, '');
-        if (!validarCPF(cpf)) {
-            e.preventDefault();
-            alert('CPF inválido. Por favor, digite um CPF válido.');
-            cpfInput.focus();
-        }
-    });
+    if (form && cpfInput) {
+        form.addEventListener('submit', function(e) {
+            const cpf = cpfInput.value.replace(/[^\d]/g, '');
+            if (!validarCPF(cpf)) {
+                e.preventDefault();
+                alert('CPF inválido. Por favor, digite um CPF válido.');
+                cpfInput.focus();
+            }
+        });
+    }
 
     // Busca de CEP
     const cepInput = document.getElementById('{{ form.cep.id_for_label }}');
@@ -364,78 +231,79 @@ document.addEventListener('DOMContentLoaded', function() {
     const cidadeInput = document.getElementById('{{ form.cidade.id_for_label }}');
     const estadoInput = document.getElementById('{{ form.estado.id_for_label }}');
     const bairroInput = document.getElementById('{{ form.bairro.id_for_label }}');
-    const buscarCepBtn = document.getElementById('buscarCep');
 
     function limparEndereco() {
-        enderecoInput.value = '';
-        cidadeInput.value = '';
-        estadoInput.value = '';
-        bairroInput.value = '';
+        if (enderecoInput) enderecoInput.value = '';
+        if (cidadeInput) cidadeInput.value = '';
+        if (estadoInput) estadoInput.value = '';
+        if (bairroInput) bairroInput.value = '';
     }
 
     function preencherEndereco(dados) {
-        enderecoInput.value = dados.logradouro || '';
-        cidadeInput.value = dados.localidade || '';
-        estadoInput.value = dados.uf || '';
-        bairroInput.value = dados.bairro || '';
+        if (enderecoInput) enderecoInput.value = dados.logradouro || '';
+        if (cidadeInput) cidadeInput.value = dados.localidade || '';
+        if (estadoInput) estadoInput.value = dados.uf || '';
+        if (bairroInput) bairroInput.value = dados.bairro || '';
     }
 
-    function buscarCep() {
-        const cep = cepInput.value.replace(/\D/g, '');
-        if (cep.length !== 8) {
-            alert('CEP inválido! Digite um CEP com 8 dígitos.');
-            return;
-        }
-        buscarCepBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Buscando...';
-        buscarCepBtn.disabled = true;
-        fetch(`https://viacep.com.br/ws/${cep}/json/`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.erro) {
-                    alert('CEP não encontrado!');
-                    limparEndereco();
-                } else {
+    if (cepInput) {
+        cepInput.addEventListener('input', function(e) {
+            const cep = e.target.value.replace(/\D/g, '');
+            if (cep.length === 8) {
+                buscarCep();
+            }
+        });
+
+        function buscarCep() {
+            const cep = cepInput.value.replace(/\D/g, '');
+            if (cep.length !== 8) {
+                alert('CEP inválido! Digite um CEP com 8 dígitos.');
+                return;
+            }
+
+            fetch(`https://viacep.com.br/ws/${cep}/json/`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.erro) {
+                        alert('CEP não encontrado!');
+                        limparEndereco();
+                        return;
+                    }
                     preencherEndereco(data);
-                }
-            })
-            .catch(error => {
-                console.error('Erro ao buscar CEP:', error);
-                alert('Erro ao buscar CEP. Tente novamente.');
-                limparEndereco();
-            })
-            .finally(() => {
-                buscarCepBtn.innerHTML = '<i class="fas fa-search"></i> Buscar';
-                buscarCepBtn.disabled = false;
-            });
-    }
-
-    buscarCepBtn.addEventListener('click', buscarCep);
-    cepInput.addEventListener('input', function(e) {
-        const cep = e.target.value.replace(/\D/g, '');
-        if (cep.length === 8) {
-            buscarCep();
+                })
+                .catch(error => {
+                    console.error('Erro ao buscar CEP:', error);
+                    alert('Erro ao buscar CEP. Tente novamente.');
+                    limparEndereco();
+                });
         }
-    });
+    }
 
     // Lógica para mostrar o campo correto de upload de documento
-    const tipoDocumentoSelect = document.getElementById('{{ form.tipo_documento.id_for_label }}');
+    const tipoDocumentoSelect = document.getElementById('id_tipo_documento');
     const uploadArquivo = document.getElementById('upload-arquivo-documento');
     const labelArquivo = document.getElementById('label-arquivo-documento');
 
     function atualizarCampoDocumento() {
-        if (tipoDocumentoSelect.value === 'RG') {
+        if (!tipoDocumentoSelect || !uploadArquivo || !labelArquivo) {
+            console.log('Elemento(s) de documento não encontrado(s).');
+            return;
+        }
+        const tipoDocumento = tipoDocumentoSelect.value;
+        if (tipoDocumento === 'RG') {
             uploadArquivo.style.display = 'block';
             labelArquivo.textContent = 'RG (PDF, JPG, PNG)';
-        } else if (tipoDocumentoSelect.value === 'CNH') {
+        } else if (tipoDocumento === 'CNH') {
             uploadArquivo.style.display = 'block';
             labelArquivo.textContent = 'CNH (PDF, JPG, PNG)';
         } else {
             uploadArquivo.style.display = 'none';
         }
     }
+
     if (tipoDocumentoSelect) {
         tipoDocumentoSelect.addEventListener('change', atualizarCampoDocumento);
-        atualizarCampoDocumento(); // Executa ao carregar a página
+        setTimeout(atualizarCampoDocumento, 500);
     }
 });
 </script>
