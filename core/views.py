@@ -47,7 +47,7 @@ from .models import MensagemSuporteThread
 from django.views.decorators.http import require_POST
 import random
 import string
-from .services import EmailService
+from .email_service import EmailService
 from django.contrib.auth.views import PasswordResetView
 from django.urls import reverse_lazy
 
