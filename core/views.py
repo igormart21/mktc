@@ -45,6 +45,9 @@ from reportlab.lib.enums import TA_CENTER # type: ignore
 from django.views.defaults import page_not_found, server_error, permission_denied, bad_request
 from .models import MensagemSuporteThread
 from django.views.decorators.http import require_POST
+import random
+import string
+from .services import EmailService
 
 logger = logging.getLogger(__name__)
 
@@ -163,6 +166,15 @@ def seller_registration(request):
                     if verso:
                         vendedor.cnh_verso = verso
                 vendedor.save()
+                
+                # Enviar e-mail de boas-vindas
+                from core.email_service import EmailService
+                try:
+                    EmailService.send_welcome_email(user)
+                except Exception as email_error:
+                    # Log do erro mas não falha o cadastro
+                    print(f"Erro ao enviar e-mail de boas-vindas: {email_error}")
+                
                 messages.success(request, 'Cadastro realizado com sucesso! Aguarde a aprovação do administrador.')
                 return redirect('core:login')
             except Exception as e:
@@ -1713,12 +1725,28 @@ def listar_vendedores(request):
 def aprovar_vendedor(request, vendedor_id):
     """Aprova um vendedor, inclusive se já foi recusado"""
     vendedor = get_object_or_404(Vendedor, id=vendedor_id)
+    
+    # Gera uma senha provisória aleatória
+    senha_provisoria = ''.join(random.choices(string.ascii_letters + string.digits, k=8))
+    
+    # Atualiza o status e a senha do vendedor
     vendedor.usuario.is_active = True
+    vendedor.usuario.set_password(senha_provisoria)
     vendedor.status_aprovacao = 'APROVADO'
+    vendedor.data_aprovacao = timezone.now()
     vendedor.justificativa_recusa = ''  # Limpa justificativa ao aprovar
+    
+    # Salva as alterações
     vendedor.usuario.save()
     vendedor.save()
-    messages.success(request, 'Vendedor aprovado com sucesso!')
+    
+    # Envia o email com a senha provisória
+    try:
+        EmailService.send_vendedor_aprovado(vendedor, senha_provisoria)
+        messages.success(request, 'Vendedor aprovado com sucesso! Um email foi enviado com a senha provisória.')
+    except Exception as e:
+        messages.warning(request, f'Vendedor aprovado, mas houve um erro ao enviar o email: {str(e)}')
+    
     return redirect('core:listar_vendedores')
 
 @login_required
