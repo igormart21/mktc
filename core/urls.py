@@ -1,6 +1,7 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views
 from . import views
+from core.views import CustomPasswordResetView
 
 app_name = 'core'
 
@@ -103,4 +104,8 @@ urlpatterns = [
     path('suporte/<int:suporte_id>/encerrar/', views.encerrar_caso_usuario, name='encerrar_caso_usuario'),
     path('superadmin/suporte/<int:suporte_id>/excluir/', views.excluir_caso_suporte, name='excluir_caso_suporte'),
     path('update-last-activity/', views.update_last_activity, name='update_last_activity'),
+    path('recuperar-senha/', CustomPasswordResetView.as_view(), name='password_reset'),
+    path('recuperar-senha/enviado/', auth_views.PasswordResetDoneView.as_view(template_name='registration/password_reset_done.html'), name='password_reset_done'),
+    path('recuperar-senha/confirmar/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(template_name='registration/password_reset_confirm.html'), name='password_reset_confirm'),
+    path('recuperar-senha/completo/', auth_views.PasswordResetCompleteView.as_view(template_name='registration/password_reset_complete.html'), name='password_reset_complete'),
 ] 

@@ -48,6 +48,8 @@ from django.views.decorators.http import require_POST
 import random
 import string
 from .services import EmailService
+from django.contrib.auth.views import PasswordResetView
+from django.urls import reverse_lazy
 
 logger = logging.getLogger(__name__)
 
@@ -2026,3 +2028,26 @@ def update_last_activity(request):
     """Atualiza o timestamp da última atividade do usuário"""
     request.session['last_activity'] = timezone.now().isoformat()
     return JsonResponse({'status': 'success'})
+
+class CustomPasswordResetView(PasswordResetView):
+    template_name = 'registration/password_reset_form.html'
+    email_template_name = None  # Não usar o template padrão
+    success_url = reverse_lazy('core:password_reset_done')
+
+    def form_valid(self, form):
+        email = form.cleaned_data["email"]
+        try:
+            usuario = Usuario.objects.get(email=email)
+            # Gera o token e o link de reset
+            from django.contrib.auth.tokens import default_token_generator
+            from django.utils.http import urlsafe_base64_encode
+            from django.utils.encoding import force_bytes
+            token = default_token_generator.make_token(usuario)
+            uid = urlsafe_base64_encode(force_bytes(usuario.pk))
+            reset_url = self.request.build_absolute_uri(
+                reverse_lazy('core:password_reset_confirm', kwargs={'uidb64': uid, 'token': token})
+            )
+            EmailService.send_password_reset(usuario, reset_url)
+        except Usuario.DoesNotExist:
+            pass  # Não revela se o e-mail existe ou não
+        return super().form_valid(form)
