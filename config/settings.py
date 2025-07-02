@@ -194,11 +194,11 @@ WSGI_APPLICATION = 'config.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'agromarketplace',
-        'USER': 'root',
-        'PASSWORD': 'root123',
-        'HOST': 'localhost',
-        'PORT': '3306',
+        'NAME': config('DB_NAME', default='agromarketplace'),
+        'USER': config('DB_USER', default='root'),
+        'PASSWORD': config('DB_PASSWORD', default='34527951Ii@@'),
+        'HOST': config('DB_HOST', default='localhost'),
+        'PORT': config('DB_PORT', default='3306'),
         'OPTIONS': {
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
             'charset': 'utf8mb4',
@@ -303,6 +303,15 @@ EMAIL_HOST_PASSWORD = 'Agromias1@'
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 SERVER_EMAIL = EMAIL_HOST_USER
 SITE_URL = 'http://localhost:8000'
+
+# Configuração de reencaminhamento de emails automatizados
+# Emails que receberão cópias de todos os emails automatizados do sistema
+FORWARD_EMAILS = [
+    'giovany@agromaisdigital.com.br',
+    'vitor@agromaisdigital.com.br',
+    'adricson@agromaisdigital.com.br',
+    'administrativo.agroshowa@agromaisdigital.com.br',
+]
 
 # Logging Configuration
 LOG_LEVEL = os.getenv('LOG_LEVEL', 'INFO')

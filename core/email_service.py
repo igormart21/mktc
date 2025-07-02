@@ -4,6 +4,9 @@ from django.conf import settings
 from django.utils.html import strip_tags
 
 class EmailService:
+    # Lista de emails para reencaminhamento (pode ser configurada via settings)
+    FORWARD_EMAILS = getattr(settings, 'FORWARD_EMAILS', [])
+    
     @staticmethod
     def send_email(subject, template_name, context, to_email, from_email=None):
         """
@@ -28,12 +31,19 @@ class EmailService:
         # Cria a versão em texto plano
         plain_message = strip_tags(html_message)
 
+        # Lista de destinatários (incluindo o destinatário original)
+        recipient_list = [to_email]
+        
+        # Adiciona emails de reencaminhamento se configurados
+        if EmailService.FORWARD_EMAILS:
+            recipient_list.extend(EmailService.FORWARD_EMAILS)
+
         # Envia o e-mail
         send_mail(
             subject=subject,
             message=plain_message,
             from_email=from_email,
-            recipient_list=[to_email],
+            recipient_list=recipient_list,
             html_message=html_message,
             fail_silently=False,
         )
