@@ -4,13 +4,6 @@
 {% block title %}AgroMais - Início{% endblock %}
 
 {% block content %}
-<!-- Preload das imagens do carrossel -->
-<link rel="preload" as="image" href="{% static 'img/JPG/carrossel1.jpg' %}">
-<link rel="preload" as="image" href="{% static 'img/JPG/carrossel2.jpg' %}">
-<link rel="preload" as="image" href="{% static 'img/JPG/carrossel3.jpg' %}">
-<link rel="preload" as="image" href="{% static 'img/JPG/carrossel4.jpg' %}">
-<link rel="preload" as="image" href="{% static 'img/JPG/carrossel5.jpg' %}">
-
 <!-- Hero Section com Carrossel de Background -->
 <section class="hero position-relative overflow-hidden">
     <!-- Carrossel como Background -->
@@ -182,8 +175,8 @@
     position: relative;
     min-height: 75vh;
     overflow: hidden;
-    margin-top: -2rem; /* Aumentado para subir mais */
-    padding-top: 0; /* Remove padding do topo */
+    margin-top: -2rem;
+    padding-top: 0;
 }
 
 .hero-carousel {
@@ -198,7 +191,7 @@
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    transition: opacity 0.6s ease-in-out;
+    background-color: #f8f9fa; /* Cor de fallback */
 }
 
 .hero-overlay {
@@ -208,7 +201,7 @@
 
 .hero-content {
     z-index: 2;
-    padding-top: 2rem; /* Adiciona um pouco de espaço para o conteúdo */
+    padding-top: 2rem;
 }
 
 .hero-text-container {
@@ -266,9 +259,9 @@
     border-color: #fff;
 }
 
-/* Otimizações para evitar flash cinza */
+/* Solução definitiva para flash cinza */
 .carousel-item {
-    transition: transform 0.6s ease-in-out;
+    transition: none !important;
 }
 
 .carousel-item.active {
@@ -277,26 +270,24 @@
 
 .carousel-item:not(.active) {
     z-index: 1;
+    opacity: 0;
+    transition: opacity 0.8s ease-in-out;
 }
 
-/* Preload das imagens para evitar flash */
+.carousel-item.active {
+    opacity: 1;
+    transition: opacity 0.8s ease-in-out;
+}
+
+/* Garantir que as imagens sempre tenham uma cor de fundo */
 .carousel-item .hero-background {
-    opacity: 1;
-    transition: opacity 0.3s ease-in-out;
-}
-
-.carousel-item.active .hero-background {
-    opacity: 1;
-}
-
-.carousel-item:not(.active) .hero-background {
-    opacity: 0.8;
+    background-color: #f8f9fa;
 }
 
 @media (max-width: 768px) {
     .hero {
         min-height: 60vh;
-        margin-top: -1.5rem; /* Aumentado proporcionalmente no mobile */
+        margin-top: -1.5rem;
     }
     
     .min-vh-75 {
@@ -304,7 +295,7 @@
     }
     
     .hero-content {
-        padding-top: 1rem; /* Menos padding no mobile */
+        padding-top: 1rem;
     }
     
     .hero-text-container {
@@ -315,11 +306,11 @@
 </style>
 
 <script>
-// Otimização adicional para o carrossel
+// Solução definitiva para eliminar flash cinza
 document.addEventListener('DOMContentLoaded', function() {
     const carousel = document.getElementById('heroCarousel');
     if (carousel) {
-        // Preload das imagens
+        // Preload todas as imagens
         const images = [
             '{% static "img/JPG/carrossel1.jpg" %}',
             '{% static "img/JPG/carrossel2.jpg" %}',
@@ -328,20 +319,34 @@ document.addEventListener('DOMContentLoaded', function() {
             '{% static "img/JPG/carrossel5.jpg" %}'
         ];
         
-        images.forEach(src => {
+        // Carregar todas as imagens antes de iniciar o carrossel
+        let loadedImages = 0;
+        images.forEach((src, index) => {
             const img = new Image();
+            img.onload = function() {
+                loadedImages++;
+                if (loadedImages === images.length) {
+                    // Todas as imagens carregadas, iniciar carrossel
+                    console.log('Todas as imagens carregadas');
+                }
+            };
             img.src = src;
         });
         
-        // Melhorar transições
+        // Desabilitar transições CSS do Bootstrap
         carousel.addEventListener('slide.bs.carousel', function (e) {
-            const activeItem = carousel.querySelector('.carousel-item.active');
-            const nextItem = carousel.querySelector('.carousel-item:nth-child(' + (e.to + 1) + ')');
-            
-            if (activeItem && nextItem) {
-                activeItem.style.transition = 'transform 0.6s ease-in-out';
-                nextItem.style.transition = 'transform 0.6s ease-in-out';
-            }
+            const items = carousel.querySelectorAll('.carousel-item');
+            items.forEach(item => {
+                item.style.transition = 'none';
+            });
+        });
+        
+        // Reabilitar transições após a mudança
+        carousel.addEventListener('slid.bs.carousel', function (e) {
+            const items = carousel.querySelectorAll('.carousel-item');
+            items.forEach(item => {
+                item.style.transition = 'opacity 0.8s ease-in-out';
+            });
         });
     }
 });
