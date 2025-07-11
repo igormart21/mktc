@@ -4,10 +4,17 @@
 {% block title %}AgroMais - Início{% endblock %}
 
 {% block content %}
+<!-- Preload das imagens do carrossel -->
+<link rel="preload" as="image" href="{% static 'img/JPG/carrossel1.jpg' %}">
+<link rel="preload" as="image" href="{% static 'img/JPG/carrossel2.jpg' %}">
+<link rel="preload" as="image" href="{% static 'img/JPG/carrossel3.jpg' %}">
+<link rel="preload" as="image" href="{% static 'img/JPG/carrossel4.jpg' %}">
+<link rel="preload" as="image" href="{% static 'img/JPG/carrossel5.jpg' %}">
+
 <!-- Hero Section com Carrossel de Background -->
 <section class="hero position-relative overflow-hidden">
     <!-- Carrossel como Background -->
-    <div id="heroCarousel" class="carousel slide position-absolute w-100 h-100 hero-carousel" data-bs-ride="carousel">
+    <div id="heroCarousel" class="carousel slide position-absolute w-100 h-100 hero-carousel" data-bs-ride="carousel" data-bs-interval="5000">
         <div class="carousel-inner h-100">
             <div class="carousel-item active h-100">
                 <div class="hero-background" style="background-image: url('{% static 'img/JPG/carrossel1.jpg' %}');"></div>
@@ -191,6 +198,7 @@
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
+    transition: opacity 0.6s ease-in-out;
 }
 
 .hero-overlay {
@@ -258,6 +266,33 @@
     border-color: #fff;
 }
 
+/* Otimizações para evitar flash cinza */
+.carousel-item {
+    transition: transform 0.6s ease-in-out;
+}
+
+.carousel-item.active {
+    z-index: 2;
+}
+
+.carousel-item:not(.active) {
+    z-index: 1;
+}
+
+/* Preload das imagens para evitar flash */
+.carousel-item .hero-background {
+    opacity: 1;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.carousel-item.active .hero-background {
+    opacity: 1;
+}
+
+.carousel-item:not(.active) .hero-background {
+    opacity: 0.8;
+}
+
 @media (max-width: 768px) {
     .hero {
         min-height: 60vh;
@@ -278,4 +313,37 @@
     }
 }
 </style>
+
+<script>
+// Otimização adicional para o carrossel
+document.addEventListener('DOMContentLoaded', function() {
+    const carousel = document.getElementById('heroCarousel');
+    if (carousel) {
+        // Preload das imagens
+        const images = [
+            '{% static "img/JPG/carrossel1.jpg" %}',
+            '{% static "img/JPG/carrossel2.jpg" %}',
+            '{% static "img/JPG/carrossel3.jpg" %}',
+            '{% static "img/JPG/carrossel4.jpg" %}',
+            '{% static "img/JPG/carrossel5.jpg" %}'
+        ];
+        
+        images.forEach(src => {
+            const img = new Image();
+            img.src = src;
+        });
+        
+        // Melhorar transições
+        carousel.addEventListener('slide.bs.carousel', function (e) {
+            const activeItem = carousel.querySelector('.carousel-item.active');
+            const nextItem = carousel.querySelector('.carousel-item:nth-child(' + (e.to + 1) + ')');
+            
+            if (activeItem && nextItem) {
+                activeItem.style.transition = 'transform 0.6s ease-in-out';
+                nextItem.style.transition = 'transform 0.6s ease-in-out';
+            }
+        });
+    }
+});
+</script>
 {% endblock %} 
