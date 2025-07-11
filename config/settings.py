@@ -75,6 +75,10 @@ CRISPY_TEMPLATE_PACK = "bootstrap5"
 # Adiciona o debug toolbar apenas em desenvolvimento
 if DEBUG:
     INSTALLED_APPS += ['debug_toolbar']
+else:
+    # Garantir que debug_toolbar não está em produção
+    if 'debug_toolbar' in INSTALLED_APPS:
+        INSTALLED_APPS.remove('debug_toolbar')
 
 # Configurações de Autenticação
 LOGIN_URL = 'core:login'
@@ -98,6 +102,10 @@ MIDDLEWARE = [
 # Adiciona o middleware do debug toolbar apenas em desenvolvimento
 if DEBUG:
     MIDDLEWARE += ['debug_toolbar.middleware.DebugToolbarMiddleware']
+else:
+    # Garantir que debug_toolbar middleware não está em produção
+    if 'debug_toolbar.middleware.DebugToolbarMiddleware' in MIDDLEWARE:
+        MIDDLEWARE.remove('debug_toolbar.middleware.DebugToolbarMiddleware')
 
 # Configurações de CSRF
 if DEBUG:
