@@ -64,6 +64,9 @@ if settings.DEBUG:
     # Serve arquivos de mídia apenas em desenvolvimento
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+else:
+    # Em produção, não adiciona debug_toolbar
+    pass
 
 """
 Configuração do NGINX para servir arquivos de mídia em produção:
