@@ -79,6 +79,9 @@ else:
     # Garantir que debug_toolbar não está em produção
     if 'debug_toolbar' in INSTALLED_APPS:
         INSTALLED_APPS.remove('debug_toolbar')
+    
+    # Forçar remoção de qualquer referência ao debug_toolbar
+    INSTALLED_APPS = [app for app in INSTALLED_APPS if app != 'debug_toolbar']
 
 # Configurações de Autenticação
 LOGIN_URL = 'core:login'
@@ -106,6 +109,9 @@ else:
     # Garantir que debug_toolbar middleware não está em produção
     if 'debug_toolbar.middleware.DebugToolbarMiddleware' in MIDDLEWARE:
         MIDDLEWARE.remove('debug_toolbar.middleware.DebugToolbarMiddleware')
+    
+    # Forçar remoção de qualquer referência ao debug_toolbar middleware
+    MIDDLEWARE = [mw for mw in MIDDLEWARE if 'debug_toolbar' not in mw]
 
 # Configurações de CSRF
 if DEBUG:
