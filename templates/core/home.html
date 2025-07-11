@@ -4,34 +4,77 @@
 {% block title %}AgroMais - Início{% endblock %}
 
 {% block content %}
-<!-- Hero Section -->
-<section class="hero position-relative overflow-hidden bg-gradient">
-    <div class="hero-shape position-absolute"></div>
-    <div class="container position-relative py-5">
-        <div class="row align-items-center">
+<!-- Hero Section com Carrossel de Background -->
+<section class="hero position-relative overflow-hidden">
+    <!-- Carrossel como Background -->
+    <div id="heroCarousel" class="carousel slide position-absolute w-100 h-100 hero-carousel" data-bs-ride="carousel">
+        <div class="carousel-inner h-100">
+            <div class="carousel-item active h-100">
+                <div class="hero-background" style="background-image: url('{% static 'img/JPG/carrossel1.jpg' %}');"></div>
+            </div>
+            <div class="carousel-item h-100">
+                <div class="hero-background" style="background-image: url('{% static 'img/JPG/carrossel2.jpg' %}');"></div>
+            </div>
+            <div class="carousel-item h-100">
+                <div class="hero-background" style="background-image: url('{% static 'img/JPG/carrossel3.jpg' %}');"></div>
+            </div>
+            <div class="carousel-item h-100">
+                <div class="hero-background" style="background-image: url('{% static 'img/JPG/carrossel4.jpg' %}');"></div>
+            </div>
+            <div class="carousel-item h-100">
+                <div class="hero-background" style="background-image: url('{% static 'img/JPG/carrossel5.jpg' %}');"></div>
+            </div>
+        </div>
+        <!-- Controles do Carrossel -->
+        <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Anterior</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Próximo</span>
+        </button>
+        <!-- Indicadores do Carrossel -->
+        <div class="carousel-indicators position-absolute bottom-0 mb-4">
+            <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+            <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="1" aria-label="Slide 2"></button>
+            <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="2" aria-label="Slide 3"></button>
+            <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="3" aria-label="Slide 4"></button>
+            <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="4" aria-label="Slide 5"></button>
+        </div>
+    </div>
+    
+    <!-- Overlay escuro para melhorar legibilidade do texto -->
+    <div class="hero-overlay position-absolute w-100 h-100"></div>
+    
+    <!-- Conteúdo do Hero -->
+    <div class="container position-relative py-5 hero-content">
+        <div class="row align-items-center min-vh-75">
             <div class="col-lg-6 mb-5 mb-lg-0">
-                <span class="highlight-badge">
-                    <i class="fas fa-seedling"></i>Plataforma Digital Agrícola
-                </span>
-                <h1 class="fw-bold display-4 mb-4" style="line-height: 1.2;">
-                    Conecte-se ao<br>
-                    <span class="text-gradient">Mercado Agrícola</span>
-                </h1>
-                <p class="lead opacity-75 mb-4">
-                    Na Agromais, conectamos o agronegócio com segurança e eficiência. Nossa plataforma inovadora impulsiona parcerias sólidas e resultados reais. Comece sua jornada conosco e colha grandes conquistas.
-                </p>
-                <div class="d-flex gap-3">
-                    <a href="{% url 'core:products' %}" class="btn btn-success btn-lg px-4 rounded-pill shadow-sm">
-                        <i class="fas fa-shopping-bag me-2"></i>Explorar Produtos
-                    </a>
-                    <a href="#stats" class="btn btn-light btn-lg px-4 rounded-pill">
-                        <i class="fas fa-arrow-down me-2"></i>Saiba mais
-                    </a>
+                <div class="hero-text-container">
+                    <span class="highlight-badge">
+                        <i class="fas fa-seedling"></i>Plataforma Digital Agrícola
+                    </span>
+                    <h1 class="fw-bold display-4 mb-4 text-dark" style="line-height: 1.2;">
+                        Conecte-se ao<br>
+                        <span class="text-gradient">Mercado Agrícola</span>
+                    </h1>
+                    <p class="lead text-dark opacity-75 mb-4">
+                        Na Agromais, conectamos o agronegócio com segurança e eficiência. Nossa plataforma inovadora impulsiona parcerias sólidas e resultados reais. Comece sua jornada conosco e colha grandes conquistas.
+                    </p>
+                    <div class="d-flex gap-3">
+                        <a href="{% url 'core:products' %}" class="btn btn-success btn-lg px-4 rounded-pill shadow-sm">
+                            <i class="fas fa-shopping-bag me-2"></i>Explorar Produtos
+                        </a>
+                        <a href="#stats" class="btn btn-outline-dark btn-lg px-4 rounded-pill">
+                            <i class="fas fa-arrow-down me-2"></i>Saiba mais
+                        </a>
+                    </div>
                 </div>
             </div>
             <div class="col-lg-6 d-none d-lg-block">
                 <div class="position-relative">
-                    <img src="{% static 'img/no-image.png' %}" alt="Agricultura" class="img-fluid rounded-4 shadow-lg">
+                    <!-- Removido a imagem estática, agora o background é o carrossel -->
                 </div>
             </div>
         </div>
@@ -128,36 +171,52 @@
 </section>
 
 <style>
-.bg-gradient {
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+.hero {
+    position: relative;
+    min-height: 75vh;
+    overflow: hidden;
+    margin-top: -2rem; /* Aumentado para subir mais */
+    padding-top: 0; /* Remove padding do topo */
+}
+
+.hero-carousel {
+    top: 0;
+    left: 0;
+    z-index: 0;
+}
+
+.hero-background {
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.hero-overlay {
+    background: rgba(0,0,0,0.4);
+    z-index: 1;
+}
+
+.hero-content {
+    z-index: 2;
+    padding-top: 2rem; /* Adiciona um pouco de espaço para o conteúdo */
+}
+
+.hero-text-container {
+    background: rgba(240, 240, 240, 0.9);
+    padding: 2rem;
+    border-radius: 1rem;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.5);
 }
 
 .text-gradient {
     background: linear-gradient(45deg, #198754, #20c997);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-}
-
-.hero-shape {
-    width: 800px;
-    height: 800px;
-    background: linear-gradient(45deg, rgba(25, 135, 84, 0.15), rgba(32, 201, 151, 0.15));
-    border-radius: 50%;
-    transform: translate(-50%, -50%);
-    top: 50%;
-    left: 50%;
-    filter: blur(100px);
-    z-index: 0;
-}
-
-.hero {
-    position: relative;
-    overflow: hidden;
-}
-
-.hero .container {
-    position: relative;
-    z-index: 1;
+    text-shadow: none;
 }
 
 .hover-card {
@@ -175,10 +234,47 @@
     font-variant-numeric: tabular-nums;
 }
 
+.min-vh-75 {
+    min-height: 75vh;
+}
+
+/* Melhorar contraste dos controles do carrossel */
+.carousel-control-prev,
+.carousel-control-next {
+    z-index: 3;
+}
+
+.carousel-indicators {
+    z-index: 3;
+}
+
+.carousel-indicators button {
+    background-color: rgba(255,255,255,0.8);
+    border: 2px solid rgba(255,255,255,0.8);
+}
+
+.carousel-indicators button.active {
+    background-color: #fff;
+    border-color: #fff;
+}
+
 @media (max-width: 768px) {
-    .hero-shape {
-        width: 400px;
-        height: 400px;
+    .hero {
+        min-height: 60vh;
+        margin-top: -1.5rem; /* Aumentado proporcionalmente no mobile */
+    }
+    
+    .min-vh-75 {
+        min-height: 60vh;
+    }
+    
+    .hero-content {
+        padding-top: 1rem; /* Menos padding no mobile */
+    }
+    
+    .hero-text-container {
+        padding: 1.5rem;
+        margin: 0 1rem;
     }
 }
 </style>
