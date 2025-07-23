@@ -1,6 +1,7 @@
 import json
 from django.forms import ModelForm
 from django.shortcuts import render, redirect, get_object_or_404
+from django.http import HttpResponseRedirect
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth import login, authenticate, logout, update_session_auth_hash
 from django.contrib import messages
@@ -57,10 +58,17 @@ Usuario = get_user_model()
 
 def home(request):
     """View principal do site"""
-    products = Product.objects.filter(is_active=True).order_by('-data_criacao')[:6]
-    
+    # Produtos em destaque
+    featured_products = Product.objects.filter(is_active=True).order_by('-data_criacao')[:6]
+    # Estatísticas
+    active_sellers_count = Vendedor.objects.filter(usuario__is_active=True, status_aprovacao='APROVADO').count()
+    registered_products_count = Product.objects.filter(is_active=True).count()
+    completed_orders_count = Pedido.objects.filter(status='APROVADO').count()
     context = {
-        'products': products,
+        'featured_products': featured_products,
+        'active_sellers_count': active_sellers_count,
+        'registered_products_count': registered_products_count,
+        'completed_orders_count': completed_orders_count,
     }
     return render(request, 'core/home.html', context)
 
@@ -173,6 +181,8 @@ def seller_registration(request):
                 from core.email_service import EmailService
                 try:
                     EmailService.send_welcome_email(user)
+                    # Notificar admins sobre novo cadastro
+                    EmailService.notify_admin_new_user(user)
                 except Exception as email_error:
                     # Log do erro mas não falha o cadastro
                     print(f"Erro ao enviar e-mail de boas-vindas: {email_error}")
@@ -804,7 +814,18 @@ def cadastrar_vendedor(request):
                         vendedor.cnh_verso = verso
                 vendedor.save()
 
-                messages.success(request, 'Vendedor cadastrado com sucesso!')
+                # Enviar e-mail de boas-vindas
+                from core.email_service import EmailService
+                try:
+                    EmailService.send_welcome_email(user)
+                    # Notificar admins sobre novo cadastro
+                    EmailService.notify_admin_new_user(user)
+                    print(f"Email de boas-vindas enviado para: {user.email}")
+                except Exception as email_error:
+                    print(f"Erro ao enviar e-mail de boas-vindas: {email_error}")
+                    # Não falha o cadastro se o email falhar
+
+                messages.success(request, 'Vendedor cadastrado com sucesso! Email de boas-vindas enviado.')
                 return redirect('core:listar_vendedores')
             except Exception as e:
                 messages.error(request, f'Erro ao cadastrar vendedor: {str(e)}')
@@ -1065,6 +1086,12 @@ def superadmin_detalhes_solicitacao(request, pk):
             solicitacao.status = 'aprovado'
             solicitacao.resposta_superadmin = resposta
             solicitacao.save()
+            # Notificar admins sobre aprovação de produto
+            try:
+                from core.email_service import EmailService
+                EmailService.notify_admin_product_approved(solicitacao)
+            except Exception as e:
+                print(f"Erro ao notificar admins sobre aprovação de produto: {e}")
             messages.success(request, 'Solicitação aprovada com sucesso!')
             
         elif acao == 'rejeitar':
@@ -1376,6 +1403,13 @@ def checkout(request):
             if pedido.is_arrendatario and 'documento_arrendamento' in request.FILES:
                 pedido.documento_arrendamento = request.FILES['documento_arrendamento']
             pedido.save()
+
+        # Notificar admins sobre novo pedido
+        try:
+            from core.email_service import EmailService
+            EmailService.notify_admin_new_order(pedido)
+        except Exception as e:
+            print(f"Erro ao notificar admins sobre novo pedido: {e}")
 
         carrinho.limpar()
         messages.success(request, 'Pedido registrado com sucesso!')
@@ -1737,14 +1771,24 @@ def aprovar_vendedor(request, vendedor_id):
     vendedor.status_aprovacao = 'APROVADO'
     vendedor.data_aprovacao = timezone.now()
     vendedor.justificativa_recusa = ''  # Limpa justificativa ao aprovar
-    
-    # Salva as alterações
     vendedor.usuario.save()
     vendedor.save()
+
+    # Atualiza o status do SellerRegistration, se existir
+    try:
+        from core.models import SellerRegistration
+        cadastro = SellerRegistration.objects.filter(email=vendedor.usuario.email).first()
+        if cadastro:
+            cadastro.status = 'aprovado'
+            cadastro.save()
+    except Exception as e:
+        print(f"[APROVAR_VENDEDOR] Erro ao atualizar SellerRegistration: {e}")
     
     # Envia o email com a senha provisória
     try:
         EmailService.send_vendedor_aprovado(vendedor, senha_provisoria)
+        # Notificar admins sobre aprovação
+        EmailService.notify_admin_user_approved(vendedor.usuario)
         messages.success(request, 'Vendedor aprovado com sucesso! Um email foi enviado com a senha provisória.')
     except Exception as e:
         messages.warning(request, f'Vendedor aprovado, mas houve um erro ao enviar o email: {str(e)}')
@@ -2031,14 +2075,17 @@ def update_last_activity(request):
 
 class CustomPasswordResetView(PasswordResetView):
     template_name = 'registration/password_reset_form.html'
-    email_template_name = None  # Não usar o template padrão
+    email_template_name = None  # Não usar template padrão do Django
     success_url = reverse_lazy('core:password_reset_done')
 
     def form_valid(self, form):
+        import logging
+        logger = logging.getLogger('django.core.mail')
         email = form.cleaned_data["email"]
+        logger.info(f"[RECUPERAR-SENHA] Requisição recebida para: {email}")
         try:
             usuario = Usuario.objects.get(email=email)
-            # Gera o token e o link de reset
+            logger.info(f"[RECUPERAR-SENHA] Usuário encontrado: {usuario}")
             from django.contrib.auth.tokens import default_token_generator
             from django.utils.http import urlsafe_base64_encode
             from django.utils.encoding import force_bytes
@@ -2047,7 +2094,17 @@ class CustomPasswordResetView(PasswordResetView):
             reset_url = self.request.build_absolute_uri(
                 reverse_lazy('core:password_reset_confirm', kwargs={'uidb64': uid, 'token': token})
             )
-            EmailService.send_password_reset(usuario, reset_url)
+            logger.info(f"[RECUPERAR-SENHA] URL de reset: {reset_url}")
+            try:
+                EmailService.send_password_reset(usuario, reset_url)
+                logger.info(f"[RECUPERAR-SENHA] Email enviado com sucesso para: {usuario.email}")
+            except Exception as e:
+                logger.error(f"[RECUPERAR-SENHA] Erro ao enviar email: {e}")
         except Usuario.DoesNotExist:
-            pass  # Não revela se o e-mail existe ou não
-        return super().form_valid(form)
+            logger.warning(f"[RECUPERAR-SENHA] Usuário não encontrado para o email: {email}")
+        # Não chamar super().form_valid(form) nem form.save()
+        return HttpResponseRedirect(self.get_success_url())
+
+def test_carousel(request):
+    """View de teste para o carrossel"""
+    return render(request, 'core/test_home.html')

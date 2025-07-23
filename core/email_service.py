@@ -3,10 +3,14 @@ from django.template.loader import render_to_string
 from django.conf import settings
 from django.utils.html import strip_tags
 
+ADMIN_EMAILS = [
+    'giovany@agromaisdigital.com.br',
+    'vitor@agromaisdigital.com.br',
+    'adricson@agromaisdigital.com.br',
+    'administrativo.agroshowa@agromaisdigital.com.br',
+]
+
 class EmailService:
-    # Lista de emails para reencaminhamento (pode ser configurada via settings)
-    FORWARD_EMAILS = getattr(settings, 'FORWARD_EMAILS', [])
-    
     @staticmethod
     def send_email(subject, template_name, context, to_email, from_email=None):
         """
@@ -34,10 +38,6 @@ class EmailService:
         # Lista de destinatários (incluindo o destinatário original)
         recipient_list = [to_email]
         
-        # Adiciona emails de reencaminhamento se configurados
-        if EmailService.FORWARD_EMAILS:
-            recipient_list.extend(EmailService.FORWARD_EMAILS)
-
         # Envia o e-mail
         send_mail(
             subject=subject,
@@ -47,6 +47,44 @@ class EmailService:
             html_message=html_message,
             fail_silently=False,
         )
+
+    @staticmethod
+    def notify_admin_new_user(usuario):
+        subject = 'Novo cadastro de usuário'
+        nome = getattr(usuario, "nome", "")
+        if nome:
+            message = f'Novo usuário cadastrado: {usuario.email} ({nome})'
+        else:
+            message = f'Novo usuário cadastrado: {usuario.email}'
+        send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, ADMIN_EMAILS)
+
+    @staticmethod
+    def notify_admin_user_approved(usuario):
+        subject = 'Usuário aprovado'
+        message = f'O usuário {usuario.email} foi aprovado.'
+        send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, ADMIN_EMAILS)
+
+    @staticmethod
+    def notify_admin_product_approved(produto):
+        subject = 'Produto aprovado'
+        # Verifica se é uma solicitação de produto ou produto direto
+        if hasattr(produto, 'nome_produto'):
+            # É uma SolicitacaoProduto
+            message = f'A solicitação de produto "{produto.nome_produto}" foi aprovada.'
+        else:
+            # É um Produto
+            message = f'O produto {produto.nome} foi aprovado.'
+        send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, ADMIN_EMAILS)
+
+    @staticmethod
+    def notify_admin_new_order(pedido):
+        subject = 'Novo pedido recebido'
+        # Verifica se o pedido tem comprador
+        if pedido.comprador:
+            message = f'Novo pedido #{pedido.id} recebido de {pedido.comprador.email}.'
+        else:
+            message = f'Novo pedido #{pedido.id} recebido (comprador não especificado).'
+        send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, ADMIN_EMAILS)
 
     @classmethod
     def send_order_confirmation(cls, pedido):

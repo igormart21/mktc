@@ -32,7 +32,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config('SECRET_KEY', default='django-insecure-2n-9e!u*l_q#6q$8t3)w+r@)u^z&)m#)w+r@)u^z&)m#')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 # Forçar exibição de erros detalhados
 ADMINS = [('Admin', 'admin@agromais.com')]
@@ -292,17 +292,16 @@ else:
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Configurações de E-mail
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.hostinger.com'
-EMAIL_PORT = 465
-EMAIL_USE_TLS = False
-EMAIL_USE_SSL = True
-EMAIL_HOST_USER = 'contato@agromaisdigital.com.br'
-EMAIL_HOST_PASSWORD = 'Agromias1@'
-DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
-SERVER_EMAIL = EMAIL_HOST_USER
-SITE_URL = 'http://localhost:8000'
+# === REMOVIDAS AS CONFIGURAÇÕES DE EMAIL PARA EVITAR CONFLITO ===
+# EMAIL_HOST = 'smtp.hostinger.com'
+# EMAIL_PORT = 465
+# EMAIL_USE_TLS = False
+# EMAIL_USE_SSL = True
+# EMAIL_HOST_USER = 'contato@agromaisdigital.com.br'
+# EMAIL_HOST_PASSWORD = 'Agromias1@'
+# DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+# SERVER_EMAIL = EMAIL_HOST_USER
+# SITE_URL = 'http://localhost:8000'
 
 # Logging Configuration
 LOG_LEVEL = os.getenv('LOG_LEVEL', 'INFO')

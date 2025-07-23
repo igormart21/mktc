@@ -38,6 +38,8 @@ class Produto(models.Model):
         ('INSETICIDA', 'Inseticida'),
         ('FUNGICIDA', 'Fungicida'),
         ('OLEO_MINERAL', 'Óleo Mineral'),
+        ('OLEO_VEGETAL', 'Óleo Vegetal'),
+        ('ADJUVANTE', 'Adjuvante'),
         ('SEMENTE', 'Semente'),
         ('NUTRICAO_VEGETAL', 'Nutrição Vegetal'),
         ('BIOLOGICO', 'Biológico'),

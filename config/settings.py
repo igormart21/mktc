@@ -18,6 +18,8 @@ from decouple import config, Csv
 import pymysql
 pymysql.install_as_MySQLdb()
 
+import logging
+
 # Carrega as variáveis de ambiente do arquivo .env
 load_dotenv()
 
@@ -209,8 +211,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'agromarketplace',
-        'USER': 'root',
-        'PASSWORD': 'root123',
+        'USER': 'mktc',
+        'PASSWORD': '34527951Ii@@',
         'HOST': '127.0.0.1',
         'PORT': '3306',
         'OPTIONS': {
@@ -312,11 +314,11 @@ EMAIL_HOST = 'smtp.hostinger.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False
-EMAIL_HOST_USER = 'contato@agromaisdigital.com.br'
-EMAIL_HOST_PASSWORD = 'Agromias1@'
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', 'contato@agromaisdigital.com.br')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', 'SENHA_PADRAO_AQUI')
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 SERVER_EMAIL = EMAIL_HOST_USER
-SITE_URL = 'http://localhost:8000'
+SITE_URL = 'https://agromaisdigital.com.br'
 
 # Configuração de reencaminhamento de emails automatizados
 # Emails que receberão cópias de todos os emails automatizados do sistema
@@ -338,16 +340,54 @@ if not os.path.exists(LOG_DIR):
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '[{asctime}] {levelname} {name} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',
+        },
+    },
     'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': '/tmp/django_email_debug.log',
+        },
         'console': {
+            'level': 'DEBUG',
             'class': 'logging.StreamHandler',
         },
     },
-    'root': {
-        'handlers': ['console'],
-        'level': 'INFO',
+    'loggers': {
+        'django': {
+            'handlers': ['file', 'console'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        'django.request': {
+            'handlers': ['file', 'console'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+        'django.security': {
+            'handlers': ['file', 'console'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+        'django.core.mail': {
+            'handlers': ['file', 'console'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
     },
 }
+
+# Garante que o diretório de logs existe
+if not os.path.exists(os.path.join(BASE_DIR, 'logs')):
+    os.makedirs(os.path.join(BASE_DIR, 'logs'))
 
 # Cache Configuration
 USE_REDIS = os.getenv('USE_REDIS', 'False') == 'True'
